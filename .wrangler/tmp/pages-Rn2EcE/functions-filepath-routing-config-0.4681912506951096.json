@@ -1,0 +1,197 @@
+{
+  "routes": [
+    {
+      "routePath": "/api/purchase/create-checkout-session",
+      "mountPath": "/api/purchase",
+      "method": "POST",
+      "module": [
+        "api/purchase/create-checkout-session.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/purchase/webhook",
+      "mountPath": "/api/purchase",
+      "method": "POST",
+      "module": [
+        "api/purchase/webhook.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/user/balance",
+      "mountPath": "/api/user",
+      "method": "GET",
+      "module": [
+        "api/user/balance.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/admin",
+      "mountPath": "/api",
+      "method": "GET",
+      "module": [
+        "api/admin.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/admin",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/admin.ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/admin",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/admin.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/health",
+      "mountPath": "/api",
+      "method": "GET",
+      "module": [
+        "api/health.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/health",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/health.ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/models",
+      "mountPath": "/api",
+      "method": "GET",
+      "module": [
+        "api/models.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/models",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/models.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/newsletter",
+      "mountPath": "/api",
+      "method": "GET",
+      "module": [
+        "api/newsletter.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/newsletter",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/newsletter.ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/newsletter",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/newsletter.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/stt",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/stt.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/tiers",
+      "mountPath": "/api",
+      "method": "GET",
+      "module": [
+        "api/tiers.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/tiers",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/tiers.ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/tiers",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/tiers.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/tts",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/tts.ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/tts",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/tts.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/wallet",
+      "mountPath": "/api",
+      "method": "GET",
+      "module": [
+        "api/wallet.ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/wallet",
+      "mountPath": "/api",
+      "method": "OPTIONS",
+      "module": [
+        "api/wallet.ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/wallet",
+      "mountPath": "/api",
+      "method": "POST",
+      "module": [
+        "api/wallet.ts:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/ai",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/ai.ts:onRequest"
+      ]
+    },
+    {
+      "routePath": "/",
+      "mountPath": "/",
+      "method": "",
+      "middleware": [
+        "_middleware.ts:onRequest"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}

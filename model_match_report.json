@@ -1,0 +1,195 @@
+[
+  {
+    "id": "llama-3.2-3b-free",
+    "currentOrId": "meta-llama/llama-3.2-3b-instruct:free",
+    "replacement": "meta-llama/llama-3.2-3b-instruct:free",
+    "changed": false,
+    "error": "All providers failed. API (OpenRouter) (meta-llama/llama-3.2-3b-instruct:free): HTTP 429: {\"error\":{"
+  },
+  {
+    "id": "gemini-flash-free",
+    "currentOrId": "google/gemini-flash-1.5-exp:free",
+    "replacement": "google/gemini-3.1-flash-lite-preview",
+    "changed": true,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "phi-3-mini-free",
+    "currentOrId": "microsoft/phi-3-mini-128k-instruct:free",
+    "replacement": null,
+    "changed": true,
+    "error": "All providers failed. API (OpenRouter) (microsoft/phi-3-mini-128k-instruct:free): HTTP 404: {\"error\""
+  },
+  {
+    "id": "gemma-3-12b-free",
+    "currentOrId": null,
+    "replacement": null,
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "openchat-3.5-free",
+    "currentOrId": null,
+    "replacement": null,
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "zephyr-7b-free",
+    "currentOrId": null,
+    "replacement": null,
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "dall-e-3",
+    "currentOrId": null,
+    "replacement": null,
+    "changed": false,
+    "error": "All providers failed. API (OpenRouter) (openai/dall-e-3): HTTP 400: {\"error\":{\"message\":\"openai/dall"
+  },
+  {
+    "id": "nous-hermes-2-mixtral",
+    "currentOrId": "nousresearch/hermes-4-70b",
+    "replacement": "nousresearch/hermes-4-70b",
+    "changed": false,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "openchat-3.5",
+    "currentOrId": "openchat/openchat-7b",
+    "changed": true,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "mistral-7b-instruct-v3",
+    "currentOrId": "mistralai/mistral-small-creative",
+    "replacement": "mistralai/mistral-small-creative",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "solar-10.7b",
+    "currentOrId": "upstage/solar-pro-3",
+    "replacement": "upstage/solar-pro-3",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "starling-lm-7b",
+    "currentOrId": "openrouter/free",
+    "replacement": "openrouter/free",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "metamath-cybertron-7b",
+    "currentOrId": "fblgit/metamath-cybertron-7b-v2",
+    "changed": true,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "grok-1",
+    "currentOrId": "x-ai/grok-1",
+    "replacement": "x-ai/grok-4.20-multi-agent-beta",
+    "changed": true,
+    "error": "All providers failed. API (OpenRouter) (x-ai/grok-1): HTTP 400: {\"error\":{\"message\":\"x-ai/grok-1 is "
+  },
+  {
+    "id": "dolphin-mixtral",
+    "currentOrId": "cognitivecomputations/dolphin-mixtral-8x7b",
+    "replacement": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "changed": true,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "dolphin-2.6-mixtral-8x7b",
+    "currentOrId": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "replacement": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "changed": false,
+    "error": "All providers failed. API (OpenRouter) (cognitivecomputations/dolphin-mixtral-8x7b): HTTP 404: {\"err"
+  },
+  {
+    "id": "gpt-4o-mini-free",
+    "currentOrId": "openai/gpt-4o-mini",
+    "replacement": "openai/gpt-4o-mini",
+    "changed": false,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "claude-3-haiku",
+    "currentOrId": "anthropic/claude-3-haiku",
+    "replacement": "anthropic/claude-3-haiku",
+    "changed": false,
+    "error": "All providers failed. API (OpenRouter) (anthropic/claude-3-haiku-20240307): HTTP 400: {\"error\":{\"mes"
+  },
+  {
+    "id": "qwen1.5-110b-chat",
+    "currentOrId": "qwen/qwen3.5-35b-a3b",
+    "replacement": "qwen/qwen3.5-35b-a3b",
+    "changed": false,
+    "error": "All providers failed. API (OpenRouter) (qwen/qwen-2.5-35b-instruct): HTTP 400: {\"error\":{\"message\":\""
+  },
+  {
+    "id": "deepseek-v2-chat",
+    "currentOrId": "deepseek/deepseek-v3.2-speciale",
+    "replacement": "deepseek/deepseek-v3.2-speciale",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "qwen2-72b-instruct",
+    "currentOrId": "qwen/qwen3.5-35b-a3b",
+    "replacement": "qwen/qwen3.5-35b-a3b",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "gemini-1.5-flash",
+    "currentOrId": "google/gemini-3.1-flash-lite-preview",
+    "replacement": "google/gemini-3.1-flash-lite-preview",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "claude-3-opus-adept",
+    "currentOrId": "anthropic/claude-sonnet-4.6",
+    "replacement": "anthropic/claude-sonnet-4.6",
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "gpt-4-0125-preview",
+    "currentOrId": "openai/gpt-4-turbo-preview",
+    "replacement": "openai/gpt-4-turbo-preview",
+    "changed": false,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "perplexity-sonar-huge",
+    "currentOrId": null,
+    "replacement": null,
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "llava-next-34b",
+    "currentOrId": "llava-hf/llava-next-34b",
+    "changed": true,
+    "error": "fetch failed"
+  },
+  {
+    "id": "llama-3-lumimaid-70b",
+    "currentOrId": "neversleep/llama-3.1-lumimaid-8b",
+    "replacement": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+    "changed": true,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  },
+  {
+    "id": "original-gemma-7b",
+    "currentOrId": null,
+    "replacement": null,
+    "changed": false,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  }
+]

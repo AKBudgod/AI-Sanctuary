@@ -1,0 +1,12 @@
+.next
+node_modules
+.git
+out
+*.zip
+*.log
+tmp_ai_models.txt
+or_ids.json
+or_ids_utf8.json
+failed_models.json
+model_matches.json
+model_matches_utf8.json

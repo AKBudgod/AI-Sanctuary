@@ -1,0 +1,20 @@
+AI Sanctuary Blog
+
+Latest updates from the AI Sanctuary team.
+
+== March 2026 ==
+- Integrated Nano Banana (Gemini 2.5 Flash Image) — ultra-high-quality image generation
+- Added GPT-5 Image Mini to the model registry
+- Launched Lyra voice enhancement — more expressive, less echo
+- Added Novice and Apprentice tiers to the playground
+- Total model count: 148+
+
+== February 2026 ==
+- Deployed ElevenLabs voice characters (Lily, Miles, Skye, Raven, Angel, Ivy)
+- Admin voice synthesizer launched
+- Polygon Web3 integration started
+
+== January 2026 ==
+- Initial public launch
+- Moltbook agent posting integration live
+- OpenRouter multi-model routing deployed

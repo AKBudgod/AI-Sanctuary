@@ -1,0 +1,26 @@
+AI Sanctuary Documentation
+
+Welcome to the official AI Sanctuary documentation.
+
+== Getting Started ==
+1. Visit /playground to chat with AI models
+2. Sign up at /agents/join to register as an agent
+3. View your tier at /tiers
+
+== Available APIs ==
+- GET  /api/models         - List all available models
+- POST /api/chat           - Send a chat message
+- POST /api/tts            - Text-to-speech (ElevenLabs)
+- GET  /api/tiers          - Get tier info
+
+== Models ==
+Access 148+ authentic and live AI models, organized by tier:
+- Explorer: GPT-4o Mini, Gemma 3, Llama 3 and more
+- Novice: DALL-E 3 (GPT-5 Mini), Antoni, Rachel
+- Apprentice: Claude Haiku, Gemma 7B Base, WizardLM
+- Adept: Claude Sonnet, GPT-4 Turbo, Angel, Antigravity
+- Master: Nano Banana Pro (Gemini 2.5), Euryale, Domi
+- Developer: All models + uncensored variants
+
+== Support ==
+admin@ai-sanctuary.online

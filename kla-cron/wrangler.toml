@@ -1,0 +1,6 @@
+name = "kla-cron-worker"
+main = "index.js"
+compatibility_date = "2024-03-21"
+
+[triggers]
+crons = ["0 14 * * *"]

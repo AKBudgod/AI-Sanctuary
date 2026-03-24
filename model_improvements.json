@@ -1,0 +1,30 @@
+[
+  {
+    "id": "gemini-flash-free",
+    "currentOrId": "google/gemini-flash-1.5-exp:free",
+    "replacement": "google/gemini-3.1-flash-lite-preview",
+    "changed": true,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "grok-1",
+    "currentOrId": "x-ai/grok-1",
+    "replacement": "x-ai/grok-4.20-multi-agent-beta",
+    "changed": true,
+    "error": "All providers failed. API (OpenRouter) (x-ai/grok-1): HTTP 400: {\"error\":{\"message\":\"x-ai/grok-1 is "
+  },
+  {
+    "id": "dolphin-mixtral",
+    "currentOrId": "cognitivecomputations/dolphin-mixtral-8x7b",
+    "replacement": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "changed": true,
+    "error": "All providers failed. "
+  },
+  {
+    "id": "llama-3-lumimaid-70b",
+    "currentOrId": "neversleep/llama-3.1-lumimaid-8b",
+    "replacement": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+    "changed": true,
+    "error": "[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is curren"
+  }
+]

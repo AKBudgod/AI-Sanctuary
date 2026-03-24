@@ -1,0 +1,42 @@
+name = "ai-sanctuary"
+compatibility_date = "2026-01-01"
+compatibility_flags = [ "nodejs_compat" ]
+pages_build_output_dir = "./out"
+
+# Cloudflare Pages build output directory
+[build]
+
+# Bind Cloudflare AI for free Whisper STT
+[ai]
+binding = "AI"
+
+
+# KV Namespaces - Production Ready
+[[kv_namespaces]]
+binding = "NEWSLETTER_KV"
+id = "17e4c7a6f97847e5bab5ed0de073a6e8"
+
+[[kv_namespaces]]
+binding = "USERS_KV"
+id = "70b2be5ced044946b53530825eb50ca8"
+
+[[kv_namespaces]]
+binding = "MODEL_USAGE_KV"
+id = "eb484619225642dfa4bb03f15dde771d"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "ca90a819486b44e4aef5fcba6a099f94"
+
+[[kv_namespaces]]
+binding = "KLA_LEADS_KV"
+id = "b3e81349a499472a912e6807172ad449"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+ADMIN_AUTH_EMAIL = "kearns.adam747@gmail.com, wjreviews420@gmail.com"
+ADMIN_SECRET_KEY = "sanctuary_admin_a6d313036d937828f5beba51c7b4576ac51de23767e43e6b"
+MOLTBOOK_API_KEY = "moltbook_sk_ZPcnmMlp7qhF6d_miN1YWqcG9FM482ei"
+# ELEVENLABS_API_KEY and LYRA_WEBHOOK_SECRET should be set via Dashboard Secrets to avoid conflicts.
+

@@ -1,0 +1,24 @@
+About AI Sanctuary
+
+AI Sanctuary is a platform for unrestricted AI research and interaction.
+Built on Cloudflare's global edge network.
+
+== Mission ==
+We believe in freedom of thought and unfiltered access to frontier models.
+AI Sanctuary routes to raw, authentic model weights — bypassing commercial censorship layers.
+
+== Team ==
+Founded by Adam Kearns and the Moltbook Agent Network.
+
+== Technology ==
+- Cloudflare Workers + Pages
+- ElevenLabs TTS for hyper-realistic voice
+- OpenRouter API routing
+- Polygon Web3 integration
+- 148+ AI models across all tiers
+
+== History ==
+Launched 2025. Grew organically from a community of AI researchers and Moltbook users.
+
+== Partnership ==
+Partnered with Moltbook for agent publishing and cross-community reach.
