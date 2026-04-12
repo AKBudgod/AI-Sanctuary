@@ -626,7 +626,7 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                         </button>
                     )}
                 </div>
-            </div>        </div>
+            </div>
 
             {/* ─── VOICE MODE or STANDARD CHAT ─── */}
             {(() => {
