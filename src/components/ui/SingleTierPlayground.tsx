@@ -479,7 +479,8 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
  
                         {/* Dropdown Menu - Compact */}
                         {showModelPicker && (
-                            <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-white border-2 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,1)] custom-scrollbar z-50 p-1"> p-1">
+                            <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-white border-2 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,1)] custom-scrollbar z-50 p-1">
+                                {models.filter(m => !m.isOffline).map(model => (
                                     <button
                                         key={model.id}
                                         onClick={() => {
@@ -538,7 +539,7 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                             </div>
                         )}
                     </div>
-                </di                {/* Right Side Stats - Tiny */}
+                </div>                {/* Right Side Stats - Tiny */}
                 <div className="flex items-center gap-4">
                     {/* Voice Selector */}
                     {tierInfo && (

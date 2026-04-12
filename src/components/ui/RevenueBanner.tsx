@@ -68,5 +68,4 @@ export default function RevenueBanner() {
             </div>
         </div>
     );
-    );
 }
