@@ -76,10 +76,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             headers: { 'Content-Type': 'application/json' }
         });
 
-    } catch (error) {
+    } catch (error: any) {
+        console.error("[STT_TRAP] Speech synthesis turbulence:", error);
         return new Response(
-            JSON.stringify({ error: String(error) }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({ 
+                error: String(error),
+                text: "The neural link encountered voice turbulence. Please try again or type your message.",
+                isError: true 
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
     }
 };

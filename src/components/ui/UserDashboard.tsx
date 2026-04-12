@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Award, TrendingUp, Zap, User, RefreshCw, Globe } from './Icons';
+import { Award, TrendingUp, Zap, User, RefreshCw, Globe, CreditCard } from './Icons';
+import PayPalHostedButton from './PayPalHostedButton';
 import PayPalCheckout from './PayPalCheckout';
 
 interface UserDashboardProps {
@@ -76,18 +77,22 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ initialEmail = '' }) => {
         setLoading(true);
         setError('');
         try {
-            // First, login/verify password
-            const loginRes = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, password }),
-            });
-            const loginData = await loginRes.json();
-            if (!loginRes.ok) {
-                setError(loginData.error || 'Identity verification failed');
-                setLoading(false);
-                return;
+            // Only attempt login if password is provided
+            if (password) {
+                const loginRes = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail, password }),
+                });
+                const loginData = await loginRes.json();
+                if (!loginRes.ok) {
+                    setError(loginData.error || 'Identity verification failed');
+                    setLoading(false);
+                    return;
+                }
             }
+
+            // Fetch balance (Backend needs to handle email-only or session-based)
 
             // Fetch balance
             const balanceRes = await fetch(`/api/user/balance?email=${encodeURIComponent(userEmail)}`);
@@ -180,7 +185,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ initialEmail = '' }) => {
                     <div className="text-right">
                         <div className="text-[10px] text-fuchsia-400 uppercase tracking-[0.3em] font-bold mb-1 font-mono">CREDITS</div>
                         <div className="text-3xl font-black text-white font-mono drop-shadow-[0_0_8px_#ff00ea]">
-                            {balance !== null ? balance.toLocaleString() : '---'} <span className="text-xs font-mono text-fuchsia-400 ml-1">SANC</span>
+                            {balance !== null ? balance.toLocaleString() : '---'} <span className="text-xs font-mono text-fuchsia-400 ml-1">CREDITS</span>
                         </div>
                     </div>
                     <div className="w-px h-10 bg-cyan-500/30 mx-1"></div>
@@ -270,22 +275,43 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ initialEmail = '' }) => {
                         <h4 className="text-lg font-black text-white uppercase tracking-widest font-mono z-10">Upgrade Link</h4>
                         <span className="text-xs font-bold text-cyan-400 mt-2 block tracking-widest uppercase font-mono z-10">Purchase Tokens &rarr;</span>
                     </Link>
-
-                    {/* Action Card: Web3 (Integrated) */}
-                    <Link href="/playground" className="bg-fuchsia-950/20 p-6 border border-fuchsia-500/30 hover-lift flex flex-col justify-center items-center text-center group relative overflow-hidden clip-angled-sm hover:bg-fuchsia-900/30 transition-colors">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-fuchsia-500/5 rounded-full blur-[40px] pointer-events-none" />
-                        <div className="flex items-center justify-center p-3 bg-black border border-fuchsia-400/50 mb-4 group-hover:scale-110 group-hover:shadow-[0_0_15px_#ff00ea_inset] transition-all duration-300 clip-angled-sm z-10">
-                            <Globe className="w-6 h-6 text-fuchsia-400" />
-                        </div>
-                        <h4 className="text-lg font-black text-white uppercase tracking-widest font-mono z-10">Web3 Terminal</h4>
-                        <span className="text-xs font-bold text-fuchsia-400 mt-2 block tracking-widest uppercase font-mono z-10">Staking & Rewards &rarr;</span>
-                    </Link>
                 </div>
 
-                {/* PayPal Developer Mode Upgrade Section */}
-                {tier !== 'developer' && (
+                {/* PayPal Upgrade/Recharge Section */}
+                <div className="mt-12 bg-gray-950 p-8 border border-fuchsia-500/30 clip-angled-sm relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                        <div className="flex-1 space-y-4">
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 text-[10px] font-mono font-bold uppercase tracking-widest w-fit">
+                                <CreditCard className="w-3 h-3" />
+                                Instant Credit Injection
+                            </div>
+                            <h4 className="text-2xl font-black text-white italic uppercase font-mono tracking-tighter">
+                                Nebula <span className="text-fuchsia-500">Recharge</span>
+                            </h4>
+                            <p className="text-gray-400 text-sm leading-relaxed font-mono">
+                                Use the secure PayPal portal below for instant credit synthesis. Tokens are bound to your neural identifier automatically.
+                            </p>
+                        </div>
+                        <div className="w-full md:w-[350px] bg-black/50 p-6 rounded-2xl border border-white/5">
+                            <PayPalHostedButton 
+                                buttonId="QDGMJKWQXFY8C" 
+                                clientId="BAA00t_vYRf8Bwm9ScbFILaSUO2AkCOz9tNaejLAtJ7mfUQ25oWhDW3R031gJCxHF006NKzy6JqD_Q1eRI"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Legacy PayPal Developer Mode Upgrade Section - fallback if still needed */}
+                {tier !== 'developer' && false && (
                     <div className="mt-12 max-w-2xl mx-auto">
-                        <PayPalCheckout />
+                        <PayPalCheckout 
+                            amount={50}
+                            description="Developer Mode Upgrade (Lifetime)"
+                            tier="developer"
+                            email={email || 'anonymous'}
+                            interval="lifetime"
+                        />
                     </div>
                 )}
             </div>

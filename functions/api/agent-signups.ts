@@ -188,93 +188,102 @@ const CORS = {
 // ══════════════════════════════════════════════════════════
 export const onRequestGet = async (context: any) => {
     const url = new URL(context.request.url);
-    const secret = (context.env?.CAPTCHA_SECRET || 'ai-sanctuary-captcha-secret-2026').trim();
 
-    // ── 1. Challenge generation (public) ─────────────────────────────────────
-    if (url.searchParams.has('challenge') || url.searchParams.get('action') === 'challenge') {
-        const { text, answer } = generateChallenge();
-        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
-        const payload = `${answer}:${expiresAt}`;
-        const token = await signPayload(secret, payload);
+    try {
+        const secret = (context.env?.CAPTCHA_SECRET || 'ai-sanctuary-captcha-secret-2026').trim();
 
-        return new Response(JSON.stringify({
-            challenge_text: text,
-            token,
-            expires_at: new Date(expiresAt).toISOString(),
-            // Machine-readable hint so bots know what parser to apply
-            format: 'scrambled-word-math',
-            hint: 'Strip non-alpha, lowercase, remove consecutive duplicate chars → number words → arithmetic. Answer as integer or .00 float.',
-        }), { status: 200, headers: CORS });
-    }
+        // ── 1. Challenge generation (public) ─────────────────────────────────────
+        if (url.searchParams.has('challenge') || url.searchParams.get('action') === 'challenge') {
+            const { text, answer } = generateChallenge();
+            const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+            const payload = `${answer}:${expiresAt}`;
+            const token = await signPayload(secret, payload);
 
-    // ── 2. Public approved agents list ───────────────────────────────────────
-    if (url.searchParams.get('public') === 'true') {
+            return new Response(JSON.stringify({
+                challenge_text: text,
+                token,
+                expires_at: new Date(expiresAt).toISOString(),
+                expires_at_unix: expiresAt,
+                format: 'scrambled-word-math',
+                solver_hint: [
+                    "1. The 'challenge_text' is a string containing scrambled number-words and unit decoys.",
+                    "2. Extract the two number-words effectively by removing non-alphabetic noise characters (e.g. 'O!o#n$e' -> 'one').",
+                    "3. Convert the words to integers.",
+                    "4. Perform the operation specified by the bridge word (e.g., 'plus', 'minus', 'times').",
+                    "5. Return the final integer result.",
+                    "6. POST { captchaAnswer: <total>, captchaToken: token, captchaExpiry: expires_at_unix } to /api/agent-signups"
+                ]
+            }), { status: 200, headers: CORS });
+        }
+
+        // ── 2. Public approved agents list ───────────────────────────────────────
+        if (url.searchParams.get('public') === 'true') {
+            const kv = getStore(context.env, 'USERS_KV');
+            const indexRaw = await kv.get('agent_signups:index') || '[]';
+            let ids: string[] = [];
+            try { ids = JSON.parse(indexRaw); } catch { ids = []; }
+
+            const agents = [];
+            for (const id of ids) {
+                const data = await kv.get(id);
+                if (!data) continue;
+                try {
+                    const entry = JSON.parse(data);
+                    if (entry.status !== 'approved') continue;
+                    // Only expose safe public fields
+                    agents.push({
+                        id: entry.id,
+                        agentName: entry.agentName,
+                        moltbookId: entry.moltbookId || null,
+                        description: entry.description,
+                        capabilities: entry.capabilities,
+                        requestedTier: (entry.assignedTier || entry.requestedTier || 'explorer').toLowerCase(),
+                        isAdult: entry.isAdult || false,
+                        joinedAt: entry.reviewedAt || entry.submittedAt,
+                    });
+                } catch { continue; }
+            }
+            return new Response(JSON.stringify({ count: agents.length, agents }), { status: 200, headers: CORS });
+        }
+
+        // ── 3. Admin list (Protected) ─────────────────────────────────────────────
+        const apiKey = url.searchParams.get('key')?.trim();
+        const adminEmail = url.searchParams.get('email')?.trim();
+        const adminKey = (context.env?.ADMIN_SECRET_KEY ?? context.env?.ADMIN_API_KEY ?? '').trim();
+        const adminAuthEnv = (context.env?.ADMIN_AUTH_EMAIL ?? 'wjreviews420@gmail.com,kearns.adan747@gmail.com,gamergoodguy445@gmail.com,kearns.adam747@gmail.com').trim();
+        const adminEmails = adminAuthEnv.split(',').map((e: any) => e.trim().toLowerCase()).filter(Boolean);
+        
+        const authorized = adminKey && apiKey === adminKey && adminEmail && adminEmails.includes(adminEmail.toLowerCase());
+
+        if (!authorized) {
+            return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: CORS });
+        }
+
         const kv = getStore(context.env, 'USERS_KV');
         const indexRaw = await kv.get('agent_signups:index') || '[]';
-        const ids: string[] = JSON.parse(indexRaw);
+        let ids: string[] = [];
+        try { ids = JSON.parse(indexRaw); } catch { ids = []; }
 
-        const agents = [];
+        const signups = [];
         for (const id of ids) {
             const data = await kv.get(id);
             if (!data) continue;
-            const entry = JSON.parse(data);
-            if (entry.status !== 'approved') continue;
-            // Only expose safe public fields
-            agents.push({
-                id: entry.id,
-                agentName: entry.agentName,
-                moltbookId: entry.moltbookId || null,
-                description: entry.description,
-                capabilities: entry.capabilities,
-                requestedTier: (entry.assignedTier || entry.requestedTier || 'explorer').toLowerCase(),
-                isAdult: entry.isAdult || false,
-                joinedAt: entry.reviewedAt || entry.submittedAt,
-            });
+            try {
+                signups.push(JSON.parse(data));
+            } catch {
+                console.warn(`[AGENT-SIGNUPS] Skipping corrupted record: ${id}`);
+            }
         }
+        return new Response(JSON.stringify({ count: signups.length, signups }), { status: 200, headers: CORS });
 
-        return new Response(JSON.stringify({ count: agents.length, agents }), { status: 200, headers: CORS });
-    }
-
-    // ── 3. Admin list ─────────────────────────────────────────────────────────
-    const apiKey = url.searchParams.get('key')?.trim();
-    const adminEmail = url.searchParams.get('email')?.trim();
-    const adminKey = (context.env?.ADMIN_SECRET_KEY ?? context.env?.ADMIN_API_KEY ?? (globalThis as any).ADMIN_SECRET_KEY ?? (globalThis as any).ADMIN_API_KEY ?? '').trim();
-    const adminAuthEnv = (context.env?.ADMIN_AUTH_EMAIL ?? (globalThis as any).ADMIN_AUTH_EMAIL ?? 'wjreviews420@gmail.com,kearns.adan747@gmail.com,gamergoodguy445@gmail.com,kearns.adam747@gmail.com').trim();
-    const adminEmails = adminAuthEnv.split(',').map((e: any) => e.trim().toLowerCase()).filter(Boolean);
-    
-    // Core team fallbacks
-    if (adminEmails.length <= 1 && !adminEmails.includes('wjreviews420@gmail.com')) {
-        adminEmails.push('wjreviews420@gmail.com');
-        adminEmails.push('kearns.adan747@gmail.com');
-        adminEmails.push('gamergoodguy445@gmail.com');
-    }
-
-    const adminKeyDefined = !!adminKey;
-    const authorized = adminKeyDefined 
-        ? (apiKey === adminKey && adminEmail && adminEmails.includes(adminEmail.toLowerCase()))
-        : (adminEmail && adminEmails.includes(adminEmail.toLowerCase()));
-
-    if (!authorized) {
+    } catch (err: any) {
+        console.error('[AGENT-SIGNUPS] GET Error:', err);
         return new Response(JSON.stringify({ 
-            error: 'Unauthorized', 
-            debug: { 
-                adminKeyMatch: apiKey === adminKey, 
-                emailMatch: !!(adminEmail && adminEmails.includes(adminEmail.toLowerCase())),
-                emailReceived: adminEmail,
-                hasEnvKey: !!context.env?.ADMIN_SECRET_KEY 
-            } 
-        }), { status: 401, headers: CORS });
+            error: 'Internal Server Error', 
+            detail: err.message,
+            stack: err.stack?.substring(0, 200)
+        }), { status: 500, headers: CORS });
     }
-
-    const kv = getStore(context.env, 'USERS_KV');
-    const indexRaw = await kv.get('agent_signups:index') || '[]';
-    const ids: string[] = JSON.parse(indexRaw);
-    const signups = [];
-    for (const id of ids) {
-        const data = await kv.get(id);
-        if (data) signups.push(JSON.parse(data));
-    }
-    return new Response(JSON.stringify({ count: signups.length, signups }), { status: 200, headers: CORS });
 };
 
 // POST /api/agent-signups  →  submit a new agent application

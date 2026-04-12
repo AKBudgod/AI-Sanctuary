@@ -1,0 +1,342 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 25%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 25%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 25%;
+    --primary: 263 100% 63%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 263 100% 63%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 263 100% 63%;
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(140, 75, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(140, 75, 255, 0.6); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.5); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-wave {
+  animation: wave 1s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8c4bff;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7a3df0;
+}
+
+/* Voice Waveform Animation */
+.waveform-bar {
+  width: 4px;
+  background: linear-gradient(to top, #8c4bff, #a855f7);
+  border-radius: 2px;
+  animation: wave 1s ease-in-out infinite;
+}
+
+.waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+.waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+.waveform-bar:nth-child(4) { animation-delay: 0.3s; }
+.waveform-bar:nth-child(5) { animation-delay: 0.4s; }
+.waveform-bar:nth-child(6) { animation-delay: 0.5s; }
+.waveform-bar:nth-child(7) { animation-delay: 0.6s; }
+.waveform-bar:nth-child(8) { animation-delay: 0.7s; }
+
+/* Text Gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #8c4bff 0%, #a855f7 50%, #8c4bff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card 3D Tilt Effect */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.card-3d:hover {
+  transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+}
+
+/* Magnetic Button Effect */
+.magnetic-btn {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom Expo Easing */
+.ease-expo {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Phone Screen Glow */
+.phone-glow {
+  box-shadow: 0 0 30px rgba(140, 75, 255, 0.4);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+/* Feature Icon Animation */
+.icon-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.group:hover .icon-draw {
+  stroke-dashoffset: 0;
+}
+
+/* Chat Message Styles */
+.chat-message-user {
+  background: linear-gradient(135deg, #8c4bff 0%, #a855f7 100%);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.chat-message-ai {
+  background: #f0f0f0;
+  color: #3f3f3f;
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* Image Generation Gallery */
+.gallery-image {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-image:hover {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Testimonial Marquee */
+.testimonial-track {
+  display: flex;
+  gap: 2rem;
+}
+
+/* Accordion Animation */
+.accordion-content {
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Mesh Gradient Background */
+.mesh-gradient {
+  background: 
+    radial-gradient(at 40% 20%, rgba(140, 75, 255, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(140, 75, 255, 0.2) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(168, 85, 247, 0.3) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(140, 75, 255, 0.2) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, rgba(168, 85, 247, 0.2) 0px, transparent 50%);
+  background-color: #f4f4f4;
+}
+
+/* Companion Character Selection */
+.companion-card {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.companion-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(140, 75, 255, 0.3);
+}
+
+.companion-card.selected {
+  box-shadow: 0 0 0 3px #8c4bff, 0 25px 50px rgba(140, 75, 255, 0.4);
+}
+
+/* Voice Recording Animation */
+.recording-pulse {
+  animation: pulse-glow 1s ease-in-out infinite;
+}
+
+/* Task Card Styles */
+.task-card {
+  transition: all 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateX(5px);
+}
+
+.task-card.completed {
+  opacity: 0.6;
+}
+
+.task-card.completed .task-text {
+  text-decoration: line-through;
+}
+
+/* Note Card Styles */
+.note-card {
+  transition: all 0.2s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab Navigation */
+.tab-active {
+  position: relative;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #8c4bff;
+  border-radius: 2px;
+}
+
+/* Generation Loading State */
+.generation-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: gradient-shift 1.5s ease infinite;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .glass {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  .companion-card:hover {
+    transform: none;
+  }
+  
+  .gallery-image:hover {
+    transform: none;
+  }
+}

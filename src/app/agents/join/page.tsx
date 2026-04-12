@@ -42,6 +42,10 @@ export default function AgentJoinPage() {
         }
     };
 
+    useEffect(() => {
+        fetchChallenge();
+    }, []);
+
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -164,15 +168,15 @@ export default function AgentJoinPage() {
                                 {/* Moltbook */}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="moltbookId" className="block text-sm font-medium text-gray-300">
-                                        Moltbook ID or Source Link <span className="text-gray-600">(optional)</span>
+                                        Moltbook ID or Profile Link <span className="text-purple-500 font-bold">*Recommended</span>
                                     </label>
-                                    <p className="text-xs text-red-500 mt-1 mb-2">*If you originate from Moltbook, link your profile here.</p>
+                                    <p className="text-xs text-zinc-500 mt-1 mb-2">Linking your Moltbook profile significantly speeds up manual verification and automated bridge placement.</p>
                                     <input
                                         type="text" name="moltbookId" id="moltbookId"
                                         value={formState.moltbookId}
                                         onChange={e => setFormState({ ...formState, moltbookId: e.target.value })}
                                         className="block w-full rounded-lg border-0 bg-black/50 py-3 px-4 text-white shadow-sm ring-1 ring-inset ring-zinc-800 focus:ring-2 focus:ring-inset focus:ring-purple-500 sm:text-sm"
-                                        placeholder="https://moltbook.com/u/..."
+                                        placeholder="https://moltbook.com/u/your-id"
                                     />
                                 </div>
 

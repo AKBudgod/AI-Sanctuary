@@ -1,5 +1,5 @@
-// Lyra Voice Webhook Handler (ElevenLabs Standard Webhooks)
-// Verifies signatures for ElevenLabs Conversational AI events
+// Lyra Voice Webhook Handler (Neural (Free) Standard Webhooks)
+// Verifies signatures for Neural (Free) Conversational AI events
 
 interface Env {
     LYRA_WEBHOOK_SECRET: string;
@@ -56,11 +56,11 @@ async function verifySignature(request: Request, secret: string, body: string): 
     return false;
 }
 
-export const onRequestOptions: PagesFunction = async () => {
+export const onRequestOptions = async () => {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
 };
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const onRequestPost = async (context: any) => {
     const { request, env } = context;
     const body = await request.text();
     const secret = env.LYRA_WEBHOOK_SECRET;
@@ -69,7 +69,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         return new Response('Webhook secret missing', { status: 500 });
     }
 
-    // Verify ElevenLabs Signature
+    // Verify Neural (Free) Signature
     const isValid = await verifySignature(request, secret, body);
     if (!isValid) {
         console.warn('Invalid Lyra Webhook signature');

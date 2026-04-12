@@ -71,7 +71,12 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
     // Voice / Audio
     const [isSpeaking, setIsSpeaking] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [selectedVoice, setSelectedVoice] = useState<string>('');
+    const [selectedVoice, setSelectedVoice] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('sanctuary_preferred_voice') || '';
+        }
+        return '';
+    });
     const [tierInfo, setTierInfo] = useState<any>(null);
 
     // Auth — email stored in localStorage so API headers carry user identity
@@ -80,6 +85,14 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
     const [passwordInput, setPasswordInput] = useState<string>('');
     const [showEmailInput, setShowEmailInput] = useState(false);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [mirroredVoices, setMirroredVoices] = useState<string[]>([]);
+
+    // Persistence: Save voice choice
+    useEffect(() => {
+        if (selectedVoice) {
+            localStorage.setItem('sanctuary_preferred_voice', selectedVoice);
+        }
+    }, [selectedVoice]);
 
     // Initial Data Fetch
     useEffect(() => {
@@ -88,7 +101,20 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
         if (saved) setUserEmail(saved);
         fetchUserData();
         checkOllama();
+        fetchMirroredVoices();
     }, []);
+
+    const fetchMirroredVoices = async () => {
+        try {
+            const res = await fetch('/api/voice/mirrored');
+            if (res.ok) {
+                const data = await res.json();
+                setMirroredVoices(data.mirrored || []);
+            }
+        } catch (e) {
+            console.warn('Failed to fetch mirrored voices', e);
+        }
+    };
 
     // Update voice options when tier changes
     useEffect(() => {
@@ -96,9 +122,33 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
             const info = TIERS[userTier] as any;
             setTierInfo(info);
             const voices = info.allowedVoices || ['voice-lyra'];
-            setSelectedVoice(voices[0]);
+            
+            // Only set default if no persistent voice or if chosen voice isn't in this tier
+            const savedVoice = localStorage.getItem('sanctuary_preferred_voice');
+            if (!selectedVoice || (savedVoice && !voices.includes(savedVoice))) {
+                setSelectedVoice(voices[0]);
+            }
         }
     }, [userTier]);
+
+    // Auto-Link Voice to Character Model
+    useEffect(() => {
+        if (!selectedModel || !tierInfo) return;
+        
+        const availableVoices = tierInfo.allowedVoices || [];
+        const modelName = selectedModel.name.toLowerCase();
+        
+        // Find best match (e.g., model "Maya" matches "voice-maya")
+        const bestMatch = availableVoices.find(v => {
+            const slug = v.replace('voice-', '').toLowerCase();
+            return modelName.includes(slug) || selectedModel.id.includes(slug);
+        });
+
+        if (bestMatch && bestMatch !== selectedVoice) {
+            console.log(`[Sanctuary] Auto-linking voice "${bestMatch}" to model "${selectedModel.name}"`);
+            setSelectedVoice(bestMatch);
+        }
+    }, [selectedModel, tierInfo]);
 
     const handleSignIn = async () => {
         const trimmedEmail = emailInput.trim().toLowerCase();
@@ -310,7 +360,7 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
 
         if (!activeVoice) return;
 
-        // OpenAI / ElevenLabs TTS via backend
+        // OpenAI / Neural (Free) TTS via backend
         setIsSpeaking(true);
         try {
             const userEmail = localStorage.getItem('user_email');
@@ -324,19 +374,22 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
             });
 
             if (!res.ok) {
-                // Check if it's a JSON error (e.g., 403 tier restriction)
+                let errorMsg = `TTS error (${res.status})`;
                 const contentType = res.headers.get('content-type');
                 if (contentType?.includes('application/json')) {
-                    const errData = await res.json();
-                    // Tier restriction — silently fall back to system voice
-                    if (res.status === 403 || errData.upgradeRequired) {
-                        console.warn('TTS voice not allowed for tier');
-                        setIsSpeaking(false);
-                        return;
+                    try {
+                        const errData = await res.json();
+                        if (res.status === 403 || errData.upgradeRequired) {
+                            console.warn('TTS voice not allowed for tier');
+                            setIsSpeaking(false);
+                            return;
+                        }
+                        errorMsg = errData.error || errorMsg;
+                    } catch (e) {
+                         console.error("Failed to parse TTS JSON error", e);
                     }
-                    throw new Error(errData.error || 'TTS failed');
                 }
-                throw new Error(`TTS error (${res.status})`);
+                throw new Error(errorMsg);
             }
 
             const blob = await res.blob();
@@ -402,33 +455,31 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
     }, []);
 
     return (
-        <div className="flex flex-col h-screen bg-gray-950 overflow-hidden font-sans text-xs">
-
-            {/* Top Compact Bar - Ultra Slim (h-10) */}
-            <div className="h-10 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-3 z-50 relative">
-                <div className="flex items-center gap-3">
-                    <Link href="/" className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors bg-gray-800/50 hover:bg-gray-800 px-2 py-1 rounded border border-gray-700/50">
+        <div className="flex flex-col h-screen bg-white overflow-hidden font-sans text-xs">
+ 
+            {/* Top Compact Bar - Ultra Slim (h-12) */}
+            <div className="h-12 bg-white border-b-2 border-slate-950 flex items-center justify-between px-4 z-50 relative pointer-events-auto">
+                <div className="flex items-center gap-4">
+                    <Link href="/" className="flex items-center gap-2 text-slate-950 bg-white border-2 border-slate-950 px-3 py-1 font-black uppercase text-[10px] tracking-widest hover:bg-slate-950 hover:text-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-[-1px]">
                         <ChevronLeft className="w-3 h-3" />
-                        <span className="font-semibold text-[10px] uppercase tracking-wide">Lobby</span>
+                        <span>Lobby</span>
                     </Link>
-
                     {/* Model Picker - Scroll Wheel Style - Compact */}
                     <div className="relative model-picker-container">
                         <button
                             onClick={() => setShowModelPicker(!showModelPicker)}
-                            className="flex items-center gap-2 bg-gray-950 hover:bg-gray-800 text-white px-3 py-1 rounded border border-gray-700 transition-all min-w-[160px] justify-between group shadow-sm h-7"
+                            className="flex items-center gap-3 bg-white border-2 border-slate-950 text-slate-950 px-4 py-1 transition-all min-w-[200px] justify-between shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-[-1px] h-8"
                         >
-                            <div className="flex items-center gap-1.5 overflow-hidden">
-                                {selectedModel ? getModelIcon(selectedModel) : <Shield className="w-3 h-3 text-gray-500" />}
-                                <span className="font-bold truncate text-[11px]">{selectedModel?.name || "Loading..."}</span>
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                {selectedModel ? getModelIcon(selectedModel) : <Shield className="w-3 h-3 text-slate-400" />}
+                                <span className="font-black truncate text-[10px] uppercase tracking-widest">{selectedModel?.name || "Initializing..."}</span>
                             </div>
-                            <ChevronDown className={`w-2.5 h-2.5 text-gray-500 transition-transform ${showModelPicker ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-3 h-3 text-slate-950 transition-transform ${showModelPicker ? 'rotate-180' : ''}`} />
                         </button>
-
+ 
                         {/* Dropdown Menu - Compact */}
                         {showModelPicker && (
-                            <div className="absolute top-full left-0 mt-1 w-56 max-h-80 overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg shadow-xl custom-scrollbar animate-fade-in-up p-1">
-                                {models.filter(m => !m.isOffline).map(model => (
+                            <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-white border-2 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,1)] custom-scrollbar z-50 p-1"> p-1">
                                     <button
                                         key={model.id}
                                         onClick={() => {
@@ -436,19 +487,19 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                                             setShowModelPicker(false);
                                             setResponse(null);
                                         }}
-                                        className={`w-full text-left p-1.5 rounded flex items-center gap-2 transition-colors ${selectedModel?.id === model.id
-                                            ? 'bg-blue-600/10 border border-blue-500/30'
-                                            : 'hover:bg-gray-800 border border-transparent'
+                                        className={`w-full text-left p-2 flex items-center gap-3 transition-colors ${selectedModel?.id === model.id
+                                            ? 'bg-slate-950 text-white'
+                                            : 'hover:bg-slate-50 text-slate-950'
                                             }`}
                                     >
-                                        <div className={`p-1 rounded ${selectedModel?.id === model.id ? 'bg-blue-500/20' : 'bg-gray-950'}`}>
-                                            {React.cloneElement(getModelIcon(model) as React.ReactElement<{ className?: string }>, { className: 'w-3 h-3' })}
+                                        <div className="shrink-0">
+                                            {getModelIcon(model)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className={`font-semibold text-[10px] truncate ${selectedModel?.id === model.id ? 'text-white' : 'text-gray-300'}`}>
+                                            <div className="font-black text-[10px] truncate uppercase tracking-widest">
                                                 {model.name}
                                             </div>
-                                            <div className="text-[9px] text-gray-500 truncate">{model.provider}</div>
+                                            <div className={`text-[8px] font-bold uppercase tracking-tight ${selectedModel?.id === model.id ? 'text-slate-400' : 'text-slate-500'}`}>{model.provider}</div>
                                         </div>
                                     </button>
                                 ))}
@@ -487,93 +538,98 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                             </div>
                         )}
                     </div>
-                </div>
-
-                {/* Right Side Stats - Tiny */}
-                <div className="flex items-center gap-3">
+                </di                {/* Right Side Stats - Tiny */}
+                <div className="flex items-center gap-4">
                     {/* Voice Selector */}
                     {tierInfo && (
-                        <div className="hidden md:flex items-center gap-1 bg-gray-950 border border-gray-800 rounded px-1.5 py-0.5">
-                            <Volume2 className="w-2.5 h-2.5 text-gray-500 flex-shrink-0" />
+                        <div className="hidden md:flex items-center gap-2 bg-white border-2 border-slate-950 px-2 py-0.5 shadow-[2px_2px_0px_rgba(0,0,0,1)] translate-y-[-1px]">
+                            <Volume2 className="w-3 h-3 text-slate-950 flex-shrink-0" />
                             <select
+                                id="voice-selector"
+                                name="voiceSelector"
                                 value={selectedVoice}
                                 onChange={(e) => setSelectedVoice(e.target.value)}
-                                className="bg-transparent text-white text-[9px] focus:outline-none max-w-[80px]"
+                                className="bg-transparent text-slate-950 text-[9px] font-black uppercase tracking-widest focus:outline-none max-w-[100px]"
                             >
                                 {((tierInfo as any).allowedVoices || ['voice-lyra']).map((v: string) => {
                                     const label = v.replace(/^voice-/i, '');
+                                    const isFree = mirroredVoices.includes(v.toLowerCase()) || v.toLowerCase() === 'voice-lyra' || v.toLowerCase() === 'voice-john' || v.toLowerCase() === 'voice-maya';
                                     return (
                                         <option key={v} value={v}>
-                                            {label.charAt(0).toUpperCase() + label.slice(1)}
+                                            {label.toUpperCase()} {isFree ? '*' : ''}
                                         </option>
                                     );
                                 })}
                             </select>
                         </div>
                     )}
-                    <div className="hidden md:flex items-center gap-1.5 text-[10px] text-gray-500 bg-gray-950 px-2 py-1 rounded-full border border-gray-800">
-                        <span className={`w-1.5 h-1.5 rounded-full ${ollamaAvailable ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                        Local: {ollamaAvailable ? 'ON' : 'OFF'}
+                    <div className="hidden md:flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-950 bg-white px-3 py-1 border-2 border-slate-950 shadow-[2px_2px_0px_rgba(0,0,0,1)] translate-y-[-1px]">
+                        <span className={`w-2 h-2 ${ollamaAvailable ? 'bg-slate-950' : 'bg-slate-200'}`} />
+                        Local: {ollamaAvailable ? 'Active' : 'Offline'}
                     </div>
                     {usage && (
                         <div className="flex flex-col items-end leading-none">
-                            <span className="text-[10px] font-mono text-white font-bold">{usage.remaining?.toLocaleString() ?? 0}</span>
-                            <span className="text-[8px] text-gray-600 uppercase tracking-wider">Credits</span>
+                            <span className="text-[12px] font-black text-slate-950">{usage.remaining?.toLocaleString() ?? 0}</span>
+                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Credits</span>
                         </div>
                     )}
-
+ 
                     {/* Email Sign-in Widget */}
                     {userEmail ? (
-                        <div className="hidden md:flex items-center gap-1.5 bg-gray-950 border border-gray-800 rounded px-1.5 py-0.5">
-                            <span className="text-[9px] text-green-400 truncate max-w-[80px]" title={userEmail}>● {userEmail.split('@')[0]}</span>
-                            <button onClick={handleSignOut} className="text-[9px] text-gray-600 hover:text-red-400 transition-colors" title="Sign out">✕</button>
+                        <div className="hidden md:flex items-center gap-2 bg-slate-950 border-2 border-slate-950 px-3 py-1 shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
+                            <span className="text-[9px] text-white font-black uppercase tracking-widest truncate max-w-[100px]" title={userEmail}>{userEmail.split('@')[0]}</span>
+                            <button onClick={handleSignOut} className="text-[9px] text-white/50 hover:text-white transition-colors" title="Sign out">✕</button>
                         </div>
                     ) : showEmailInput ? (
-                        <div className="flex flex-col bg-gray-900 border border-blue-500/50 p-3 rounded-lg shadow-xl shrink-0 items-center justify-center gap-2 mr-1 z-20 min-w-[240px]">
-                            <div className="flex items-center gap-2 w-full">
-                                <Zap className="w-3 h-3 text-blue-400 shrink-0" />
-                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Account Login</span>
+                        <div className="flex flex-col bg-white border-2 border-slate-950 p-4 shadow-[8px_8px_0px_rgba(0,0,0,1)] shrink-0 items-center justify-center gap-3 mr-4 z-50 min-w-[280px]">
+                            <div className="flex items-center gap-2 w-full pb-2 border-b border-slate-100">
+                                <Zap className="w-4 h-4 text-slate-950 shrink-0" />
+                                <span className="text-[10px] text-slate-950 font-black uppercase tracking-[0.2em]">Account_Login</span>
                             </div>
                             <input
                                 type="email"
+                                id="st-email-input"
+                                name="email"
                                 value={emailInput}
                                 onChange={e => setEmailInput(e.target.value)}
-                                placeholder="Email address"
-                                className="w-full bg-gray-950 border border-gray-700 rounded-md px-2 py-1.5 text-white text-[11px] font-mono focus:border-blue-500 focus:outline-none placeholder:text-gray-600"
+                                placeholder="EMAIL ADDRESS"
+                                className="w-full bg-slate-50 border-2 border-slate-950 px-3 py-2 text-slate-950 text-[10px] font-black tracking-widest focus:outline-none placeholder:text-slate-300"
                             />
                             <input
                                 type="password"
+                                id="st-password-input"
+                                name="password"
                                 value={passwordInput}
                                 onChange={e => setPasswordInput(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && handleSignIn()}
-                                placeholder="Password"
-                                className="w-full bg-gray-950 border border-gray-700 rounded-md px-2 py-1.5 text-white text-[11px] font-mono focus:border-blue-500 focus:outline-none placeholder:text-gray-600"
+                                placeholder="PASSWORD"
+                                className="w-full bg-slate-50 border-2 border-slate-950 px-3 py-2 text-slate-950 text-[10px] font-black tracking-widest focus:outline-none placeholder:text-slate-300"
                             />
-                            <div className="flex items-center gap-2 w-full mt-1">
+                            <div className="flex items-center gap-3 w-full mt-2">
                                 <button 
                                     onClick={handleSignIn} 
                                     disabled={isLoggingIn}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white px-3 py-1.5 rounded-md text-[11px] font-bold transition-all shadow flex items-center justify-center gap-2"
+                                    className="flex-1 bg-slate-950 text-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all shadow-[4px_4px_0px_rgba(0,0,0,0.1)] active:shadow-none"
                                 >
-                                    {isLoggingIn ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Sign In'}
+                                    {isLoggingIn ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Run_Login'}
                                 </button>
-                                <button onClick={() => setShowEmailInput(false)} className="text-gray-500 hover:text-red-400 p-1 px-2 transition-colors text-[11px]">Cancel</button>
+                                <button onClick={() => setShowEmailInput(false)} className="text-slate-400 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest px-2">Cancel</button>
                             </div>
                         </div>
                     ) : (
                         <button
                             onClick={() => setShowEmailInput(true)}
-                            className="hidden md:flex items-center gap-1.5 text-[11px] text-gray-200 hover:text-white hover:border-blue-400/50 font-semibold transition-all border border-gray-700 bg-gray-900 hover:bg-gray-800 rounded-md px-3 py-1 whitespace-nowrap shadow-sm group"
+                            className="hidden md:flex items-center gap-2 text-[10px] text-slate-950 font-black uppercase tracking-widest bg-white border-2 border-slate-950 px-4 py-1.5 shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-[-1px] transition-all"
                         >
-                            <span className="text-blue-500 group-hover:animate-pulse">⚡</span>
-                            Sign In for Tokens
+                            <span>Sign_In</span>
                         </button>
                     )}
                 </div>
-            </div>
+            </div>        </div>
 
             {/* ─── VOICE MODE or STANDARD CHAT ─── */}
             {(() => {
+                const voiceProvider = 'Neural (Free)';
                 const isVoiceMode = selectedVoice !== 'system' || selectedModel?.type === 'Voice';
 
                 if (isVoiceMode) {
@@ -632,38 +688,37 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
 
                 return (
                     <div className="flex-1 flex flex-col relative max-w-4xl mx-auto w-full">
-                        <div className="flex-1 overflow-y-auto p-2 md:p-4 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
                             {!response && !loading && (
-                                <div className="h-full flex flex-col items-center justify-center opacity-30 select-none scale-75">
-                                    <Zap className="w-12 h-12 mb-4 text-blue-500/50" />
-                                    <h2 className="text-xl font-bold text-white mb-1">Ready</h2>
+                                <div className="h-full flex flex-col items-center justify-center opacity-10 select-none">
+                                    <Zap className="w-20 h-20 mb-6 text-slate-950" />
+                                    <h2 className="text-2xl font-black text-slate-950 uppercase tracking-[0.4em]">Ready_To_Sync</h2>
                                 </div>
                             )}
                             {loading && (
-                                <div className="h-full flex flex-col items-center justify-center scale-75">
-                                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
-                                    <p className="text-blue-400 font-mono animate-pulse text-[10px] tracking-widest uppercase">{loadingMessage}</p>
+                                <div className="h-full flex flex-col items-center justify-center">
+                                    <div className="w-20 h-20 border-8 border-slate-100 border-t-slate-950 animate-spin mb-6" />
+                                    <p className="text-slate-950 font-black uppercase text-[10px] tracking-[0.5em] animate-pulse">{loadingMessage}</p>
                                 </div>
                             )}
                             {response && (
-                                <div className="prose prose-invert prose-sm max-w-none animate-fade-in-up">
-                                    <div className="bg-gray-900/40 border border-gray-800 rounded-xl p-4 md:p-6 backdrop-blur shadow-2xl">
-                                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-800/50">
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="p-1 bg-green-500/10 rounded">
-                                                    <Shield className="w-3 h-3 text-green-400" />
+                                <div className="animate-fade-in">
+                                    <div className="bg-white border-4 border-slate-950 p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] selection:bg-slate-950 selection:text-white">
+                                        <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-slate-50">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-1 bg-slate-950 text-white">
+                                                    <Shield className="w-4 h-4" />
                                                 </div>
-                                                <span className="font-bold text-white text-xs">{selectedModel?.name}</span>
+                                                <span className="font-black text-slate-950 text-[10px] uppercase tracking-widest">{selectedModel?.name}</span>
                                             </div>
                                             <button
                                                 onClick={() => response && handleSpeak(response)}
-                                                title={isSpeaking ? 'Stop speaking' : 'Read aloud'}
-                                                className={`p-1 rounded transition-colors ${isSpeaking ? 'text-red-400 animate-pulse bg-red-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                                                className={`p-2 transition-all ${isSpeaking ? 'bg-slate-950 text-white animate-pulse' : 'text-slate-300 hover:text-slate-950'}`}
                                             >
-                                                <Volume2 className="w-3 h-3" />
+                                                <Volume2 className="w-5 h-5" />
                                             </button>
                                         </div>
-                                        <div className="leading-relaxed text-gray-300 whitespace-pre-wrap text-[13px]">{renderTextWithImages(response)}</div>
+                                        <div className="leading-tight text-slate-950 font-bold text-xl uppercase tracking-tight whitespace-pre-wrap">{renderTextWithImages(response)}</div>
                                     </div>
                                 </div>
                             )}
@@ -673,27 +728,29 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                                 </div>
                             )}
                         </div>
-                        <div className="p-3 pb-4 md:pb-6">
-                            <div className="relative shadow-xl rounded-xl bg-gray-900/90 backdrop-blur border border-gray-700/50 ring-1 ring-white/5 transition-all focus-within:ring-blue-500/50 focus-within:border-blue-500/50">
+                        <div className="p-4 pb-8 md:pb-12">
+                            <div className="relative bg-white border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex items-center">
                                 <textarea
+                                    id="st-chat-prompt"
+                                    name="chatPrompt"
                                     value={prompt}
                                     onChange={(e) => setPrompt(e.target.value)}
                                     onKeyDown={e => {
                                         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
                                     }}
-                                    placeholder={`Message ${selectedModel?.name || 'AI'}...`}
-                                    className="w-full bg-transparent text-white p-3 pr-10 min-h-[40px] max-h-32 resize-none focus:outline-none text-xs placeholder:text-gray-600 leading-relaxed"
+                                    placeholder={`TRANSMIT_TO_${selectedModel?.name?.toUpperCase() || 'AI'}...`}
+                                    className="w-full bg-white text-slate-950 p-5 pr-24 min-h-[60px] max-h-40 resize-none focus:outline-none text-xl font-black uppercase tracking-tight placeholder:text-slate-200 selection:bg-slate-950 selection:text-white"
                                 />
                                 <button
                                     onClick={handleSubmit}
                                     disabled={loading || !prompt.trim() || selectedModel?.isOffline}
-                                    className="absolute right-1.5 bottom-1.5 p-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all disabled:opacity-50 disabled:bg-gray-800 hover:scale-105 active:scale-95 shadow-md"
+                                    className="absolute right-4 bg-slate-950 text-white font-black uppercase text-[10px] tracking-widest px-6 py-3 hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all disabled:bg-slate-100 disabled:text-slate-300 disabled:border-slate-200"
                                 >
-                                    {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : '[ RUN ]'}
                                 </button>
                             </div>
-                            <div className="text-center mt-1">
-                                <p className="text-[9px] text-gray-700">AI mistakes possible. Verify info.</p>
+                            <div className="text-center mt-2 pointer-events-none">
+                                <span className="text-[9px] text-gray-500/50 uppercase tracking-widest">AI may not be telling the truth.</span>
                             </div>
                         </div>
                     </div>

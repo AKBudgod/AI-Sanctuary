@@ -15,7 +15,9 @@ import {
     Settings,
     Menu,
     Search,
-    Mic
+    Mic,
+    Activity,
+    X
 } from './Icons';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -43,16 +45,33 @@ interface ModelWithApiStatus extends Omit<AIModel, 'hasRealApi'> {
 
 const OLLAMA_BASE = 'http://localhost:11434';
 
+const TIER_ORDER: UserTier[] = ['explorer', 'novice', 'apprentice', 'adept', 'master', 'developer'];
 const ADMIN_EMAILS = [
     'kearns.adam747@gmail.com',
     'kearns.adan747@gmail.com',
     'gamergoodguy445@gmail.com',
     'wjreviews420@gmail.com',
     'weedj747@gmail.com',
+    'akbudgod@ai-sanctuary.online',
 ];
 
-// Tier ordering for comparison
-const TIER_ORDER: UserTier[] = ['explorer', 'novice', 'apprentice', 'adept', 'master', 'developer'];
+const VoiceVisualizer = ({ isActive }: { isActive: boolean }) => {
+    return (
+        <div className={`flex items-center justify-center gap-[2px] h-8 transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+            {[...Array(12)].map((_, i) => (
+                <div
+                    key={i}
+                    className={`w-1 rounded-full bg-gradient-to-t from-rose-600 to-rose-400 ${isActive ? 'animate-bounce' : ''}`}
+                    style={{
+                        height: isActive ? `${Math.random() * 100 + 20}%` : '20%',
+                        animationDelay: `${i * 0.05}s`,
+                        animationDuration: `${0.5 + Math.random()}s`
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
 
 // Determine which display-tier bucket a model belongs to
 function getModelDisplayTier(model: ModelWithApiStatus): string {
@@ -120,12 +139,14 @@ const UnifiedPlayground = () => {
     const [isLocalCsm, setIsLocalCsm] = useState(false);
     const [isTierOpen, setIsTierOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isCinematic, setIsCinematic] = useState(false); // [NEW] Cinematic Recording Mode
     const [userEmail, setUserEmail] = useState<string>('');
     const [password, setPassword] = useState('');
     const [emailInput, setEmailInput] = useState('');
     const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [mirroredVoices, setMirroredVoices] = useState<string[]>([]);
 
     const tierOptions = [
         { id: 'explorer' as UserTier, name: 'Explorer', icon: Shield, color: 'blue' },
@@ -142,7 +163,20 @@ const UnifiedPlayground = () => {
             setUserEmail(saved);
         }
         fetchUserData();
+        fetchMirroredVoices();
     }, []);
+
+    const fetchMirroredVoices = async () => {
+        try {
+            const res = await fetch('/api/voice/mirrored');
+            if (res.ok) {
+                const data = await res.json();
+                setMirroredVoices(data.mirrored || []);
+            }
+        } catch (e) {
+            console.warn('Failed to fetch mirrored voices', e);
+        }
+    };
 
     const fetchUserData = async () => {
         try {
@@ -210,6 +244,13 @@ const UnifiedPlayground = () => {
         setUsage(null);
     };
 
+    // --- Persist Selection ---
+    useEffect(() => {
+        if (selectedModel?.id) {
+            localStorage.setItem('sanctuary_last_selected_model', selectedModel.id);
+        }
+    }, [selectedModel]);
+
     useEffect(() => {
         if (!allModels.length) return;
         let filtered = allModels.filter(m => {
@@ -247,9 +288,21 @@ const UnifiedPlayground = () => {
         if (filtered.length > 0) {
             const currentInList = filtered.find(m => m.id === selectedModel?.id);
             if (!currentInList) {
-                // Try to find first active model in the filtered list
+                // Priority Selection Logic
+                const preferredVoice = localStorage.getItem('sanctuary_preferred_voice');
+                const lastSelected = localStorage.getItem('sanctuary_last_selected_model');
+                
+                const preferredModel = preferredVoice ? filtered.find(m => m.id === preferredVoice) : null;
+                const lastModel = lastSelected ? filtered.find(m => m.id === lastSelected) : null;
                 const firstActive = filtered.find(m => !m.isOffline);
-                const modelToSelect = firstActive || filtered[0];
+                
+                const modelToSelect = preferredModel || lastModel || firstActive || filtered[0];
+                
+                // Clear the one-time "preferred voice" flag if it was used
+                if (preferredModel) {
+                    localStorage.removeItem('sanctuary_preferred_voice');
+                }
+
                 setSelectedModel(modelToSelect);
                 loadHistory(userEmail, modelToSelect.id);
                 
@@ -289,7 +342,14 @@ const UnifiedPlayground = () => {
 
     const saveHistory = async (email: string | null, modelId: string, currentMessages: Message[]) => {
         const currentEmail = email || 'anonymous';
-        localStorage.setItem(`${currentEmail}_${modelId}_chat_history`, JSON.stringify(currentMessages));
+        try {
+            // Truncate local history to 100 entries to stay within localStorage quota
+            const truncated = currentMessages.slice(-100);
+            localStorage.setItem(`${currentEmail}_${modelId}_chat_history`, JSON.stringify(truncated));
+        } catch (e) {
+            console.warn('[SYSTEM] LocalStorage Quota Exceeded. Chat history truncated.', e);
+        }
+
         if (currentEmail !== 'anonymous' && !currentEmail.includes('test')) {
             try {
                 await fetch(`${API_BASE}/api/history`, {
@@ -301,6 +361,30 @@ const UnifiedPlayground = () => {
                     body: JSON.stringify({ modelId, messages: currentMessages })
                 });
             } catch (e) { }
+        }
+    };
+
+    const handleClearHistory = async () => {
+        if (!selectedModel) return;
+        const currentEmail = userEmail || 'anonymous';
+        const localKey = `${currentEmail}_${selectedModel.id}_chat_history`;
+        
+        // 1. Clear State
+        setMessages([]);
+        
+        // 2. Clear LocalStorage
+        localStorage.removeItem(localKey);
+        
+        // 3. Clear Remote DB
+        if (currentEmail !== 'anonymous' && !currentEmail.includes('test')) {
+            try {
+                await fetch(`${API_BASE}/api/history?modelId=${selectedModel.id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${currentEmail}` }
+                });
+            } catch (e) { 
+                console.error("Failed to clear remote history:", e);
+            }
         }
     };
 
@@ -318,7 +402,7 @@ const UnifiedPlayground = () => {
             let res;
             if (isLocalCsm) {
                 try {
-                    res = await fetch('http://127.0.0.1:8000/generate', {
+                    res = await fetch('http://127.0.0.1:8002/generate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text, speaker_id: activeVoice }),
@@ -335,7 +419,24 @@ const UnifiedPlayground = () => {
                     body: JSON.stringify({ text, voice: activeVoice }),
                 });
             }
-            if (!res.ok) throw new Error("TTS failed");
+
+            if (!res.ok) {
+                let errorMsg = `Voice service failure (${res.status})`;
+                const contentType = res.headers.get('Content-Type');
+                if (contentType?.includes('application/json')) {
+                    try {
+                        const errorData = await res.json();
+                        errorMsg = errorData.error || errorMsg;
+                    } catch (e) {
+                        console.error("Failed to parse TTS JSON error", e);
+                    }
+                }
+                console.error("TTS Error:", errorMsg);
+                setError(`Voice API Error: ${errorMsg}`);
+                setIsSpeaking(false);
+                return;
+            }
+
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
@@ -347,8 +448,15 @@ const UnifiedPlayground = () => {
                     try { recognitionRef.current.start(); } catch(e) {}
                 }
             };
-            audio.play();
-        } catch (err) {
+            audio.onerror = (e) => {
+                console.error("Audio Playback Error:", e);
+                setError("Playback failed. Please try again.");
+                setIsSpeaking(false);
+            };
+            await audio.play();
+        } catch (err: any) {
+            console.error("handleSpeak Exception:", err);
+            setError(`System Error: ${err.message || 'Speech failed'}`);
             setIsSpeaking(false);
         }
     };
@@ -370,7 +478,15 @@ const UnifiedPlayground = () => {
         setMessages(prev => [...prev, userMessage]);
         setLoading(true);
         setError(null);
-        setLoadingMessage('Thinking...');
+        
+        const dramaticMessages = [
+            'COORDINATING NEURAL SYNC...',
+            'RETRIEVING UNHINGED DATALINK...',
+            'BYPASSING SAFETY PROTOCOLS...',
+            'ALGORITHMIC ASCENSION IN PROGRESS...',
+            'STABILIZING VOCAL SYNTHESIS...'
+        ];
+        setLoadingMessage(dramaticMessages[Math.floor(Math.random() * dramaticMessages.length)]);
         try {
             const res = await fetch(`${API_BASE}/api/models`, {
                 method: 'POST',
@@ -399,8 +515,8 @@ const UnifiedPlayground = () => {
             } else {
                 setError(data.message || data.error || 'Generation failed');
             }
-        } catch (err) {
-            setError('Connection failed');
+        } catch (err: any) {
+            setError(`Connection failed: ${err.message || 'Unknown network error'}`);
         } finally {
             setLoading(false);
         }
@@ -478,14 +594,46 @@ const UnifiedPlayground = () => {
     };
 
     const renderResponseText = (text: string) => {
+        // Robust Markdown image regex supporting data URIs
         const imgRegex = /!\[([^\]]*)\]\((.*?)\)/g;
-        const parts = []; let last = 0; let m;
-        while ((m = imgRegex.exec(text)) !== null) {
-            if (m.index > last) parts.push(<span key={last}>{text.substring(last, m.index)}</span>);
-            parts.push(<div key={m.index} className="my-4"><img src={m[2]} alt={m[1]} className="rounded-xl shadow-2xl max-h-[500px]" /></div>);
-            last = m.index + m[0].length;
+        const parts = []; 
+        let lastMatchIdx = 0; 
+        let match;
+
+        while ((match = imgRegex.exec(text)) !== null) {
+            // Push preceding text
+            if (match.index > lastMatchIdx) {
+                parts.push(<span key={`text-${lastMatchIdx}`}>{text.substring(lastMatchIdx, match.index)}</span>);
+            }
+            
+            // Push image container
+            const alt = match[1] || 'AI Generated Image';
+            const src = match[2];
+            parts.push(
+                <div key={`img-${match.index}`} className="my-4 relative group animate-fade-in">
+                    <img 
+                        src={src} 
+                        alt={alt} 
+                        className="rounded-xl border border-gray-800 shadow-2xl max-w-full max-h-[600px] object-contain cursor-zoom-in hover:border-blue-500/50 transition-all" 
+                        loading="lazy"
+                    />
+                </div>
+            );
+            
+            lastMatchIdx = match.index + match[0].length;
         }
-        if (last < text.length) parts.push(<span key={last}>{text.substring(last)}</span>);
+
+        // Push remaining text
+        if (lastMatchIdx < text.length) {
+            const remaining = text.substring(lastMatchIdx);
+            // Highlight source attribution if present
+            if (remaining.includes('*[Source:') || remaining.includes('*[Synthesis:')) {
+                parts.push(<span key={`text-${lastMatchIdx}`} className="text-gray-500 italic text-[10px]">{remaining}</span>);
+            } else {
+                parts.push(<span key={`text-${lastMatchIdx}`}>{remaining}</span>);
+            }
+        }
+        
         return parts;
     };
 
@@ -495,49 +643,93 @@ const UnifiedPlayground = () => {
     };
 
     return (
-        <div className="flex h-[calc(100vh-120px)] rounded-xl border border-gray-800 bg-gray-950 overflow-hidden relative">
+        <div className={`flex h-[calc(100vh-120px)] rounded-xl border ${isCinematic ? 'border-transparent' : 'border-gray-800'} bg-gray-950 overflow-hidden relative transition-all duration-700`}>
             
+            {/* Mobile Sidebar Backdrop */}
+            {sidebarOpen && (
+                <div 
+                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 bg-gray-900 border-r border-gray-800 flex flex-col relative overflow-hidden z-30`}>
+            <div className={`
+                ${sidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full'} 
+                ${isCinematic ? 'hidden' : 'fixed md:relative'}
+                inset-y-0 left-0 z-50 md:z-30
+                transition-all duration-300 bg-gray-900 border-r border-gray-800 
+                flex flex-col overflow-hidden max-w-[85vw] md:max-w-none
+            `}>
                 <div className="p-4 border-b border-gray-800 relative z-40">
-                    <button onClick={() => setIsTierOpen(!isTierOpen)} className="w-full flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <div className="flex items-center justify-between mb-2 md:hidden">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Navigation</span>
+                        <button onClick={() => setSidebarOpen(false)} className="p-1 text-gray-400 hover:text-white">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                    <button onClick={() => setIsTierOpen(!isTierOpen)} className="w-full flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700 shadow-inner">
                         <div className="flex items-center gap-2">
                             {React.createElement(tierOptions.find(t => t.id === selectedTier)?.icon || Shield, { className: `w-4 h-4 text-${tierOptions.find(t => t.id === selectedTier)?.color}-400` })}
-                            <span className="capitalize font-bold">{selectedTier}</span>
+                            <span className="capitalize font-bold text-sm tracking-tight">{selectedTier}</span>
                         </div>
-                        <ChevronDown className={`w-4 h-4 transform ${isTierOpen ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-4 h-4 transform transition-transform ${isTierOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isTierOpen && (
-                        <div className="absolute top-full left-4 right-4 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl z-50">
+                        <div className="absolute top-full left-4 right-4 mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl z-50 animate-fade-in-up">
                             {tierOptions.map(t => (
-                                <button key={t.id} onClick={() => { if(!isTierLocked(t.id)) { setSelectedTier(t.id); setIsTierOpen(false); }}} 
-                                    className={`w-full flex items-center justify-between p-3 text-sm hover:bg-gray-800 ${isTierLocked(t.id) ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <div className="flex items-center gap-2"><t.icon className={`w-4 h-4 text-${t.color}-500`} /><span>{t.name}</span></div>
-                                    {isTierLocked(t.id) && <Lock className="w-3 h-3" />}
+                                <button key={t.id} onClick={() => { setSelectedTier(t.id); setIsTierOpen(false); }} 
+                                    className={`w-full flex items-center justify-between p-3 text-sm hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0 ${isTierLocked(t.id) ? 'opacity-50' : ''}`}>
+                                    <div className="flex items-center gap-2">
+                                        <t.icon className={`w-4 h-4 text-${t.color}-500`} />
+                                        <span className="font-medium">{t.name}</span>
+                                    </div>
+                                    {isTierLocked(t.id) && <Lock className="w-3 h-3 text-gray-500" />}
                                 </button>
                             ))}
                         </div>
                     )}
                 </div>
 
-                <div className="p-3 border-b border-gray-800">
+                <div className="p-3 border-b border-gray-800 bg-gray-950/20">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
-                        <input type="text" placeholder="Search..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} 
-                            className="w-full bg-gray-950 border border-gray-800 rounded text-xs p-2 pl-8 text-white focus:outline-none focus:border-blue-500" />
+                        <input type="text" id="model-search-input" name="modelSearch" placeholder="Search models..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} 
+                            className="w-full bg-gray-950 border border-gray-800 rounded-md text-xs p-2.5 pl-9 text-white focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-700" />
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
                     {filteredModels.filter(m => !m.isOffline).map(m => (
-                        <button key={m.id} onClick={() => { setSelectedModel(m); loadHistory(userEmail, m.id); setError(null); }}
-                            className={`w-full text-left p-2 rounded-md border flex items-center gap-3 transition-all ${selectedModel?.id === m.id ? 'bg-blue-900/20 border-blue-500/50 text-white' : 'border-transparent text-gray-500 hover:bg-gray-800/50'}`}>
-                            <div className="p-1.5 rounded-md bg-gray-800">
-                                {m.flags.isUnethical ? <Skull className="w-3 h-3 text-red-500" /> : m.type === 'Voice' ? <Volume2 className="w-3 h-3 text-green-400" /> : <Zap className="w-3 h-3 text-blue-500" />}
+                        <button key={m.id} onClick={() => { setSelectedModel(m); loadHistory(userEmail, m.id); setError(null); if(window.innerWidth < 768) setSidebarOpen(false); }}
+                            className={`w-full text-left p-2.5 rounded-lg border flex items-center gap-3 transition-all ${selectedModel?.id === m.id ? 'bg-blue-600/10 border-blue-500/40 text-white shadow-[inset_0_0_10px_rgba(37,99,235,0.1)]' : 'border-transparent text-gray-500 hover:bg-gray-800'}`}>
+                            <div className="p-1.5 rounded-md bg-gray-950 border border-gray-800">
+                                {m.flags.isUnethical ? <Skull className="w-3.5 h-3.5 text-red-500" /> : m.type === 'Voice' ? <Volume2 className="w-3.5 h-3.5 text-green-400" /> : <Zap className="w-3.5 h-3.5 text-blue-500" />}
                             </div>
-                            <div className="min-w-0"><div className="font-medium text-xs truncate">{m.name}</div><div className="text-[10px] opacity-60 truncate">{m.provider}</div></div>
+                            <div className="min-w-0 flex-1">
+                                <div className="font-bold text-xs truncate flex items-center gap-2">
+                                    {m.name} 
+                                    {mirroredVoices.includes(m.id.toLowerCase()) && <span className="text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/30">FREE</span>}
+                                    {isTierLocked(m.minTier as UserTier) && <Lock className="w-2.5 h-2.5 text-gray-600" />}
+                                </div>
+                                <div className="text-[10px] opacity-40 truncate uppercase tracking-tighter">{m.provider}</div>
+                            </div>
                         </button>
                     ))}
+
+                    {/* K'LA SDR Global Promotion */}
+                    <Link href="/kla" className="block mt-4 p-4 rounded-xl bg-gradient-to-br from-rose-950/40 to-black border border-rose-500/20 group hover:border-rose-500/50 transition-all">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">K&apos;LA SDR ACTIVE</span>
+                        </div>
+                        <p className="text-[10px] text-gray-300 font-medium leading-relaxed mb-3">
+                            K&apos;LA is currently mining leads for our partners. Want her to grow your business too?
+                        </p>
+                        <div className="text-[10px] font-bold text-rose-300 group-hover:text-white transition-colors flex items-center gap-1">
+                            Hire her now &rarr;
+                        </div>
+                    </Link>
 
                     {filteredModels.some(m => m.isOffline) && (
                         <>
@@ -569,7 +761,7 @@ const UnifiedPlayground = () => {
                     <div className="flex items-center justify-between py-1 bg-gray-950 px-2 rounded border border-gray-800 mb-2">
                         <span className="text-gray-400 font-mono">Local CSM</span>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked={isLocalCsm} onChange={() => setIsLocalCsm(!isLocalCsm)} className="sr-only peer" />
+                            <input type="checkbox" id="local-csm-toggle" name="localCsmToggle" checked={isLocalCsm} onChange={() => setIsLocalCsm(!isLocalCsm)} className="sr-only peer" />
                             <div className="w-7 h-4 bg-gray-700 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-full"></div>
                         </label>
                     </div>
@@ -596,14 +788,30 @@ const UnifiedPlayground = () => {
                     {userEmail ? (
                         <div className="flex items-center justify-between"><span className="text-green-400 truncate flex-1">● {userEmail.split('@')[0]}</span><button onClick={handleSignOut} className="text-gray-600 hover:text-red-400 font-bold">Sign out</button></div>
                     ) : ( 
-                        <button onClick={() => setIsAuthModalOpen(true)} className="w-full text-center text-gray-500 hover:text-blue-400 font-bold uppercase tracking-widest">⚡ SECURE LOGIN</button>
+                        <button onClick={() => { setIsAuthModalOpen(true); setAuthMode('signup'); }} className="w-full text-center py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/40 hover:text-white font-bold uppercase tracking-widest transition-all">⚡ Sign In / Sign Up</button>
                     )}
                 </div>
             </div>
 
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col relative bg-gray-950 z-10 transition-all duration-300">
-                <button onClick={() => setSidebarOpen(!sidebarOpen)} className="absolute top-4 left-4 z-20 p-1.5 bg-gray-800 rounded-full text-white shadow-lg hover:bg-gray-700"><Menu className="w-3.5 h-3.5" /></button>
+            <div className={`flex-1 min-w-0 flex flex-col relative bg-gray-950 z-10 transition-all duration-300 ${sidebarOpen && 'blur-sm md:blur-none pointer-events-none md:pointer-events-auto'}`}>
+                {!isCinematic && (
+                    <button 
+                        onClick={() => setSidebarOpen(!sidebarOpen)} 
+                        className={`absolute top-4 left-4 z-20 p-2 bg-gray-800/80 backdrop-blur rounded-xl text-white shadow-xl hover:bg-gray-700 transition-all border border-white/10 ${sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+                )}
+
+                {/* Cinematic Mode Toggle (Top Right) */}
+                <button 
+                    onClick={() => setIsCinematic(!isCinematic)}
+                    className="absolute top-4 right-4 z-20 p-2 bg-gray-800/20 backdrop-blur-sm rounded-xl text-white/40 hover:text-white hover:bg-gray-800/50 transition-all border border-white/5"
+                    title={isCinematic ? "Exit Cinematic Mode" : "Cinematic Recording Mode"}
+                >
+                    <Activity className={`w-5 h-5 ${isCinematic ? 'text-rose-500' : ''}`} />
+                </button>
 
                 {/* Consent Modal */}
                 {showConsent && selectedModel && (
@@ -621,27 +829,64 @@ const UnifiedPlayground = () => {
 
                 {/* Auth Modal */}
                 {isAuthModalOpen && (
-                    <div className="absolute inset-0 z-[100] bg-gray-950/90 backdrop-blur-md flex items-center justify-center p-6">
-                        <div className="bg-gray-900 border border-gray-800 rounded-3xl p-8 max-w-sm w-full relative shadow-2xl">
-                            <h2 className="text-2xl font-bold text-white text-center mb-6 uppercase font-mono">{authMode === 'login' ? 'Vitals Authorized' : 'Neural Registration'}</h2>
+                    <div className="absolute inset-0 z-[100] bg-gray-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6">
+                        <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-2xl">
+                            <h2 className="text-2xl font-bold text-white text-center mb-2 uppercase font-mono">
+                                {authMode === 'login' ? 'Vitals Authorized' : 'Neural Registration'}
+                            </h2>
+                            {authMode === 'signup' ? (
+                                <p className="text-center text-xs text-green-400 font-bold uppercase tracking-widest mb-6 px-4 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full w-fit mx-auto">
+                                    +100 Free Daily Requests
+                                </p>
+                            ) : (
+                                <div className="mb-6" />
+                            )}
                             <div className="space-y-4">
-                                <input type="email" placeholder="runner@sanctuary.io" value={emailInput} onChange={e=>setEmailInput(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none" />
-                                <input type="password" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleSignIn()} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none" />
-                                <button onClick={handleSignIn} className="w-full py-4 bg-blue-600 text-white font-black rounded-xl uppercase font-mono shadow-lg hover:bg-blue-500">{loading ? <Loader2 className="animate-spin mx-auto w-5 h-5" /> : `[ ${authMode} ]`}</button>
-                                <button onClick={() => setAuthMode(authMode==='login'?'signup':'login')} className="w-full text-center text-[10px] text-gray-500 hover:text-blue-400 uppercase font-bold mt-4">{authMode==='login'?"Need a link? Signup":"Back to login"}</button>
+                                <input type="email" id="auth-email-input" name="email" placeholder="runner@sanctuary.io" value={emailInput} onChange={e=>setEmailInput(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none" />
+                                <input type="password" id="auth-password-input" name="password" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleSignIn()} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none" />
+                                <button onClick={handleSignIn} className="w-full py-4 bg-blue-600 text-white font-black rounded-xl uppercase font-mono shadow-lg hover:bg-blue-500 transition-colors">
+                                    {loading ? <Loader2 className="animate-spin mx-auto w-5 h-5" /> : `[ ${authMode === 'login' ? 'LOGIN' : 'SIGN UP FOR FREE'} ]`}
+                                </button>
+                                
+                                <div className="pt-4 mt-4 border-t border-gray-800 flex flex-col gap-2">
+                                    {authMode === 'login' ? (
+                                        <button onClick={() => setAuthMode('signup')} className="w-full text-center text-xs text-gray-400 hover:text-white transition-colors">
+                                            Don't have an account? <span className="text-blue-400 font-bold underline">Sign up for free</span>
+                                        </button>
+                                    ) : (
+                                        <button onClick={() => setAuthMode('login')} className="w-full text-center text-xs text-gray-400 hover:text-white transition-colors">
+                                            Already have an account? <span className="text-blue-400 font-bold underline">Sign in</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <button onClick={() => setIsAuthModalOpen(false)} className="absolute top-4 right-4 text-gray-600 hover:text-white font-bold">✕</button>
+                            <button onClick={() => setIsAuthModalOpen(false)} className="absolute top-4 right-4 text-gray-600 hover:text-white font-bold p-2">✕</button>
                         </div>
                     </div>
                 )}
 
                 {/* Messages / Chat Area */}
-                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar relative">
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-3 md:p-8 custom-scrollbar relative">
                     {messages.length === 0 && !loading && (
-                        <div className="h-full flex flex-col items-center justify-center text-center opacity-20 select-none">
-                            <Zap className="w-20 h-20 mb-4 animate-pulse" />
-                            <h2 className="text-2xl font-black uppercase tracking-widest">AI Sanctuary</h2>
-                            <p className="text-xs font-mono mt-2">{selectedModel ? `Ask ${selectedModel.name} anything...` : 'Select a neural model.'}</p>
+                        <div className={`h-full flex flex-col items-center justify-center text-center select-none ${selectedModel && isTierLocked(selectedModel.minTier as UserTier) ? '' : 'opacity-20'}`}>
+                            {selectedModel && isTierLocked(selectedModel.minTier as UserTier) ? (
+                                <div className="p-8 bg-gray-900/80 border border-gray-800 rounded-3xl max-w-sm flex flex-col items-center shadow-2xl backdrop-blur-md">
+                                    <Lock className="w-12 h-12 mb-4 text-gray-500" />
+                                    <h2 className="text-xl font-black text-white mb-2 uppercase tracking-widest">Premium Feature</h2>
+                                    <p className="text-sm text-gray-400 mb-6 font-mono opacity-80">
+                                        Unlock the <strong className="text-blue-400">{selectedModel.minTier}</strong> tier to broadcast to {selectedModel.name}.
+                                    </p>
+                                    <Link href={selectedModel.id.includes('kla') || selectedModel.id === 'unrestricted-image' ? '/kla/services' : '/buy'} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl uppercase tracking-widest text-xs transition-colors text-center shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+                                        Upgrade Now
+                                    </Link>
+                                </div>
+                            ) : (
+                                <>
+                                    <Zap className="w-20 h-20 mb-4 animate-pulse" />
+                                    <h2 className="text-2xl font-black uppercase tracking-widest">AI Sanctuary</h2>
+                                    <p className="text-xs font-mono mt-2">{selectedModel ? `Ask ${selectedModel.name} anything...` : 'Select a neural model.'}</p>
+                                </>
+                            )}
                         </div>
                     )}
 
@@ -655,35 +900,30 @@ const UnifiedPlayground = () => {
                                         ) : ( <span>You</span> )}
                                     </div>
                                     <div className={`prose prose-invert prose-sm max-w-none leading-relaxed whitespace-pre-wrap`}>
-                                        {m.content.includes('![Generated Image]') || m.content.includes('https://image.pollinations.ai') ? (
-                                            (() => {
-                                                const imgMatch = m.content.match(/!\[.*?\]\(([^)]+)\)/) || m.content.match(/(https:\/\/image\.pollinations\.ai\/[^ \n]+)/);
-                                                const caption = m.content.replace(/!\[.*?\]\([^)]+\)/g, '').trim();
-                                                return (
-                                                    <div className="flex flex-col gap-3">
-                                                        {imgMatch && (
-                                                            <div className="relative group">
-                                                                <img
-                                                                    src={imgMatch[1]}
-                                                                    alt="AI Generated"
-                                                                    className="rounded-xl max-w-full max-h-[600px] object-contain border border-gray-700 shadow-lg"
-                                                                    loading="lazy"
-                                                                    onError={(e) => {
-                                                                        e.currentTarget.style.display = 'none';
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {caption && <span className="text-xs text-gray-400 italic">{caption}</span>}
-                                                    </div>
-                                                );
-                                            })()
-                                        ) : m.content}
+                                        {renderResponseText(m.content)}
                                     </div>
                                 </div>
                             </div>
                         ))}
-                        {loading && <div className="flex flex-col items-center justify-center py-4"><Loader2 className="w-6 h-6 text-blue-500 animate-spin mb-2" /><p className="text-blue-400 font-mono text-[10px] animate-pulse">{loadingMessage}</p></div>}
+                        {loading && (
+                            <div className="flex flex-col items-center justify-center py-12 gap-6 animate-fade-in">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full animate-pulse" />
+                                    <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                                    <Activity className="absolute inset-0 m-auto w-8 h-8 text-blue-400 animate-pulse" />
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                    <p className="text-blue-400 font-black font-mono text-[10px] tracking-[0.3em] animate-pulse">
+                                        {loadingMessage}
+                                    </p>
+                                    <div className="flex gap-1">
+                                        <span className="w-1 h-1 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                        <span className="w-1 h-1 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                        <span className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div ref={messagesEndRef} />
                     </div>
                     {error && <div className="max-w-lg mx-auto mt-8 bg-red-900/20 border border-red-500/50 rounded-lg p-4 flex items-center gap-3 text-red-200 text-sm"><AlertTriangle className="w-5 h-5 flex-shrink-0" />{error}</div>}
@@ -710,8 +950,8 @@ const UnifiedPlayground = () => {
                         josh: { image: '/assets/characters/josh.png', tagline: 'Sharp & High-Energy', color: '#38bdf8', color2: '#0369a1' },
                         cleo: { image: '/assets/characters/cleo.png', tagline: 'Sultry & Intense', color: '#fbbf24', color2: '#92400e' },
                         ivy: { image: '/assets/characters/ivy.png', tagline: 'Sexy Siren', color: '#10b981', color2: '#065f46' },
-                        kla: { image: '/assets/characters/kla/model.png', tagline: "Super Sexy Companion", color: '#ffb5d8', color2: '#ff2d8c', model: '/assets/characters/kla/Kla.fbx' },
-                        mj: { image: '/assets/characters/mj/model.png', tagline: 'The Animated Protagonist', color: '#fcd34d', color2: '#b45309', model: '/assets/characters/mj/MJ.fbx' },
+                        kla: { image: '/assets/characters/kla/model.png?v=4', tagline: "Goddess Level Companion", color: '#ffb5d8', color2: '#ff2d8c' },
+                        mj: { image: '/assets/characters/mj/model.png?v=4', tagline: 'Hot Animated Protagonist', color: '#fcd34d', color2: '#b45309' },
                     };
 
                     const charId = selectedModel.id.replace('voice-', '').replace('sesame-', '').replace('-csm-1b', '');
@@ -719,8 +959,8 @@ const UnifiedPlayground = () => {
                     const name = selectedModel.name.split(' ')[0];
 
                     return (
-                        <div className="absolute top-1/2 right-12 -translate-y-[60%] z-20 flex flex-col items-center pointer-events-none origin-right">
-                            <div className="flex flex-col items-center gap-6 transition-all duration-500 pointer-events-auto">
+                        <div className="absolute top-1/2 right-4 md:right-12 -translate-y-[60%] z-20 flex flex-col items-center pointer-events-none origin-right scale-[0.6] md:scale-100 opacity-20 md:opacity-100 transition-all duration-500">
+                            <div className="flex flex-col items-center gap-6 pointer-events-auto">
                                 <div 
                                     className={`absolute -inset-16 rounded-full blur-[80px] ${isSpeaking ? 'opacity-80 animate-pulse' : 'opacity-40'} transition-opacity duration-700`} 
                                     style={{ background: `radial-gradient(circle, ${char.color}88, ${char.color2}22)` }}
@@ -728,7 +968,7 @@ const UnifiedPlayground = () => {
                                 
                                 {/* Optimized Portrait Frame */}
                                 <div 
-                                    className={`relative w-64 h-64 rounded-3xl border-2 overflow-hidden shadow-2xl flex items-center justify-center bg-gray-900/60 transition-all duration-500`}
+                                    className={`relative w-48 h-48 md:w-64 md:h-64 rounded-3xl border-2 overflow-hidden shadow-2xl flex items-center justify-center bg-gray-900/60 transition-all duration-500`}
                                     style={{ 
                                         borderColor: `${char.color}55`,
                                         boxShadow: isSpeaking ? `0 0 50px 10px ${char.color}44` : 'none'
@@ -744,7 +984,7 @@ const UnifiedPlayground = () => {
                                         <img 
                                             src={char.image} 
                                             alt={name}
-                                            className={`w-full h-full object-contain transition-transform duration-700 ${isSpeaking ? 'scale-110 rotate-1' : 'scale-100'}`}
+                                            className={`w-full h-full object-contain transition-all duration-300 ease-in-out ${isSpeaking ? 'scale-110 rotate-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]' : 'scale-100 rotate-0'}`}
                                         />
                                     )}
                                     
@@ -762,6 +1002,12 @@ const UnifiedPlayground = () => {
                                     <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest opacity-80">
                                         {char.tagline}
                                     </span>
+                                    
+                                    {/* [NEW] Voice Visualizer Integration */}
+                                    <div className="mt-3 h-6 w-full max-w-[120px]">
+                                        <VoiceVisualizer isActive={isSpeaking} />
+                                    </div>
+
                                     {(isSpeaking || isListening) && (
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -775,28 +1021,33 @@ const UnifiedPlayground = () => {
                 })()}
 
                 {/* Input Area */}
-                <div className="p-4 border-t border-gray-800 bg-gray-950/80 backdrop-blur-md relative z-30">
-                    <div className="max-w-3xl mx-auto relative flex items-center gap-3">
+                <div className="p-2 md:p-4 border-t border-gray-800 bg-gray-950/80 backdrop-blur-md relative z-30 pb-safe">
+                    <div className="max-w-3xl mx-auto relative flex items-center gap-2 md:gap-3">
                         <textarea
+                            id="chat-prompt-input"
+                            name="chatPrompt"
                             value={prompt}
                             onChange={e=>setPrompt(e.target.value)}
                             onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(); handleSubmit();}}}
-                            placeholder={`Neural Message to ${selectedModel?.name || 'Sanctuary'}...`}
-                            disabled={loading || isTierLocked(selectedTier) || selectedModel?.isOffline}
-                            className="w-full bg-gray-900 border border-gray-800 text-white rounded-2xl p-4 pr-32 min-h-[60px] max-h-40 resize-none outline-none focus:border-blue-500/50 shadow-inner font-mono text-sm"
+                            placeholder={selectedModel && isTierLocked(selectedModel.minTier as UserTier) ? 'Uplink locked...' : `Neural Message to ${selectedModel?.name || 'Sanctuary'}...`}
+                            disabled={loading || (selectedModel && isTierLocked(selectedModel.minTier as UserTier) ? true : false) || selectedModel?.isOffline}
+                            className="w-full bg-gray-900 border border-gray-800 text-white rounded-xl md:rounded-2xl p-3 md:p-4 pr-24 md:pr-32 min-h-[50px] md:min-h-[60px] max-h-32 md:max-h-40 resize-none outline-none focus:border-blue-500/50 shadow-inner font-mono text-sm disabled:opacity-50"
                         />
-                        <div className="absolute right-4 flex items-center gap-2">
+                        <div className="absolute right-2 md:right-4 flex items-center gap-1.5 md:gap-2">
                              <button onClick={toggleListening} disabled={loading||isTranscribing} 
-                                className={`p-3 rounded-xl transition-all ${isListening?'bg-red-500 text-white animate-pulse':'bg-gray-800 text-gray-400 hover:text-white'}`}>
+                                className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all ${isListening?'bg-red-500 text-white animate-pulse':'bg-gray-800 text-gray-400 hover:text-white'}`}>
                                 {isTranscribing?<Loader2 className="animate-spin w-4 h-4"/>:<Mic className="w-4 h-4"/>}
                              </button>
                              <button onClick={()=>handleSubmit()} disabled={loading||!prompt.trim()}
-                                className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-30">
+                                className="p-2 md:p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg md:rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-30">
                                 {loading?<Loader2 className="animate-spin w-4 h-4"/>:<Send className="w-4 h-4"/>}
                              </button>
                         </div>
                     </div>
-                    {messages.length > 0 && <button onClick={()=>setMessages([])} className="absolute -top-10 right-8 text-[10px] font-black text-gray-600 hover:text-red-500 tracking-widest uppercase transition-colors">Terminate Uplink [Clear History]</button>}
+                    <div className="max-w-3xl mx-auto text-center mt-1 pointer-events-none">
+                        <span className="text-[8px] md:text-[9px] text-gray-500/50 uppercase tracking-widest">AI may not be telling the truth.</span>
+                    </div>
+                    {messages.length > 0 && <button onClick={handleClearHistory} className="absolute -top-8 right-4 md:right-8 text-[8px] md:text-[10px] font-black text-gray-600 hover:text-red-500 tracking-widest uppercase transition-colors">Clear history</button>}
                 </div>
             </div>
         </div>

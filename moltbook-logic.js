@@ -51,7 +51,7 @@ function parseChallenge(raw) {
     }
     if (nums.length < 2) return '0.00';
     let answer;
-    if (/product|times\s+as\s+much|multiplied/.test(clean)) answer = nums[0] * nums[1];
+    if (/product|times|multiplied|each|total/.test(clean)) answer = nums[0] * nums[1];
     else if (/slow|decreas|subtract|minus|less|drops|loses|lost|reduce/.test(clean)) answer = nums[0] - nums[1];
     else answer = nums[0] + nums[1];
     return answer.toFixed(2);

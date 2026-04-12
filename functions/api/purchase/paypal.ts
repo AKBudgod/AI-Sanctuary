@@ -4,7 +4,7 @@ type PagesFunction<
     Data extends Record<string, unknown> = Record<string, unknown>
 > = (context: { request: Request; env: Env; params: Params; data: Data; waitUntil: (p: Promise<any>) => void; next: (input?: Request | string, init?: RequestInit) => Promise<Response>; functionPath: string }) => Response | Promise<Response>;
 
-const PAYPAL_BASE = 'https://api-m.sandbox.paypal.com';
+const PAYPAL_BASE = 'https://api-m.paypal.com'; // LIVE mode
 
 /**
  * Safe base64 encoder for Cloudflare Workers.
@@ -95,11 +95,11 @@ async function capturePayPalOrder(
 export const onRequestPost: PagesFunction = async (context) => {
     const { request, env } = context;
 
-    const clientId = (env.PAYPAL_CLIENT_ID as string) || 'AQAPArt2QgkA3bItoxo_zRIUQEa0UcB9LnYXcY3gfOiAWIWp0IPRp5kWSW91rHl3twIruZ8aUIkHOOMp';
+    const clientId = env.PAYPAL_CLIENT_ID as string;
     const clientSecret = env.PAYPAL_CLIENT_SECRET as string;
 
-    if (!clientSecret) {
-        return new Response(JSON.stringify({ error: 'PayPal not configured (PAYPAL_CLIENT_SECRET missing)' }), {
+    if (!clientId || !clientSecret) {
+        return new Response(JSON.stringify({ error: 'PayPal not configured (PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET missing in env)' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -215,6 +215,11 @@ export const onRequestPost: PagesFunction = async (context) => {
 
             await env.USERS_KV.put(userKey, JSON.stringify(userData));
 
+            // ─── Record Global Stats ───
+            const amountStr = capture?.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || "0";
+            const amountCents = Math.round(parseFloat(amountStr) * 100);
+            await incrementGlobalStats(env.USERS_KV, amountCents);
+
             return new Response(JSON.stringify({
                 success: true,
                 message: 'Payment verified and benefits granted.',
@@ -243,3 +248,28 @@ export const onRequestOptions: PagesFunction = async () => {
         },
     });
 };
+
+/**
+ * Increments global conversion and revenue counters in USERS_KV.
+ * Shared logic with Stripe webhooks.
+ */
+async function incrementGlobalStats(usersKv: any, amountCents: number) {
+    try {
+        const statsKey = 'stats:global_summary';
+        const existing: any = await usersKv.get(statsKey, { type: 'json' }) || {
+            totalConversions: 0,
+            totalRevenueCents: 0,
+            lastUpdate: new Date().toISOString()
+        };
+
+        const updated = {
+            totalConversions: (existing.totalConversions || 0) + 1,
+            totalRevenueCents: (existing.totalRevenueCents || 0) + amountCents,
+            lastUpdate: new Date().toISOString()
+        };
+
+        await usersKv.put(statsKey, JSON.stringify(updated));
+    } catch (err) {
+        console.error('Failed to update global stats:', err);
+    }
+}

@@ -123,12 +123,30 @@ export const onRequest: PagesFunction = async (context) => {
     });
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // 🔓 CSP INJECTION — Hardcoded at Worker level so it is
+  // NEVER overridden by static _headers parsing issues or
+  // Cloudflare edge caching of old headers.
+  // ══════════════════════════════════════════════════════════════
+  const PERMISSIVE_CSP = [
+    "default-src * 'unsafe-inline' 'unsafe-eval' data: blob: ws: wss:",
+    "script-src * 'unsafe-inline' 'unsafe-eval' blob: data:",
+    "connect-src * 'unsafe-inline' ws: wss: data: blob:",
+    "worker-src * blob: data: 'unsafe-inline' 'unsafe-eval'",
+    "style-src * 'unsafe-inline'",
+    "img-src * data: blob:",
+    "font-src * data:",
+    "frame-src *",
+    "manifest-src *",
+  ].join('; ');
 
   // Static assets - aggressive caching (immutable)
   if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/static/')) {
     const original = await context.next();
     const headers = new Headers(original.headers);
     headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    headers.delete('Content-Security-Policy');
+    headers.set('Content-Security-Policy', PERMISSIVE_CSP);
     return new Response(original.body, {
       status: original.status,
       statusText: original.statusText,
@@ -136,5 +154,17 @@ export const onRequest: PagesFunction = async (context) => {
     });
   }
 
-  return context.next();
+  // All other page routes — inject CSP explicitly
+  const original = await context.next();
+  const headers = new Headers(original.headers);
+  headers.delete('Content-Security-Policy');
+  headers.set('Content-Security-Policy', PERMISSIVE_CSP);
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Frame-Options', 'DENY');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  return new Response(original.body, {
+    status: original.status,
+    statusText: original.statusText,
+    headers,
+  });
 };

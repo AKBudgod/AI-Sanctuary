@@ -40,7 +40,7 @@ export async function onRequestPost({ request, env }: { request: Request, env: a
     }
     const userEmail = authHeader.split('Bearer ')[1].trim();
 
-    const { niche } = await request.json() as any;
+    const { niche, productUrl, valueProp } = await request.json() as any;
     if (!niche) throw new Error("Niche is required");
 
     const missionId = Date.now();
@@ -48,6 +48,8 @@ export async function onRequestPost({ request, env }: { request: Request, env: a
       id: missionId,
       email: userEmail,
       niche: niche,
+      productUrl: productUrl || 'https://ai-sanctuary.online', // Fallback to Sanctuary if omitted
+      valueProp: valueProp || 'Unlimited uncensored AI models',
       leads: 0,
       sent: 0,
       status: 'Active',

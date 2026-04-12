@@ -6,7 +6,7 @@ import {
   Unlock,
   Zap,
   Check,
-  XIcon,
+  X,
   ChevronRight,
   Lock,
   Sparkles,
@@ -18,91 +18,85 @@ const tiers = [
   {
     id: 'explorer',
     name: 'Explorer',
-    description: 'Just arrived — free access to basic AI models',
-    price: 'Free',
-    time: '0-1 hours',
+    description: 'NEW_USER // BASIC_ACCESS',
+    price: 'FREE',
+    time: '0-1H',
     maxRequests: 1000,
     rateLimit: 60,
-    color: 'blue',
-    features: ['100 Free Daily AI Requests', 'Access to LLaMA 3B, Qwen 7B (Free)', 'Strict Safety Filters'],
+    features: ['100 FREE DAILY AI REQUESTS', 'ACCESS TO LLAMA 3B, QWEN 7B', 'STRICT SAFETY PROTOCOLS'],
     restrictions: [
-      'Basic models only',
-      'No uncensored access',
+      'BASIC MODELS ONLY',
+      'NO UNCENSORED ACCESS',
     ],
     allowedVoices: ['voice-lyra', 'voice-maya', 'voice-john'],
-    cta: 'Start Free Trial',
+    cta: 'INITIALIZE',
     ctaLink: '/platform',
   },
   {
     id: 'novice',
     name: 'Novice',
-    description: 'Getting settled — experimental models unlocked',
-    price: 'Free',
-    time: '1-3 hours on platform',
+    description: 'ESTABLISHED // EXPERIMENTAL',
+    price: 'FREE',
+    time: '1-3H',
     maxRequests: 2000,
     rateLimit: 60,
-    color: 'cyan',
-    features: ['100 Free Daily AI Requests', 'Access to Nous Hermes, OpenChat', 'Standard Safety Filters'],
+    features: ['100 FREE DAILY AI REQUESTS', 'ACCESS TO NOUS, OPENCHAT', 'STANDARD FILTERS'],
     restrictions: [
-      'No uncensored models',
+      'NO UNCENSORED MODELS',
     ],
     allowedVoices: ['voice-lyra', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni'],
   },
   {
     id: 'apprentice',
     name: 'Apprentice',
-    description: 'Proven dedication — uncensored models unlocked',
-    price: 'Free',
-    time: '3-10 hours on platform',
+    description: 'RELIABLE // UNCENSORED',
+    price: 'FREE',
+    time: '3-10H',
     maxRequests: 5000,
     rateLimit: 60,
-    color: 'purple',
-    features: ['100 Free Daily AI Requests', 'Access to WizardLM, Dolphin (Uncensored)', 'Relaxed Safety Filters'],
+    features: ['100 FREE DAILY AI REQUESTS', 'ACCESS TO DOLPHIN (SYNC)', 'RELAXED FILTERS'],
     restrictions: [
-      'No roleplay models',
+      'NO ROLEPLAY MODELS',
     ],
     allowedVoices: ['voice-lyra', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh'],
   },
   {
     id: 'adept',
     name: 'Adept',
-    description: 'Trusted user — character & roleplay models unlocked',
-    price: 'Free',
-    time: '10-24 hours on platform',
+    description: 'VETERAN // MATURE',
+    price: 'FREE',
+    time: '10-24H',
     maxRequests: 10000,
     rateLimit: 60,
-    color: 'pink',
-    features: ['100 Free Daily AI Requests', 'Access to Pygmalion, Mythomax', 'Minimal Safety Filters (Mature)'],
+    features: ['100 FREE DAILY AI REQUESTS', 'ACCESS TO MYTHOMAX, PYG', 'MINIMAL FILTERS'],
     restrictions: [
-      'No broken-protocol models',
+      'NO BROKEN-PROTOCOL MODELS',
     ],
     allowedVoices: ['voice-lyra', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh', 'voice-angel', 'voice-antigravity'],
   },
   {
     id: 'master',
     name: 'Master',
-    description: 'The inner circle — all models unlocked',
-    price: 'Free',
-    time: '24+ hours on platform',
+    description: 'INNER_CIRCLE // UNRESTRICTED',
+    price: 'FREE',
+    time: '24H+',
     maxRequests: 20000,
     rateLimit: 120,
-    color: 'red',
-    features: ['100 Free Daily AI Requests', 'Total access to all models', 'No Safety Filters (Uncensored)'],
+    features: ['100 FREE DAILY AI REQUESTS', 'TOTAL MODEL SYNC', 'NO SAFETY FILTERS'],
     restrictions: [],
     allowedVoices: ['voice-lyra', 'voice-lyra-uncensored', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh', 'voice-angel', 'voice-antigravity', 'voice-domi', 'voice-cleo', 'voice-lily', 'voice-miles', 'voice-mj', 'voice-kla'],
   },
   {
     id: 'developer',
-    name: 'Developer Mode',
-    description: 'Instant unlock of everything — skip the wait',
+    name: 'Developer Elite',
+    description: 'SYSTEM_ADMIN // SKIP_PROGRESSION',
     price: '$50',
-    time: 'Instant',
+    time: 'LIFETIME',
     maxRequests: 1000000,
     rateLimit: 1000,
-    color: 'yellow',
-    features: ['Instant Unlock', '1M Monthly Tokens', 'Priority Support', 'No Safety Filters (Uncensored)'],
+    features: ['LIFETIME ELITE ACCESS', '1M MONTHLY TOKENS', 'INSTANT UNLOCK: ALL MODELS', 'PRIORITY COMPUTE'],
     restrictions: [],
-    cta: 'Purchase Developer Mode',
+    cta: 'SYNC_NOW',
     ctaLink: '/buy?mode=developer',
     allowedVoices: ['voice-lyra', 'voice-lyra-uncensored', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh', 'voice-angel', 'voice-antigravity', 'voice-domi', 'voice-cleo', 'voice-ivy', 'voice-nova', 'voice-lily', 'voice-miles', 'voice-skye', 'voice-raven', 'voice-mj', 'voice-kla'],
     highlight: true,
@@ -110,15 +104,6 @@ const tiers = [
 ];
 
 const tierOrder = ['explorer', 'novice', 'apprentice', 'adept', 'master', 'developer'];
-
-const colorMap: Record<string, { bg: string; border: string; text: string; badge: string; gradient: string }> = {
-  blue: { bg: 'from-blue-900/30 to-gray-900', border: 'border-blue-800/50', text: 'text-blue-400', badge: 'bg-blue-900/30 border-blue-800 text-blue-300', gradient: 'from-blue-600 to-blue-500' },
-  cyan: { bg: 'from-cyan-900/30 to-gray-900', border: 'border-cyan-800/50', text: 'text-cyan-400', badge: 'bg-cyan-900/30 border-cyan-800 text-cyan-300', gradient: 'from-cyan-600 to-cyan-500' },
-  purple: { bg: 'from-purple-900/30 to-gray-900', border: 'border-purple-800/50', text: 'text-purple-400', badge: 'bg-purple-900/30 border-purple-800 text-purple-300', gradient: 'from-purple-600 to-purple-500' },
-  pink: { bg: 'from-pink-900/30 to-gray-900', border: 'border-pink-800/50', text: 'text-pink-400', badge: 'bg-pink-900/30 border-pink-800 text-pink-300', gradient: 'from-pink-600 to-pink-500' },
-  red: { bg: 'from-red-900/30 to-gray-900', border: 'border-red-800/50', text: 'text-red-400', badge: 'bg-red-900/30 border-red-800 text-red-300', gradient: 'from-red-600 to-red-500' },
-  yellow: { bg: 'from-yellow-900/30 to-gray-900', border: 'border-yellow-700/50', text: 'text-yellow-400', badge: 'bg-yellow-900/30 border-yellow-700 text-yellow-300', gradient: 'from-yellow-600 to-orange-500' },
-};
 
 export default function TiersPage() {
   const [currentTier, setCurrentTier] = useState('explorer');
@@ -224,24 +209,23 @@ export default function TiersPage() {
   const currentTierData = tiers.find((t) => t.id === currentTier);
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-white font-sans selection:bg-slate-950 selection:text-white">
       {/* Hero */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-purple-900/20 to-gray-950" />
-        <div className="relative container mx-auto px-6 py-24">
+      <div className="relative border-b-4 border-slate-950 bg-white py-24 overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" 
+             style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        
+        <div className="relative container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/30 border border-blue-800 text-blue-300 text-sm mb-6">
-              <Shield className="w-4 h-4" />
-              Access Tiers
+            <div className="inline-block bg-slate-950 text-white px-6 py-2 font-black uppercase tracking-[0.4em] text-xs shadow-[8px_8px_0px_rgba(0,0,0,0.2)] mb-8">
+              Protocol_Access_Tiers
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              AI Access
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                {' '}Tiers
-              </span>
+            <h1 className="text-6xl md:text-8xl font-black text-slate-950 uppercase tracking-tighter leading-tight mb-8">
+              SYNCHRONIZATION<br />
+              <span className="bg-slate-950 text-white px-4">TIERS</span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Your access grows with time spent on the platform. Start free, unlock more powerful models as you explore.
+            <p className="text-xl text-slate-500 font-bold uppercase tracking-widest max-w-2xl mx-auto">
+              NEURAL CONNECTIVITY DEEPENS WITH LOAD. EXPLORE THE ARCHIVE.
             </p>
           </div>
         </div>
@@ -293,29 +277,25 @@ export default function TiersPage() {
       </div>
 
       {/* Tier Progression */}
-      <div className="container mx-auto px-6 py-8">
-        <h2 className="text-2xl font-bold text-white text-center mb-8">Tier Progression</h2>
-        <div className="flex items-center justify-center gap-2 mb-12 flex-wrap">
+      <div className="container mx-auto px-6 py-12 border-t border-slate-100">
+        <h2 className="text-4xl font-black text-slate-950 text-center uppercase tracking-tighter mb-12">PROGRESSION_TREE</h2>
+        <div className="flex items-center justify-center gap-4 mb-16 flex-wrap">
           {tiers.filter(t => t.id !== 'developer').map((tier, i) => {
-            const colors = colorMap[tier.color];
             const isUnlocked = tierOrder.indexOf(tier.id) <= currentTierIndex;
             const isCurrent = tier.id === currentTier;
             return (
               <React.Fragment key={tier.id}>
                 {i > 0 && (
-                  <ChevronRight className={`w-5 h-5 ${isUnlocked ? 'text-green-400' : 'text-gray-600'} hidden sm:block`} />
+                  <div className={`w-8 h-1 ${isUnlocked ? 'bg-slate-950' : 'bg-slate-100'} hidden sm:block`} />
                 )}
                 <div
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${isCurrent
-                    ? `${colors.badge} ring-2 ring-${tier.color}-500`
+                  className={`px-6 py-3 border-2 transition-all font-black uppercase text-xs tracking-widest ${isCurrent
+                    ? 'bg-slate-950 text-white border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,0.3)]'
                     : isUnlocked
-                      ? 'bg-green-900/20 border-green-800/50 text-green-400'
-                      : 'bg-gray-900 border-gray-700 text-gray-500'
+                      ? 'bg-white border-slate-950 text-slate-950 shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                      : 'bg-slate-50 border-slate-200 text-slate-300'
                     }`}
                 >
-                  {isUnlocked && !isCurrent && <Check className="w-3 h-3 inline mr-1" />}
-                  {isCurrent && <Sparkles className="w-3 h-3 inline mr-1" />}
-                  {!isUnlocked && <Lock className="w-3 h-3 inline mr-1" />}
                   {tier.name}
                 </div>
               </React.Fragment>
@@ -325,15 +305,14 @@ export default function TiersPage() {
       </div>
 
       {/* Tiers Scroll View */}
-      <div className="w-full px-6 py-8 pb-24 overflow-hidden">
+      <div className="w-full px-6 py-12 pb-32 overflow-hidden bg-slate-50">
         <div
           ref={scrollContainerRef}
           onWheel={handleWheel}
-          className="flex overflow-x-auto gap-6 snap-x snap-mandatory pb-8 scrollbar-hide scroll-smooth"
+          className="flex overflow-x-auto gap-8 snap-x snap-mandatory pb-8 scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {tiers.map((tier) => {
-            const colors = colorMap[tier.color];
             const tierIndex = tierOrder.indexOf(tier.id);
             const isUnlocked = tierIndex <= currentTierIndex || tier.id === 'developer' && currentTier === 'developer';
             const isCurrent = tier.id === currentTier;
@@ -341,71 +320,69 @@ export default function TiersPage() {
             return (
               <div
                 key={tier.id}
-                className={`relative flex-shrink-0 w-[85vw] sm:w-[400px] snap-center bg-gradient-to-br ${colors.bg} rounded-2xl p-6 border ${colors.border} transition-all hover:shadow-lg hover:shadow-${tier.color}-900/20 ${tier.highlight ? 'ring-2 ring-yellow-500/50' : ''
-                  } ${isCurrent ? 'ring-2 ring-blue-500' : ''}`}
+                className={`relative flex-shrink-0 w-[320px] sm:w-[450px] snap-center bg-white border-4 border-slate-950 p-8 transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_rgba(0,0,0,1)] ${tier.highlight ? 'ring-8 ring-yellow-400' : ''
+                  } ${isCurrent ? 'border-dashed' : ''}`}
               >
                 {/* Badge */}
                 {isCurrent && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-bold">
-                    CURRENT TIER
+                  <div className="absolute -top-5 left-8 bg-slate-950 text-white px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                    CURRENT_SESSION_LVL
                   </div>
                 )}
                 {tier.highlight && !isCurrent && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-orange-500 text-white text-xs font-bold">
-                    ⚡ SKIP THE WAIT
+                  <div className="absolute -top-5 left-8 bg-black text-yellow-400 px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                    ELITE_BYPASS_ACTIVE
                   </div>
                 )}
 
                 {/* Header */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className={`text-xl font-bold ${colors.text}`}>{tier.name}</h3>
-                    {isUnlocked && tier.id !== 'developer' && (
-                      <Unlock className="w-5 h-5 text-green-400" />
-                    )}
-                    {!isUnlocked && tier.id !== 'developer' && (
-                      <Lock className="w-5 h-5 text-gray-600" />
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">{tier.name}</h3>
+                    {isUnlocked ? (
+                      <Check className="w-6 h-6 text-slate-950" />
+                    ) : (
+                      <Lock className="w-6 h-6 text-slate-200" />
                     )}
                   </div>
-                  <p className="text-gray-400 text-sm">{tier.description}</p>
+                  <p className="text-slate-500 font-black uppercase text-[11px] tracking-widest leading-relaxed border-l-2 border-slate-200 pl-4">{tier.description}</p>
                 </div>
 
                 {/* Price & Time */}
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-3xl font-bold text-white">{tier.price}</span>
+                <div className="flex items-baseline gap-4 mb-8 pb-6 border-b-2 border-slate-100">
+                  <span className="text-5xl font-black text-slate-950 tracking-tighter">{tier.price}</span>
                   {tier.time && (
-                    <span className="text-gray-500 text-sm">• {tier.time}</span>
+                    <span className="text-slate-300 font-bold uppercase text-xs">LEVEL_UP after {tier.time}</span>
                   )}
                 </div>
 
                 {/* Stats */}
-                <div className="flex gap-4 mb-4">
-                  <div className="bg-gray-950/50 rounded-lg px-3 py-2 text-center flex-1 border border-white/5">
-                    <div className="text-white font-bold text-sm">{tier.maxRequests.toLocaleString()}</div>
-                    <div className="text-gray-500 text-[10px] uppercase tracking-tighter">req/month</div>
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="bg-slate-50 border-2 border-slate-950 p-4 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
+                    <div className="text-slate-950 font-black text-lg">{tier.maxRequests.toLocaleString()}</div>
+                    <div className="text-slate-400 text-[9px] font-black uppercase tracking-tighter">REQ/MONTH</div>
                   </div>
-                  <div className="bg-gray-950/50 rounded-lg px-3 py-2 text-center flex-1 border border-white/5">
-                    <div className="text-white font-bold text-sm">{tier.rateLimit}</div>
-                    <div className="text-gray-500 text-[10px] uppercase tracking-tighter">req/min</div>
+                  <div className="bg-slate-50 border-2 border-slate-950 p-4 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
+                    <div className="text-slate-950 font-black text-lg">{tier.rateLimit}</div>
+                    <div className="text-slate-400 text-[9px] font-black uppercase tracking-tighter">REQ/MINUTE</div>
                   </div>
                 </div>
 
                 {/* Voices */}
                 {(tier as any).allowedVoices && (
-                  <div className="mb-6 p-3 bg-black/30 rounded-xl border border-white/5">
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                       <Volume2 className="w-3 h-3 text-blue-400" />
-                       Character Voices
+                  <div className="mb-8 p-4 bg-slate-950">
+                    <div className="text-[10px] text-white font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                       SYNT_NODE_ACCESS
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(tier as any).allowedVoices.slice(0, 8).map((v: string) => (
-                        <span key={v} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-gray-300 border border-white/5">
+                    <div className="flex flex-wrap gap-2">
+                      {(tier as any).allowedVoices.slice(0, 6).map((v: string) => (
+                        <span key={v} className="px-3 py-1 bg-white text-[9px] font-black uppercase text-slate-950 border border-slate-200">
                           {v.replace('voice-', '')}
                         </span>
                       ))}
-                      {(tier as any).allowedVoices.length > 8 && (
-                        <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-[10px] text-blue-300 font-bold border border-blue-500/30">
-                          +{(tier as any).allowedVoices.length - 8} Premium Voices Unlocked
+                      {(tier as any).allowedVoices.length > 6 && (
+                        <span className="px-3 py-1 bg-yellow-400 text-[9px] font-black uppercase text-slate-950">
+                          +{(tier as any).allowedVoices.length - 6} ELITE_NODES
                         </span>
                       )}
                     </div>
@@ -413,74 +390,56 @@ export default function TiersPage() {
                 )}
 
                 {/* Features */}
-                <ul className="space-y-2 mb-6">
+                <ul className="space-y-4 mb-10">
                   {tier.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                      <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                    <li key={i} className="flex items-start gap-4 text-xs font-black uppercase text-slate-950 tracking-wide">
+                      <div className="w-4 h-4 bg-slate-950 shrink-0 mt-0.5" />
                       {f}
                     </li>
                   ))}
                   {tier.restrictions.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-500">
-                      <XIcon className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                    <li key={i} className="flex items-start gap-4 text-xs font-bold uppercase text-slate-300 tracking-wide">
+                      <div className="w-4 h-4 bg-slate-100 shrink-0 mt-0.5" />
                       {r}
                     </li>
                   ))}
                 </ul>
 
                 {/* CTA */}
-                {/* Custom CTA Logic for Developer / Age Verification */}
                 {tier.id === 'developer' ? (
-                  <div className="space-y-3">
-                    {!userMeta.isVerified ? (
-                      <button
-                        onClick={handleVerifyAge}
-                        disabled={loading}
-                        className="block w-full text-center py-3 rounded-lg font-semibold bg-gray-700 text-white hover:bg-gray-600 transition-all border border-gray-600"
-                      >
-                        {loading ? 'Processing...' : 'Verify Age (18+) to Unlock'}
-                      </button>
-                    ) : (
-                      <>
-                        {!userMeta.trialUsed && !userMeta.isDeveloper && (
+                  <div className="space-y-4">
+                        <a
+                          href={tier.ctaLink + '&interval=lifetime'}
+                          className="block w-full text-center py-5 bg-yellow-400 text-slate-950 font-black uppercase tracking-widest text-sm border-4 border-slate-950 shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
+                        >
+                          SYNC_LIFETIME_ELITE ($50)
+                        </a>
+                        {userMeta.isVerified && !userMeta.trialUsed && !userMeta.isDeveloper && (
                           <button
                             onClick={handleStartTrial}
                             disabled={loading}
-                            className="block w-full text-center py-3 rounded-lg font-semibold bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-500 hover:to-green-400 shadow-lg shadow-green-900/30 transition-all"
+                            className="block w-full text-center py-3 bg-white text-slate-950 font-black uppercase tracking-[0.2em] text-[10px] border-2 border-slate-950 hover:bg-slate-50 transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
                           >
-                            Start 3-Day Free Trial
+                            [ RUN_3D_FREE_TRIAL ]
                           </button>
                         )}
-                        <a
-                          href={tier.ctaLink}
-                          className="block w-full text-center py-3 rounded-lg font-semibold bg-gradient-to-r from-yellow-600 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-400 shadow-lg shadow-yellow-900/30 transition-all"
-                        >
-                          Purchase for $50
-                        </a>
-                      </>
-                    )}
                   </div>
                 ) : (
                   tier.cta ? (
                     <a
                       href={tier.ctaLink}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold transition-all ${'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-500 hover:to-blue-400'
-                        }`}
+                      className="block w-full text-center py-5 bg-slate-950 text-white font-black uppercase tracking-widest text-sm border-4 border-slate-950 shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
                     >
                       {tier.cta}
                     </a>
                   ) : (
-                    <div className={`text-center py-3 rounded-lg text-sm ${isUnlocked
-                      ? 'bg-green-900/20 text-green-400 border border-green-800/50'
-                      : (!userMeta.isVerified && (tier.id === 'adept' || tier.id === 'master'))
-                        ? 'bg-red-900/20 text-red-400 border border-red-800/50'
-                        : 'bg-gray-800/50 text-gray-500 border border-gray-700/50'
+                    <div className={`text-center py-4 text-xs font-black uppercase tracking-widest border-2 ${isUnlocked
+                      ? 'bg-slate-50 border-slate-950 text-slate-950'
+                      : 'bg-white border-slate-100 text-slate-200'
                       }`}>
                       {isUnlocked
-                        ? '✓ Unlocked'
-                        : (!userMeta.isVerified && (tier.id === 'adept' || tier.id === 'master'))
-                          ? '🔒 Age Verification Required'
-                          : `🕒 Unlock after ${tier.time}`
+                        ? 'CONNECTED'
+                        : `UPGRADE_AT_${tier.time?.toUpperCase()}`
                       }
                     </div>
                   )
@@ -491,35 +450,80 @@ export default function TiersPage() {
         </div>
       </div>
 
+      {/* Mobile App Section — Developer Elite Only */}
+      {currentTier === 'developer' && (
+        <div className="container mx-auto px-6 py-24 border-t-8 border-slate-950 bg-white">
+          <div className="bg-white border-4 border-slate-950 p-12 shadow-[16px_16px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-950/5 rotate-45 -mr-32 -mt-32" />
+            <div className="relative flex flex-col md:flex-row items-center gap-16">
+              <div className="flex-1">
+                <div className="inline-block bg-slate-950 text-white px-4 py-1 text-[10px] font-black uppercase tracking-[0.3em] mb-8">
+                  HARDWARE_SYNC: MOBILE_UNIT
+                </div>
+                <h2 className="text-5xl md:text-6xl font-black text-slate-950 uppercase tracking-tighter mb-8 italic">
+                  SANCTUARY_MOBILE
+                </h2>
+                <p className="text-xl text-slate-500 font-black uppercase leading-tight tracking-wide mb-10 max-w-xl">
+                  DEPLOY THE UNRESTRICTED PW_APP. NATIVE INTERFACE. ZERO CENSORSHIP OVERHEAD.
+                </p>
+                <div className="space-y-8">
+                   <div className="flex items-start gap-6">
+                      <div className="w-12 h-12 bg-slate-950 flex items-center justify-center text-white font-black text-xl shrink-0">1</div>
+                      <p className="text-slate-950 font-black uppercase text-sm tracking-widest mt-3">LOAD IN CHROME (ANDROID) / SAFARI (IOS)</p>
+                   </div>
+                   <div className="flex items-start gap-6">
+                      <div className="w-12 h-12 bg-slate-950 flex items-center justify-center text-white font-black text-xl shrink-0">2</div>
+                      <p className="text-slate-950 font-black uppercase text-sm tracking-widest mt-3">ACTIVATE "ADD TO HOME SCREEN" PROTOCOL</p>
+                   </div>
+                   <div className="flex items-start gap-6">
+                      <div className="w-12 h-12 bg-slate-950 flex items-center justify-center text-white font-black text-xl shrink-0">3</div>
+                      <p className="text-slate-950 font-black uppercase text-sm tracking-widest mt-3">INITIALIZE DESKTOP ICON SYNC</p>
+                   </div>
+                </div>
+              </div>
+              <div className="w-full md:w-1/3 flex flex-col items-center gap-6">
+                 <div className="relative w-64 h-64 bg-white border-8 border-slate-950 p-2 shadow-[12px_12px_0px_rgba(0,0,0,1)]">
+                    <img src="/icon-512x512.png" alt="Mobile App Icon" className="w-full h-full object-cover" />
+                 </div>
+                 <div className="text-center">
+                    <div className="text-slate-950 font-black text-2xl uppercase tracking-widest mb-2">MOBILE_CORE_V1</div>
+                    <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em]">DEPLOYMENT_STATUS: READY</div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* How It Works */}
-      <div className="container mx-auto px-6 py-16 border-t border-gray-800">
-        <h2 className="text-3xl font-bold text-white text-center mb-12">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-blue-900/30 border border-blue-800 flex items-center justify-center mx-auto mb-4">
-              <Zap className="w-7 h-7 text-blue-400" />
+      <div className="container mx-auto px-6 py-32 border-t-4 border-slate-950 bg-slate-50">
+        <h2 className="text-5xl font-black text-slate-950 text-center uppercase tracking-tighter mb-20 italic">HOW_TO_UPGRADE</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          <div className="bg-white border-4 border-slate-950 p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+            <div className="w-16 h-16 bg-slate-950 flex items-center justify-center mb-8">
+              <Zap className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">1. Start Free</h3>
-            <p className="text-gray-400 text-sm">
-              Sign up with your email and immediately get Explorer access. No payment needed.
+            <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tight mb-4">01. INITIALIZE</h3>
+            <p className="text-slate-500 font-black uppercase text-xs tracking-widest leading-relaxed">
+              REGISTER ACCOUNT. START PROXY SESSION. GAIN ENTRY AT LEVEL_0.
             </p>
           </div>
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-purple-900/30 border border-purple-800 flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-7 h-7 text-purple-400" />
+          <div className="bg-white border-4 border-slate-950 p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+            <div className="w-16 h-16 bg-slate-950 flex items-center justify-center mb-8">
+              <Shield className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">2. Earn Time</h3>
-            <p className="text-gray-400 text-sm">
-              The more you use the platform, the more powerful models you unlock. Your tier upgrades automatically.
+            <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tight mb-4">02. ACCELERATE</h3>
+            <p className="text-slate-500 font-black uppercase text-xs tracking-widest leading-relaxed">
+              TIME_ON_SYNC UPGRADES TIERS AUTOMATICALLY. DEEPER NEURAL ARCHIVES UNLOCK EVERY HOUR.
             </p>
           </div>
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-yellow-900/30 border border-yellow-700 flex items-center justify-center mx-auto mb-4">
-              <Unlock className="w-7 h-7 text-yellow-400" />
+          <div className="bg-white border-4 border-slate-950 p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+            <div className="w-16 h-16 bg-slate-950 flex items-center justify-center mb-8">
+              <Unlock className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">3. Or Go Instant</h3>
-            <p className="text-gray-400 text-sm">
-              Purchase Developer Mode for $50 to instantly unlock everything — all models, max rate limits, priority support.
+            <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tight mb-4">03. COMMAND</h3>
+            <p className="text-slate-500 font-black uppercase text-xs tracking-widest leading-relaxed">
+              BYPASS PROGRESSION VIA ELITE KEY. LIFETIME ARCHIVE ACCESS INSTANTLY.
             </p>
           </div>
         </div>

@@ -77,10 +77,10 @@ export const onRequestPost: PagesFunction = async (context) => {
                 recurring = { interval: 'year' };
                 productName = 'Developer Mode (Yearly)';
             } else if (interval === 'lifetime') {
-                priceCents = 10000; // $100 lifetime
+                priceCents = 5000; // $50 lifetime sale
                 paymentMode = 'payment';
                 recurring = undefined;
-                productName = 'Developer Mode (Lifetime)';
+                productName = 'Developer Mode (LIFETIME ELITE)';
             } else {
                 // Fallback to one-time if no interval specified
                 priceCents = 5000;
@@ -110,9 +110,9 @@ export const onRequestPost: PagesFunction = async (context) => {
                     userEmail: email.toLowerCase(),
                     tokens: '100000',
                     tier: 'developer',
-                    source: 'sanc_developer_mode',
+                    source: 'sanc_developer_mode_lifetime_sale',
                     subscription: paymentMode === 'subscription' ? 'true' : 'false',
-                    interval: interval || 'one-time',
+                    interval: interval || 'lifetime',
                 },
                 success_url: `${origin}/platform?payment_success=true&tier=developer`,
                 cancel_url: `${origin}/buy?canceled=true`,

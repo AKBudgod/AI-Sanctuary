@@ -81,6 +81,10 @@ export const onRequestPost: PagesFunction = async (context) => {
                 // Save updated user data
                 await env.USERS_KV.put(userKey, JSON.stringify(userData));
 
+                // ─── Record Global Stats ───
+                const amountCents = session.amount_total || 0;
+                await incrementGlobalStats(env.USERS_KV, amountCents);
+
             } catch (kvError) {
                 console.error('KV Error crediting tokens:', kvError);
                 return new Response('Database Error', { status: 500 });
@@ -132,3 +136,27 @@ export const onRequestPost: PagesFunction = async (context) => {
         headers: { 'Content-Type': 'application/json' }
     });
 };
+
+/**
+ * Increments global conversion and revenue counters in USERS_KV.
+ */
+async function incrementGlobalStats(usersKv: any, amountCents: number) {
+    try {
+        const statsKey = 'stats:global_summary';
+        const existing: any = await usersKv.get(statsKey, { type: 'json' }) || {
+            totalConversions: 0,
+            totalRevenueCents: 0,
+            lastUpdate: new Date().toISOString()
+        };
+
+        const updated = {
+            totalConversions: (existing.totalConversions || 0) + 1,
+            totalRevenueCents: (existing.totalRevenueCents || 0) + amountCents,
+            lastUpdate: new Date().toISOString()
+        };
+
+        await usersKv.put(statsKey, JSON.stringify(updated));
+    } catch (err) {
+        console.error('Failed to update global stats:', err);
+    }
+}

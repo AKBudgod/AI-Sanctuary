@@ -1,9 +1,7 @@
-interface Env {
-  USERS_KV: KVNamespace;
-}
-
+// Cloudflare Worker Environment - Simplified for compatibility
 export const onRequestGet: any = async (context: any) => {
-  const env = context.env as Env;
+
+  const env = context.env;
   try {
     const authHeader = context.request.headers.get('Authorization');
     const userEmail = authHeader?.replace('Bearer ', '')?.trim()?.toLowerCase();
@@ -33,7 +31,7 @@ export const onRequestGet: any = async (context: any) => {
 };
 
 export const onRequestPost: any = async (context: any) => {
-  const env = context.env as Env;
+  const env = context.env;
   try {
     const authHeader = context.request.headers.get('Authorization');
     const userEmail = authHeader?.replace('Bearer ', '')?.trim()?.toLowerCase();
@@ -60,3 +58,34 @@ export const onRequestPost: any = async (context: any) => {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 };
+
+export const onRequestDelete: any = async (context: any) => {
+  const env = context.env;
+  try {
+    const authHeader = context.request.headers.get('Authorization');
+    const userEmail = authHeader?.replace('Bearer ', '')?.trim()?.toLowerCase();
+    
+    if (!userEmail || userEmail === 'anonymous') {
+      return new Response(JSON.stringify({ error: 'Authentication required' }), { status: 401 });
+    }
+
+    const url = new URL(context.request.url);
+    const modelId = url.searchParams.get('modelId');
+
+    if (!modelId) {
+      return new Response(JSON.stringify({ error: 'modelId required' }), { status: 400 });
+    }
+
+    const historyKey = `history:${userEmail}:${modelId}`;
+    await (context.env.USERS_KV as any).delete(historyKey);
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  }
+};
+

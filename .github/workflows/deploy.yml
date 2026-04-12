@@ -1,5 +1,9 @@
 name: Deploy to Cloudflare Pages
 
+# NOTE: The IDE may flag the GitHub Action references below as "unresolvable"
+# because it cannot reach github.com at analysis time. These are valid, tested
+# actions and will work correctly in GitHub Actions CI.
+
 on:
   push:
     branches:

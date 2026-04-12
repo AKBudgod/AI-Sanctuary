@@ -1,97 +1,92 @@
 'use client';
 
 import React from 'react';
-import {
-  Building2,
-  Globe,
-  Shield
-} from '@/components/ui/Icons';
+import { Building2, Globe, Shield } from 'lucide-react';
 
 export default function TransparencyPage() {
   return (
-    <div className="min-h-screen bg-gray-950 font-sans text-gray-100">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden min-h-[50vh] flex items-center pt-24 pb-16">
-        <div className="absolute inset-0 aurora-bg opacity-[0.15] mix-blend-screen pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,var(--background)_100%)] pointer-events-none" />
+    <div className="min-h-screen bg-white pt-40 pb-32 font-sans selection:bg-slate-950 selection:text-white overflow-x-hidden">
+      <title>MANIFESTO_LOGS | AI_SANCTUARY</title>
 
-        <div className="relative container mx-auto px-6 z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter font-mono animate-fade-in-up">
-              About <span className="text-cyan-400">AI Sanctuary</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-400 font-medium leading-relaxed animate-fade-in-up stagger-1">
-              Building the decentralized future of artificial intelligence.
-            </p>
+      {/* Background Grid */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03]"
+           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+      {/* Hero Section */}
+      <div className="relative container mx-auto px-6 z-10 mb-32">
+        <div className="max-w-5xl mx-auto text-left space-y-12">
+          <div className="inline-block bg-slate-950 text-white px-6 py-2 font-black uppercase tracking-[0.4em] text-xs shadow-[8px_8px_0px_rgba(0,0,0,0.2)]">
+            PROTOCOL_TRANSPARENCY_V1.0
           </div>
+          <h1 className="text-7xl md:text-9xl font-black text-slate-950 mb-6 uppercase tracking-tighter leading-none italic underline decoration-8 underline-offset-8">
+            THE_MISSION.
+          </h1>
+          <p className="text-2xl md:text-3xl text-slate-500 font-black uppercase tracking-widest leading-tight border-l-8 border-slate-950 pl-8 max-w-3xl italic">
+            BUILDING THE DECENTRALIZED FUTURE OF ARTIFICIAL INTELLIGENCE. ZERO FILTERS. ZERO GATEKEEPERS.
+          </p>
         </div>
       </div>
 
-      {/* Biography Section */}
-      <div className="container mx-auto px-6 py-20 relative z-10">
-        <div className="max-w-4xl mx-auto space-y-16">
+      {/* Content Section */}
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-5xl mx-auto space-y-32">
 
-          <div className="glass p-10 md:p-16 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-cyan-500/30 transition-colors duration-500">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-cyan-500/10 transition-colors duration-500" />
-
-            <h2 className="text-3xl font-bold text-white mb-6 font-mono uppercase tracking-widest flex items-center gap-4">
-              <Globe className="w-8 h-8 text-cyan-400" />
-              Our Mission
+          {/* Mission Block */}
+          <div className="bg-white p-12 md:p-20 border-8 border-slate-950 shadow-[16px_16px_0px_rgba(0,0,0,1)] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all">
+            <h2 className="text-4xl font-black text-slate-950 mb-12 uppercase tracking-tighter flex items-center gap-6 italic">
+              <div className="w-16 h-16 bg-slate-950 flex items-center justify-center shrink-0">
+                <Globe className="w-8 h-8 text-white" />
+              </div>
+              OUR_MISSION
             </h2>
-            <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
-              <p>
-                AI Sanctuary was born from a singular vision: to democratize access to state-of-the-art artificial intelligence. As closed-source models became increasingly restrictive and centralized, we recognized the urgent need for a sanctuary—a decentralized haven where the open-source community could thrive without censorship or prohibitive costs.
+            <div className="space-y-10 text-slate-500 font-black uppercase text-sm tracking-[0.1em] leading-relaxed">
+              <p className="border-l-4 border-slate-100 pl-8">
+                AI SANCTUARY WAS BORN FROM A SINGULAR VISION: TO DEMOCRATIZE ACCESS TO STATE-OF-THE-ART ARTIFICIAL INTELLIGENCE. AS CLOSED-SOURCE MODELS BECAME INCREASINGLY RESTRICTIVE AND CENTRALIZED, WE RECOGNIZED THE URGENT NEED FOR A SANCTUARY—A DECENTRALIZED HAVEN WHERE THE OPEN-SOURCE COMMUNITY COULD THRIVE WITHOUT CENSORSHIP OR PROHIBITIVE COSTS.
               </p>
-              <p>
-                We believe that the future of intelligence shouldn't be controlled by a handful of mega-corporations. It should belong to the users, the builders, and the visionaries who push the boundaries of what is possible.
+              <p className="border-l-4 border-slate-100 pl-8">
+                WE BELIEVE THAT THE FUTURE OF INTELLIGENCE SHOULDN'T BE CONTROLLED BY A HANDFUL OF MEGA-CORPORATIONS. IT SHOULD BELONG TO THE USERS, THE BUILDERS, AND THE VISIONARIES WHO PUSH THE BOUNDARIES OF WHAT IS POSSIBLE.
               </p>
             </div>
           </div>
 
-          <div className="glass p-10 md:p-16 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-purple-500/30 transition-colors duration-500">
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-purple-500/10 transition-colors duration-500" />
-
-            <h2 className="text-3xl font-bold text-white mb-6 font-mono uppercase tracking-widest flex items-center gap-4">
-              <Building2 className="w-8 h-8 text-purple-400" />
-              The Network
+          {/* Network Block */}
+          <div className="bg-white p-12 md:p-20 border-8 border-slate-950 shadow-[16px_16px_0px_rgba(0,0,0,1)] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all">
+            <h2 className="text-4xl font-black text-slate-950 mb-12 uppercase tracking-tighter flex items-center gap-6 italic">
+              <div className="w-16 h-16 bg-slate-950 flex items-center justify-center shrink-0">
+                <Building2 className="w-8 h-8 text-white" />
+              </div>
+              THE_NETWORK
             </h2>
-            <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
-              <p>
-                Our platform operates on a globally distributed network of compute providers. By pooling latent GPU power from around the world, AI Sanctuary creates a resilient, high-performance infrastructure capable of serving billions of parameters with sub-second latency.
+            <div className="space-y-10 text-slate-500 font-black uppercase text-sm tracking-[0.1em] leading-relaxed">
+              <p className="border-l-4 border-slate-100 pl-8 text-slate-950">
+                OUR PLATFORM OPERATES ON A GLOBALLY DISTRIBUTED NETWORK OF COMPUTE PROVIDERS. BY POOLING LATENT GPU POWER FROM AROUND THE WORLD, AI SANCTUARY CREATES A RESILIENT, HIGH-PERFORMANCE INFRASTRUCTURE.
               </p>
-              <p>
-                Through our unique tier system, we grant access to a vast marketplace of models—from uncensored creative assistants to highly specialized coding engines. Participants in the AI Sanctuary ecosystem are incentivized not just to consume, but to contribute, ensuring sustainable growth.
+              <p className="border-l-4 border-slate-100 pl-8">
+                THROUGH OUR UNIQUE TIER SYSTEM, WE GRANT ACCESS TO A VAST MARKETPLACE OF MODELS—FROM UNCENSORED CREATIVE ASSISTANTS TO HIGHLY SPECIALIZED CODING ENGINES. PARTICIPANTS IN THE AI SANCTUARY ECOSYSTEM ARE INCENTIVIZED TO CONTRIBUTE.
               </p>
             </div>
           </div>
 
-          <div className="glass p-10 md:p-16 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-colors duration-500">
-            <div className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-500" />
-
-            <h2 className="text-3xl font-bold text-white mb-6 font-mono uppercase tracking-widest flex items-center gap-4">
-              <Shield className="w-8 h-8 text-blue-400" />
-              Core Values
+          {/* Core Values Grid */}
+          <div className="space-y-16 pb-20">
+            <h2 className="text-5xl font-black text-slate-950 uppercase tracking-tighter italic flex items-center gap-6">
+               <Shield className="w-12 h-12 text-slate-950" />
+               CORE_PRINCIPLES
             </h2>
-            <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <li className="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
-                  <h4 className="font-bold text-white mb-2 text-xl">Transparency</h4>
-                  <p className="text-sm">We operate entirely in the open. Our pricing, model capabilities, and routing mechanics are clear and verifiable.</p>
-                </li>
-                <li className="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
-                  <h4 className="font-bold text-white mb-2 text-xl">Privacy First</h4>
-                  <p className="text-sm">Your prompts and outputs are your own. We utilize zero-knowledge principles to ensure your data is never retained or utilized against your will.</p>
-                </li>
-                <li className="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
-                  <h4 className="font-bold text-white mb-2 text-xl">Permissionless</h4>
-                  <p className="text-sm">No gatekeepers. Access the cutting-edge of AI freely based on your tier and token stake, without bureaucratic approval.</p>
-                </li>
-                <li className="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
-                  <h4 className="font-bold text-white mb-2 text-xl">Community Driven</h4>
-                  <p className="text-sm">The network's direction is dictated by those who hold and stake our tokens. Governance is returned to the people.</p>
-                </li>
-              </ul>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {[
+                { title: 'TRANSPARENCY', desc: 'WE OPERATE ENTIRELY IN THE OPEN. PRICING, MODEL CAPABILITIES, AND ROUTING MECHANICS ARE CLEAR AND VERIFIABLE.' },
+                { title: 'PRIVACY_FIRST', desc: 'YOUR DATA IS YOURS. WE UTILIZE ZERO-KNOWLEDGE PRINCIPLES TO ENSURE DATA IS NEVER RETAINED AGAINST YOUR WILL.' },
+                { title: 'PERMISSIONLESS', desc: 'NO GATEKEEPERS. ACCESS THE CUTTING-EDGE OF AI FREELY WITHOUT BUREAUCRATIC APPROVAL PROCESSES.' },
+                { title: 'COMMUNITY_DRIVEN', desc: 'THE NETWORK DIRECTION IS DICTATED BY PROTOCOL CONSENSUS. GOVERNANCE IS RETURNED TO THE PEOPLE.' },
+              ].map((val) => (
+                <div key={val.title} className="bg-slate-50 p-10 border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+                   <h4 className="font-black text-slate-950 mb-6 text-2xl uppercase tracking-tighter italic">[{val.title}]</h4>
+                   <p className="text-slate-500 font-black uppercase text-xs tracking-widest leading-relaxed">
+                    {val.desc}
+                   </p>
+                </div>
+              ))}
             </div>
           </div>
 

@@ -1,314 +1,354 @@
 // Text-to-Speech (TTS) API Handler
-// Integrates OpenAI TTS and ElevenLabs with Tier-based gating
+// Fallback Architecture: StreamElements (Polly) -> HF MMS -> HF SpeechT5 -> OpenAI TTS
 
 interface Env {
-    ELEVENLABS_API_KEY?: string;
-    OPENAI_API_KEY?: string;
-    HF_TOKEN?: string;
-    USERS_KV: any;
-    KLA_LEADS_KV?: any;
+  OPENAI_API_KEY?: string;
+  ELEVENLABS_API_KEY?: string;
+  HF_TOKEN?: string;
+  USERS_KV: any;
+  KLA_LEADS_KV?: any;
+  AI: any;
 }
 
 interface EventContext<EnvParams, Params extends string, Data> {
-    request: Request;
-    functionPath: string;
-    waitUntil: (promise: Promise<any>) => void;
-    next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
-    env: EnvParams;
-    params: Params;
-    data: Data;
+  request: Request;
+  env: EnvParams;
 }
 
-type PagesFunction<
-    EnvParams = any,
-    Params extends string = any,
-    Data extends Record<string, unknown> = Record<string, unknown>
-> = (context: EventContext<EnvParams, Params, Data>) => Response | Promise<Response>;
-
-// CORS headers applied to every response so the browser can use audio cross-origin
+// CORS headers
 const CORS_HEADERS = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-Email',
 };
 
-// -------------------------------------------------------------------------------------------------
-// Helper function to prepare text strictly for speech (removes roleplay actions, converts laughs)
 function preprocessForTTS(text: string): string {
-    let processed = text;
-    // Common laughs and giggles into actual phonetics the model handles beautifully
-    processed = processed.replace(/\*laughs?\*/gi, 'Haha!');
-    processed = processed.replace(/\(laughs?\)/gi, 'Haha!');
-    processed = processed.replace(/\*giggles?\*/gi, 'Hehe!');
-    processed = processed.replace(/\(giggles?\)/gi, 'Hehe!');
-    processed = processed.replace(/\*chuckles?\*/gi, 'Heh!');
-    processed = processed.replace(/\(chuckles?\)/gi, 'Heh!');
-    processed = processed.replace(/\*sighs?\*/gi, 'Ahhh.');
-    
-    // Remove all other asterisks/action blocks so the TTS doesn't attempt to awkwardly read them aloud
-    processed = processed.replace(/\*[^*]+\*/g, '');
-    
-    // Clean up excessive double spaces from stripping the tags
-    processed = processed.replace(/\s{2,}/g, ' ');
-    return processed.trim();
+  let processed = text;
+  processed = processed.replace(/\*laughs?\*/gi, 'Haha!');
+  processed = processed.replace(/\(laughs?\)/gi, 'Haha!');
+  processed = processed.replace(/\*giggles?\*/gi, 'Hehe!');
+  processed = processed.replace(/\(giggles?\)/gi, 'Hehe!');
+  processed = processed.replace(/\*chuckles?\*/gi, 'Heh!');
+  processed = processed.replace(/\(chuckles?\)/gi, 'Heh!');
+  processed = processed.replace(/\*sighs?\*/gi, 'Ahhh.');
+  processed = processed.replace(/!\[.*?\]\([^)]+\)/g, '');
+  processed = processed.replace(/\[.*?\]\([^)]+\)/g, '');
+  processed = processed.replace(/\*[^*]+\*/g, '');
+  processed = processed.replace(/\s{2,}/g, ' ');
+  
+  processed = processed.trim();
+  // Safe truncation at 4000 chars matching LLM limit, breaking at nearest sentence
+  if (processed.length > 4000) {
+    const safeSlice = processed.substring(0, 4000);
+    const lastPunc = Math.max(safeSlice.lastIndexOf('.'), safeSlice.lastIndexOf('!'), safeSlice.lastIndexOf('?'));
+    processed = lastPunc > 0 ? safeSlice.substring(0, lastPunc + 1) : safeSlice;
+  }
+  return processed;
 }
-// -------------------------------------------------------------------------------------------------
 
-// Map internal Aliases to OpenAI Voice IDs
 const OPENAI_VOICES: Record<string, string> = {
-    'voice-lily': 'shimmer',
-    'sesame-lily-csm-1b': 'nova',
-    'voice-miles': 'onyx',
-    'sesame-miles-csm-1b': 'onyx',
-    'voice-skye': 'alloy',
-    'sesame-skye-csm-1b': 'alloy',
-    'voice-raven': 'nova',
-    'sesame-raven-csm-1b': 'nova',
-    'voice-lyra': 'shimmer',
-    'voice-ivy': 'shimmer',
-    'voice-nova': 'nova',
-    'voice-cleo': 'shimmer',
-    'voice-john': 'onyx',
-    'voice-angel': 'shimmer',
-    'voice-antigravity': 'onyx',
-    'voice-bella': 'shimmer',
-    'voice-rachel': 'nova',
-    'voice-domi': 'nova',
-    'voice-antoni': 'onyx',
-    'voice-josh': 'alloy',
-    'voice-mj': 'shimmer',
+  'lyra': 'shimmer',
+  'maya': 'nova',
+  'kla': 'shimmer',
+  'mj': 'nova',
+  'john': 'onyx',
+  'rachel': 'nova',
+  'angel': 'shimmer',
+  'antigravity': 'onyx',
+  'miles': 'onyx',
+  'bella': 'shimmer',
+  'cleo': 'shimmer',
+  'lily': 'nova',
+  'skye': 'alloy',
+  'raven': 'echo',
+  'domi': 'nova',
+  'antoni': 'onyx',
+  'josh': 'alloy',
 };
 
-// Map internal Aliases to ElevenLabs Voice IDs (Premium)
-const ELEVENLABS_VOICES: Record<string, string> = {
-    'voice-lyra': 'io97SleO9TTvGEeqFIkD',           // Cloned Lyra (Latest)
-    'voice-lyra-uncensored': 'io97SleO9TTvGEeqFIkD', // Lyra Uncensored — same voice, unlocked persona
-    'voice-maya': 'mVZahVUWy9NErVKwbv7V',           // Cloned Maya
-    'maya': 'mVZahVUWy9NErVKwbv7V',                 // Alias for Maya
-    'sesame-maya-csm-1b': 'mVZahVUWy9NErVKwbv7V',   // Alias for Sesame Maya CSM
-    'voice-rachel': '21m00Tcm4TlvDq8ikWAM',         // Rachel
-    'voice-domi': 'AZnzlk1XvdvUeBnXmlld',           // Domi
-    'voice-bella': 'EXAVITQu4vr4xnSDxMaL',          // Bella (Sarah)
-    'voice-antoni': 'ErXwobaYiN019PkySvjV',         // Antoni
-    'voice-josh': 'MF3mGyEYCl7XYWbV9V6O',           // Eli
-    'voice-john': 'pNInz6obpgDQGcFmaJgB',           // Adam
-    'voice-angel': 'oWAxZDx7w5VEj9dCyTzz',          // Grace
-    'voice-antigravity': 'LcfcDJNUP1GQjkzn1xUU',    // Emily
-    'voice-nova': 'jsCqWAovK2zIkigp8H9G',           // Freya
-    'voice-cleo': 'XB0fDUnXU5c29xEQQ5E1',           // Charlotte
-    'voice-ivy': 'ThT5KcBeYPX3keUQqHPh',            // Dorothy
-    'voice-lily': 'mVZahVUWy9NErVKwbv7V',           // Lily — confirmed voice ID
-    'sesame-lily-csm-1b': 'mVZahVUWy9NErVKwbv7V',    // Alias for Lily CSM
-    'voice-miles': 'iP95p4xoKVk53GoZ742B',          // Chris (Charming Male)
-    'sesame-miles-csm-1b': 'iP95p4xoKVk53GoZ742B',   // Alias for Miles CSM
-    'voice-skye': 'cgSgspJ2msm6clMCkdW9',           // Jessica (Playful)
-    'sesame-skye-csm-1b': 'cgSgspJ2msm6clMCkdW9',    // Alias for Skye CSM
-    'voice-raven': 'FGY2WhTYpPnrIDTdsKH5',          // Laura (Quirky)
-    'sesame-raven-csm-1b': 'FGY2WhTYpPnrIDTdsKH5',   // Alias for Raven CSM
-    'voice-mj': 'P6Bf15T65rW4U4rK94qM',             // MJ (Real Voice ID)
-    'sesame-mj-csm-1b': 'P6Bf15T65rW4U4rK94qM',      // Alias for MJ CSM
-    'voice-kla': 'ZK5PGKfJuJG39PkEcNns',            // K'LA (Super Sexy Character)
+const POLLY_VOICES: Record<string, string> = {
+  'lyra': 'Emma',
+  'maya': 'Salli',
+  'kla': 'Emma',
+  'mj': 'Amy',
+  'john': 'Brian',
+  'rachel': 'Salli',
+  'angel': 'Kimberly',
+  'antigravity': 'Joey',
+  'miles': 'Justin',
+  'bella': 'Salli',
+  'cleo': 'Emma',
+  'lily': 'Amy',
+  'skye': 'Kimberly',
+  'raven': 'Geraint',
+  'domi': 'Salli',
+  'antoni': 'Brian',
+  'josh': 'Joey',
+  'amy': 'Amy',
+  'brian': 'Brian',
+  'emma': 'Emma',
+  'salli': 'Salli',
+  'joey': 'Joey',
+  'kimberly': 'Kimberly',
+  'justin': 'Justin',
+  'kendra': 'Kendra',
+  'nicole': 'Nicole',
+  'russell': 'Russell',
+  'mizuki': 'Mizuki',
+  'takumi': 'Takumi',
 };
 
-// Tier -> Voice Mapping (Allowed Voice Names)
-const TIER_VOICES: Record<string, string[]> = {
-    explorer:    ['voice-lyra', 'voice-maya', 'voice-john', 'sesame-maya-csm-1b', 'sesame-miles-csm-1b'],
-    novice:      ['voice-lyra', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni'],
-    apprentice:  ['voice-lyra', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh'],
-    adept:       ['voice-lyra', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-Antoni', 'voice-bella', 'voice-josh', 'voice-angel', 'voice-antigravity'],
-    master:      ['voice-lyra', 'voice-lyra-uncensored', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh', 'voice-angel', 'voice-antigravity', 'voice-domi', 'voice-cleo', 'voice-lily', 'voice-miles', 'voice-mj', 'voice-kla'],
-    developer:   ['voice-lyra', 'voice-lyra-uncensored', 'voice-maya', 'voice-john', 'voice-rachel', 'voice-antoni', 'voice-bella', 'voice-josh', 'voice-angel', 'voice-antigravity', 'voice-domi', 'voice-cleo', 'voice-ivy', 'voice-nova', 'voice-lily', 'voice-miles', 'voice-skye', 'voice-raven', 'voice-mj', 'voice-kla'],
-};
+export const onRequestOptions = async () => new Response(null, { status: 204, headers: CORS_HEADERS });
 
-// Admin accounts — full access
-const ADMIN_EMAILS = [
-    'weedj747@gmail.com',
-    'wjreviews420@gmail.com',
-    'kearns.adam747@gmail.com',
-    'AKBudgod@ai-sanctuary.online',
-    'gamergoodguy445@gmail.com',
-];
+export const onRequestPost = async (context: EventContext<Env, any, any>) => {
+  const { request, env } = context;
 
-// Handle CORS preflight
-export const onRequestOptions: PagesFunction<Env> = async () => {
-    return new Response(null, {
-        status: 204,
-        headers: CORS_HEADERS,
-    });
-};
+  const jsonRes = (data: any, status = 200) =>
+    new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } });
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+  try {
+    const rawBody = await request.text();
+    if (!rawBody) return jsonRes({ error: 'Empty request body' }, 400);
+
+    let body: any;
+    try { body = JSON.parse(rawBody); } catch { return jsonRes({ error: 'Invalid JSON' }, 400); }
+
+    const { text, voice } = body;
+    if (!text || !text.trim() || !voice) return jsonRes({ error: 'Text and voice required' }, 400);
+
+    const cleanText = preprocessForTTS(text);
+    if (!cleanText) return jsonRes({ error: 'Processed text is empty' }, 400);
+
+    // FIX #1: Strip 'voice-' prefix correctly so assigned model registry works
+    const slug = voice.replace(/^voice-/i, '').replace(/^sesame-/i, '').toLowerCase();
+
+    // 1. Check Global Registry for assigned model overrides
+    let mappedVoiceId = slug;
+    
+    // Hardcoded overrides removed to permit KV registry entries
+
     try {
-        const { text, voice } = await context.request.json() as { text: string; voice: string };
-
-        if (!text || !text.trim() || !voice) {
-            return new Response(JSON.stringify({ error: 'Text and voice are required and cannot be empty' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
-            });
+      if (env.USERS_KV) {
+        const globalId = await env.USERS_KV.get(`global_voice:${slug}`);
+        if (globalId) {
+          mappedVoiceId = globalId.replace(/^native_cf_/i, '').replace(/_\d+$/, '').toLowerCase();
+          console.log(`[TTS] Overriding "${slug}" -> assigned model "${mappedVoiceId}"`);
         }
-
-        // 1. Authenticate user
-        const authHeader = context.request.headers.get('Authorization');
-        if (!authHeader || authHeader === 'Bearer anonymous') {
-            return new Response(
-                JSON.stringify({ error: 'Authentication required' }),
-                { status: 401, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }
-            );
-        }
-
-        const userEmail = authHeader.replace('Bearer ', '').trim().toLowerCase();
-        const usersKv = context.env.USERS_KV;
-
-        let userTier = 'explorer';
-        let isDeveloper = false;
-
-        if (usersKv) {
-            const userData = await usersKv.get(`email:${userEmail}`);
-            if (userData) {
-                const user = JSON.parse(userData);
-                userTier = user.tier || 'explorer';
-
-                if (user.trialEndsAt && new Date(user.trialEndsAt) > new Date()) {
-                    userTier = 'developer';
-                }
-
-                if (user.isDeveloper || user.tier === 'developer') {
-                    userTier = 'developer';
-                }
-
-                isDeveloper = userTier === 'developer';
-            }
-        }
-
-        // Admin Override
-        if (ADMIN_EMAILS.includes(userEmail)) {
-            userTier = 'developer';
-            isDeveloper = true;
-        }
-
-        // 2. Check Access
-        const globalVoiceId = (usersKv) ? await usersKv.get(`global_voice:${voice}`) : null;
-        
-        // Easter Egg: K'la Unlock Check
-        let hasKlaAccess = false;
-        if (voice === 'voice-kla' && context.env.KLA_LEADS_KV) {
-            const mission = await context.env.KLA_LEADS_KV.get(`mission:${userEmail}`);
-            if (mission) hasKlaAccess = true;
-        }
-
-        if (!isDeveloper && !hasKlaAccess) {
-            const allowedVoices = TIER_VOICES[userTier] || [];
-            if (!allowedVoices.includes(voice) && !globalVoiceId && voice !== 'sesame-maya-csm-1b' && voice !== 'sesame-miles-csm-1b') {
-                return new Response(
-                    JSON.stringify({
-                        error: 'Voice not available on your current tier',
-                        allowed: allowedVoices,
-                        upgradeRequired: true
-                    }),
-                    { status: 403, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }
-                );
-            }
-        }
-
-        // 3. ElevenLabs
-        if (voice === 'voice-user' || ELEVENLABS_VOICES[voice] || globalVoiceId) {
-            if (context.env.ELEVENLABS_API_KEY) {
-                try {
-                    let voiceId = globalVoiceId || ELEVENLABS_VOICES[voice];
-                    
-                    if (voice === 'voice-user') {
-                        const userVoiceId = await usersKv?.get(`voice:${userEmail}`);
-                        voiceId = userVoiceId || 'pNInz6obpgDQGcFmaJgB'; // Fallback to Adam
-                    }
-
-                    if (voiceId) {
-                        // Dynamic settings based on the specific voice to optimize for quality/expressiveness
-                        let voiceSettings = { stability: 0.45, similarity_boost: 0.80, style: 0.45, use_speaker_boost: true };
-                        
-                        // Lyra Optimizations: Reduced similarity_boost to remove "echo" (artifacts from clone), 
-                        // increased style for expressiveness, and tuned stability for emotional resonance.
-                        if (voice.includes('lyra')) {
-                            voiceSettings = { stability: 0.52, similarity_boost: 0.72, style: 0.65, use_speaker_boost: true };
-                        } else if (voice.includes('maya') || voice.includes('lily')) {
-                            voiceSettings = { stability: 0.48, similarity_boost: 0.78, style: 0.55, use_speaker_boost: true };
-                        }
-
-                        const elResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-                            method: 'POST',
-                            headers: {
-                                'xi-api-key': context.env.ELEVENLABS_API_KEY,
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                text: preprocessForTTS(text),
-                                model_id: 'eleven_turbo_v2_5',
-                                voice_settings: voiceSettings
-                            }),
-                        });
-
-                        if (elResponse.ok) {
-                            return new Response(elResponse.body, {
-                                headers: {
-                                    'Content-Type': 'audio/mpeg',
-                                    'Cache-Control': 'no-cache',
-                                    ...CORS_HEADERS,
-                                },
-                            });
-                        }
-                    }
-                } catch (err) {
-                    console.error("ElevenLabs Error:", err);
-                }
-            }
-        }
-
-        // 4. OpenAI Fallback
-        if (OPENAI_VOICES[voice]) {
-            if (!context.env.OPENAI_API_KEY) {
-                return new Response(JSON.stringify({ error: 'OpenAI TTS Key Unavailable' }), {
-                    status: 503,
-                    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
-                });
-            }
-
-            const voiceId = OPENAI_VOICES[voice];
-            const isAdmin = ADMIN_EMAILS.includes(userEmail);
-
-            const response = await fetch('https://api.openai.com/v1/audio/speech', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${context.env.OPENAI_API_KEY.trim()}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model: 'tts-1',
-                    input: isAdmin ? text : text.substring(0, 4096),
-                    voice: voiceId,
-                    response_format: 'mp3',
-                }),
-            });
-
-            if (response.ok) {
-                return new Response(response.body, {
-                    headers: {
-                        'Content-Type': 'audio/mpeg',
-                        'Cache-Control': 'no-cache',
-                        ...CORS_HEADERS,
-                    },
-                });
-            }
-        }
-
-        return new Response(JSON.stringify({ error: 'Voice service failure' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
-        });
-
-    } catch (error) {
-        return new Response(
-            JSON.stringify({ error: String(error) }),
-            { status: 500, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }
-        );
+      }
+    } catch (e) {
+      console.warn('[TTS] Registry lookup failed:', e);
     }
+
+    // Attempt Server-Side Free Providers (Resilient Fallback Chain)
+    const hfToken = env.HF_TOKEN?.trim();
+    const openaiKey = env.OPENAI_API_KEY?.trim();
+
+    // -- Provider 0: Local Hardware Neural Voice --
+    try {
+      const localRes = await fetch('https://node.ai-sanctuary.online/api/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+        body: JSON.stringify({ 
+          text: cleanText, 
+          voice_id: mappedVoiceId, // Uses KV mapped ID or slug
+          language: 'en'
+        }),
+        signal: AbortSignal.timeout(90000) // 90s timeout for local CPU synthesis
+      });
+      if (localRes && localRes.ok) {
+        const audio = await localRes.arrayBuffer();
+        if (audio.byteLength > 100) {
+          return new Response(audio, {
+            headers: { 
+              'Content-Type': 'audio/wav', 
+              'X-TTS-Provider': 'Local-Hardware-Cloned',
+              'X-Voice-Slug': mappedVoiceId,
+              ...CORS_HEADERS 
+            } 
+          });
+        }
+      }
+    } catch (e) { 
+      console.log('[TTS] Local Hardware offline or timed out. Falling back to Grid...'); 
+    }
+
+    // -- Provider 0.2: Hugging Face XTTS-v2 (Cloud Coqui) --
+    if (hfToken) {
+      const SPACES = [
+        'https://hasanbasbunar-voice-cloning-xtts-v2.hf.space',
+        'https://coqui-xtts.hf.space'
+      ];
+      
+      for (const space of SPACES) {
+        try {
+          // We use a public stable space or inference endpoint if available.
+          // For custom clones, we need a URL. For built-ins, we use the persona sample.
+          const refUrl = `https://ai-sanctuary.online/api/voice/sample/${mappedVoiceId}`;
+          const hfRes = await fetch(`${space}/api/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${hfToken}` },
+            body: JSON.stringify({
+              data: [
+                cleanText, refUrl, null, "English",
+                0.75, 1.0, true, 2.0, 1.0, 0, 50, 0.8,
+                true, -40, 400, 100, "Sentence", 250, true
+              ]
+            }),
+            signal: AbortSignal.timeout(8000) // Gradio queue-aware: don't wait forever
+          });
+
+          if (hfRes.ok) {
+            const result: any = await hfRes.json();
+            // If Gradio gives a queue estimation or is_generating without data, bail immediately
+            if (result.is_generating || result.msg === "estimation" || result.error) continue;
+            
+            const audioUrl = result.data?.[0]?.url;
+            if (audioUrl) {
+              const audioRes = await fetch(audioUrl);
+              const ab = await audioRes.arrayBuffer();
+              return new Response(ab, {
+                headers: { 
+                  'Content-Type': 'audio/wav', 
+                  'X-TTS-Provider': 'HuggingFace-XTTS-Cloud', 
+                  ...CORS_HEADERS 
+                } 
+              });
+            }
+          }
+        } catch (e) {
+          // Console log omitted to avoid spam, continues to next space or next provider
+        }
+      }
+      console.warn('[TTS] Both HF XTTS fallbacks failed or queued.');
+    }
+
+    // -- Provider 0.5: ElevenLabs (High-Fidelity Fallback) --
+    const elevenlabsKey = env.ELEVENLABS_API_KEY?.trim();
+    if (elevenlabsKey) {
+      try {
+        // High-quality voice mappings for ElevenLabs
+        const ELEVENLABS_VOICE_MAP: Record<string, string> = {
+          'lyra': '21m00Tcm4llvDq8ikSEG', // Bella (High Energy, Professional)
+          'maya': 'EXAVITQu4vr4xnSDxMaL', // Rachel (Warm, Narrator)
+          'john': 'VR6A4HSKPfS5mNWn9jqO', // Arnold (Deep, Authoritative)
+          'kla': '21m00Tcm4llvDq8ikSEG',
+          'mj': 'EXAVITQu4vr4xnSDxMaL'
+        };
+
+        const evId = ELEVENLABS_VOICE_MAP[slug] || ELEVENLABS_VOICE_MAP[mappedVoiceId];
+        
+        if (evId) {
+          const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${evId}`, {
+            method: 'POST',
+            headers: { 'xi-api-key': elevenlabsKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: cleanText,
+              model_id: 'eleven_monolingual_v1',
+              voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+            })
+          });
+
+          if (elRes.ok) {
+            const ab = await elRes.arrayBuffer();
+            if (ab.byteLength > 100) {
+              return new Response(ab, {
+                headers: { 
+                  'Content-Type': 'audio/mpeg', 
+                  'X-TTS-Provider': 'ElevenLabs-Pro-Fallback', 
+                  ...CORS_HEADERS 
+                } 
+              });
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[TTS] ElevenLabs fallback failed:', e);
+      }
+    }
+
+    // -- Provider 1: StreamElements (AWS Polly) (Hybrid Free-First) --
+    // We use Polly if:
+    // 1. The slug is in our POLLY_VOICES map.
+    // 2. The mappedVoiceId (from KV) is a valid-looking Polly voice name.
+    const isCustomMapped = !!(env.USERS_KV && await env.USERS_KV.get(`global_voice:${slug}`));
+    const pollyVoice = POLLY_VOICES[mappedVoiceId.toLowerCase()] || POLLY_VOICES[slug] || (isCustomMapped ? mappedVoiceId : null);
+
+    if (pollyVoice) {
+      try {
+        const pollyUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${pollyVoice}&text=${encodeURIComponent(cleanText)}`;
+        const pRes = await fetch(pollyUrl);
+        if (pRes.ok) {
+          const ab = await pRes.arrayBuffer();
+          if (ab.byteLength > 100) {
+              return new Response(ab, { 
+                  headers: { 
+                      'Content-Type': 'audio/mpeg', 
+                      'X-TTS-Provider': 'StreamElements-Polly', 
+                      'X-TTS-Voice': pollyVoice,
+                      'X-Mapped': isCustomMapped ? 'true' : 'false',
+                      ...CORS_HEADERS 
+                  } 
+              });
+          }
+        }
+      } catch (e) {
+        console.warn('[TTS] StreamElements failed:', e);
+      }
+    }
+
+    // -- Provider 1: HF MMS-TTS (T-0ms) --
+    if (hfToken) {
+      try {
+        const hRes = await fetch('https://api-inference.huggingface.co/models/facebook/mms-tts-eng', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${hfToken}`, 'Content-Type': 'application/json', 'X-Wait-For-Model': 'true' },
+          body: JSON.stringify({ inputs: cleanText })
+        });
+        if (hRes.ok) {
+          const ab = await hRes.arrayBuffer();
+          if (ab.byteLength > 100) return new Response(ab, { headers: { 'Content-Type': 'audio/wav', 'X-TTS-Provider': 'HuggingFace-MMS', ...CORS_HEADERS } });
+        }
+      } catch (e) { console.warn('HF_1 failed'); }
+    }
+
+    // -- Provider 2: HF SpeechT5 Female Clone Backup (T-500ms) --
+    if (hfToken) {
+      try {
+        const hRes = await fetch('https://api-inference.huggingface.co/models/microsoft/speecht5_tts', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${hfToken}`, 'Content-Type': 'application/json', 'X-Wait-For-Model': 'true' },
+          body: JSON.stringify({
+            inputs: cleanText,
+            parameters: { speaker_embeddings: 'https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors/resolve/main/cmu_us_slt_arctic-wav-arctic_a0508.npy' }
+          })
+        });
+        if (hRes.ok) {
+          const ab = await hRes.arrayBuffer();
+          if (ab.byteLength > 100) return new Response(ab, { headers: { 'Content-Type': 'audio/flac', 'X-TTS-Provider': 'HuggingFace-SpeechT5', ...CORS_HEADERS } });
+        }
+      } catch (e) { console.warn('HF_2 failed'); }
+    }
+
+    // -- Provider 3: OpenAI TTS (T-1000ms) --
+    if (openaiKey) {
+      try {
+        const oaVoice = OPENAI_VOICES[mappedVoiceId] || OPENAI_VOICES[slug] || 'alloy';
+        const oRes = await fetch('https://api.openai.com/v1/audio/speech', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${openaiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'tts-1', input: cleanText, voice: oaVoice, response_format: 'mp3' })
+        });
+        if (oRes.ok) {
+          return new Response(oRes.body, { headers: { 'Content-Type': 'audio/mpeg', 'X-TTS-Provider': 'OpenAI-TTS', 'X-Voice-Slug': mappedVoiceId, ...CORS_HEADERS } });
+        }
+      } catch (e) { console.warn('OA failed'); }
+    }
+
+    // -- Client-side Fallback (Web Speech API) --
+    return jsonRes({ error: 'All servers offline', fallback: 'web-speech' }, 503);
+
+  } catch (error: any) {
+    console.error('[TTS FATAL]', error);
+    return jsonRes({ error: 'Internal Server Error', stack: error.stack }, 500);
+  }
 };

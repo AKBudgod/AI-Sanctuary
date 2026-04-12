@@ -1,7 +1,7 @@
 export async function onRequestPost({ request, env }: { request: Request, env: any }) {
   try {
     const authHeader = request.headers.get('Authorization');
-    if (authHeader !== `Bearer ${env.ADMIN_SECRET_KEY}`) {
+    if (authHeader !== `Bearer ${env.ADMIN_API_KEY}`) {
       return new Response("Unauthorized", { status: 401 });
     }
 
@@ -13,11 +13,24 @@ export async function onRequestPost({ request, env }: { request: Request, env: a
     const OR_KEY = env.OPENROUTER_API_KEY;
     if (!OR_KEY) throw new Error("Missing OR_KEY");
 
-    const prompt = `You are an expert lead generation researcher. Please search the live internet to find ${maxLeads} of the top or fastest-growing companies in the "${niche}" industry.
-    
-For each company, find or infer the best generic or executive contact email (e.g., info@, hello@, partnerships@, or a founder's email if public). Also include a 1-sentence recent context or news about them to use for personalization.
+    const prompt = `You are an elite Lead Generation Specialist using live telemetry. 
+Search the live internet to find ${maxLeads} specific "Warm Leads" in the "${niche}" industry.
 
-Return the result STRICTLY as a JSON array of objects with keys: "company", "name" (a contact person or 'Team'), "email", and "context". DO NOT enclose in markdown blocks, just return raw JSON array.`;
+A "Warm Lead" must meet at least one of these criteria:
+1. Recently raised venture capital or private funding.
+2. Recently launched a major new product or feature expansion.
+3. Is currently hiring for AI, Sales, or Engineering roles.
+4. Is being talked about in recent news for rapid growth.
+
+TARGET ROLES: CEO, Founder, Head of Growth, Lead Engineer, or Marketing Director.
+
+For each lead, return:
+- company: The full company name.
+- name: The specific decision maker's name (if found) or the "Team at [Company]".
+- email: A valid generic or found executive email (info@, founders@, first.name@, etc.).
+- context: A 1-2 sentence summary of the specific "warm trigger" (news/hiring/launch) that makes them a target right now.
+
+OUTPUT: Return STRICTLY a raw JSON array of objects. No markdown. No chatter.`;
 
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',

@@ -39,4 +39,3 @@ ADMIN_AUTH_EMAIL = "kearns.adam747@gmail.com, wjreviews420@gmail.com"
 ADMIN_SECRET_KEY = "sanctuary_admin_a6d313036d937828f5beba51c7b4576ac51de23767e43e6b"
 MOLTBOOK_API_KEY = "moltbook_sk_ZPcnmMlp7qhF6d_miN1YWqcG9FM482ei"
 # ELEVENLABS_API_KEY and LYRA_WEBHOOK_SECRET should be set via Dashboard Secrets to avoid conflicts.
-

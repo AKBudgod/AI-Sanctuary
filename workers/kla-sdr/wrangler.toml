@@ -1,0 +1,34 @@
+name = "kla-sdr-engine"
+main = "index.ts"
+compatibility_date = "2026-03-26"
+compatibility_flags = ["nodejs_compat"]
+
+# Fire 12x per day: Every 2 hours (24/7 Autonomous mode)
+# Each run rotates through subreddits and social channels for maximum reach
+[triggers]
+crons = ["0 */2 * * *"]
+
+[[kv_namespaces]]
+binding = "KLA_LEADS_KV"
+id = "b3e81349a499472a912e6807172ad449"
+
+[vars]
+ADMIN_API_KEY = "sanctuary_admin_a6d313036d937828f5beba51c7b4576ac51de23767e43e6b"
+
+# === REQUIRED SECRETS ===
+# Set these via: wrangler secret put <KEY_NAME> --name kla-sdr-engine
+#
+# wrangler secret put OPENROUTER_API_KEY --name kla-sdr-engine
+#
+# --- Reddit (aisanctuaryonline account) ---
+# 1. Go to: https://www.reddit.com/prefs/apps → Create "script" app
+# 2. wrangler secret put REDDIT_CLIENT_ID --name kla-sdr-engine
+# 3. wrangler secret put REDDIT_CLIENT_SECRET --name kla-sdr-engine
+# 4. wrangler secret put REDDIT_PASSWORD --name kla-sdr-engine    (aisanctuaryonline password)
+#
+# --- X / Twitter (AKBudgod account) ---
+# 1. Go to: https://developer.twitter.com → Create Project → Get keys
+# 2. wrangler secret put X_API_KEY --name kla-sdr-engine
+# 3. wrangler secret put X_API_SECRET --name kla-sdr-engine
+# 4. wrangler secret put X_ACCESS_TOKEN --name kla-sdr-engine
+# 5. wrangler secret put X_ACCESS_TOKEN_SECRET --name kla-sdr-engine

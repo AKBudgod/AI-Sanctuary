@@ -333,54 +333,39 @@ export default function VoiceMode({
     const orbState = isLoading ? 'loading' : isSpeaking ? 'speaking' : isListening ? 'listening' : 'idle';
 
     return (
-        <div className="relative flex flex-col items-center justify-center w-full h-full bg-gray-950 overflow-hidden select-none">
+        <div className="relative flex flex-col items-center justify-center w-full h-full bg-white overflow-hidden select-none">
 
-            {/* Ambient background glow */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    background: `radial-gradient(circle at 50% 42%, ${char.color}18 0%, transparent 65%)`,
-                }}
-            />
+            {/* Structural Grid Background */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                 style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-            {/* ─── AMBIENT RINGS ─── */}
-            <div className="absolute flex items-center justify-center" style={{ width: 360, height: 360 }}>
+            {/* ─── STRUCTURAL VISUALIZER ─── */}
+            <div className="absolute flex items-center justify-center">
                 {[1, 2, 3].map(i => (
                     <div
                         key={i}
-                        className="absolute rounded-full border"
+                        className="absolute border-2"
                         style={{
-                            width: 160 + i * 60,
-                            height: 160 + i * 60,
-                            borderColor: `${char.color}${orbState === 'speaking' ? '44'
-                                : orbState === 'listening' ? '66'
-                                    : orbState === 'loading' ? '22'
-                                        : '18'
-                                }`,
-                            animation:
-                                orbState === 'speaking'
-                                    ? `ping-slow ${1.2 + i * 0.4}s ease-out infinite`
-                                    : orbState === 'listening'
-                                        ? `ping-slow ${0.8 + i * 0.3}s ease-out infinite`
-                                        : orbState === 'loading'
-                                            ? `spin-slow ${3 + i}s linear infinite`
-                                            : 'none',
-                            opacity: orbState === 'idle' ? 0.25 : 1,
-                            transition: 'opacity 0.6s ease',
+                            width: 240 + i * 80,
+                            height: 240 + i * 80,
+                            borderColor: orbState === 'speaking' ? '#000' : '#e2e8f0',
+                            opacity: orbState === 'idle' ? 0.1 : 0.8,
+                            transform: `rotate(${i * 15}deg)`,
+                            transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                            animation: orbState === 'speaking' || orbState === 'listening' ? `spin-slow ${10 + i * 5}s linear infinite` : 'none'
                         }}
                     />
                 ))}
             </div>
 
-            {/* ─── MAIN ORB (+ hair for female characters) ─── */}
-            {/* Wrapper is 200×280 for females (hair above + orb), 140×140 for males */}
+            {/* ─── MAIN PORTRAIT FRAME ─── */}
             <div
                 className="relative flex items-center justify-center"
                 style={{ width: 320, height: 320 }}
             >
-                {/* Main Portrait with Glow */}
+                {/* Main Portrait with Brutalist Border */}
                 <div
-                    className="relative z-10 flex items-center justify-center rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 bg-gray-900/40 border border-white/10"
+                    className="relative z-10 flex items-center justify-center overflow-hidden cursor-pointer transition-all duration-500 bg-white border-4 border-slate-950 shadow-[12px_12px_0px_rgba(0,0,0,1)]"
                     onClick={() => {
                         if (isLoading) return;
                         if (isSpeaking) {
@@ -389,48 +374,30 @@ export default function VoiceMode({
                             toggleListening();
                         }
                     }}
-                    title={isSpeaking ? 'Stop speaking' : isListening ? 'Stop listening' : 'Start listening'}
                     style={{
                         width: 280,
                         height: 280,
-                        boxShadow:
-                            orbState === 'speaking'
-                                ? `0 0 60px 20px ${char.color}55, 0 0 100px 40px ${char.color}22`
-                                : orbState === 'listening'
-                                    ? `0 0 50px 16px ${char.color}88`
-                                    : orbState === 'loading'
-                                        ? `0 0 30px 8px ${char.color}33`
-                                        : `0 0 20px 4px ${char.color}22`,
-                        animation:
-                            orbState === 'speaking'
-                                ? 'orb-breathe 1.2s ease-in-out infinite'
-                                : orbState === 'listening'
-                                    ? 'orb-breathe 0.8s ease-in-out infinite'
-                                    : orbState === 'loading'
-                                        ? 'orb-pulse 1s ease-in-out infinite'
-                                        : 'none',
-                        transform: (orbState === 'speaking' || orbState === 'listening') ? 'scale(1.04)' : 'scale(1)',
+                        transform: (orbState === 'speaking' || orbState === 'listening') ? 'translate(-4px, -4px) scale(1.02)' : 'none',
                     }}
                 >
                     {isLoading ? (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-950/60 z-20">
-                            <Loader2 className="w-12 h-12 text-white animate-spin" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-20">
+                            <Loader2 className="w-12 h-12 text-slate-950 animate-spin" />
                         </div>
                     ) : isListening ? (
-                        <div className="absolute inset-0 flex items-center justify-center bg-green-500/20 z-20">
-                            <Mic className="w-16 h-16 text-white animate-pulse" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/5 z-20">
+                            <Mic className="w-16 h-16 text-slate-950 animate-pulse" />
                         </div>
                     ) : null}
                     
                     {(char as any).isRestricted && (
-                        <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                            <div className="absolute bottom-4 left-0 right-0 text-center">
-                                <span className="text-[10px] font-black tracking-[0.3em] text-white/40 uppercase bg-red-500/20 px-2 py-1 rounded border border-red-500/30 backdrop-blur-sm animate-pulse">
-                                    Unexpected Reward // Restricted Access
+                        <div className="absolute inset-0 z-30 pointer-events-none">
+                            <div className="absolute inset-0 bg-slate-950/10 mix-blend-overlay" />
+                            <div className="absolute top-4 left-0 right-0 text-center">
+                                <span className="text-[10px] font-black tracking-[0.3em] text-white uppercase bg-slate-950 px-3 py-1 border-2 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                                    Restricted_Access
                                 </span>
                             </div>
-                            <div className="absolute inset-0 scanline-anim opacity-10" />
                         </div>
                     )}
                     
@@ -444,63 +411,58 @@ export default function VoiceMode({
                         <img 
                             src={char.image} 
                             alt={char.name}
-                            className={`w-full h-full object-contain transition-all duration-700 ${orbState === 'speaking' ? 'scale-110 rotate-1' : 'scale-100 rotate-0'} ${(char as any).isRestricted ? 'brightness-110 contrast-110 saturate-125' : ''}`}
-                            style={{
-                                filter: (char as any).isRestricted ? `drop-shadow(0 0 20px ${char.color}66)` : 'none'
-                            }}
+                            className={`w-full h-full object-contain transition-all duration-700 ${orbState === 'speaking' ? 'scale-110' : 'scale-100'}`}
                         />
                     )}
                 </div>
             </div>
 
-            {/* ─── SOUND WAVE BARS (speaking) ─── */}
+            {/* ─── STRUCTURAL SOUND WAVE ─── */}
             <div
-                className="flex items-end gap-1 mt-5 transition-opacity duration-500"
-                style={{ height: 28, opacity: (isSpeaking || isListening) ? 1 : 0 }}
+                className="flex items-end gap-1.5 mt-8 transition-opacity duration-500"
+                style={{ height: 32, opacity: (isSpeaking || isListening) ? 1 : 0 }}
             >
-                {Array.from({ length: 9 }, (_, i) => (
+                {Array.from({ length: 15 }, (_, i) => (
                     <div
                         key={i}
-                        className="rounded-full"
+                        className="bg-slate-950"
                         style={{
-                            width: 4,
-                            background: isListening ? '#22c55e' : char.color,
+                            width: 3,
                             animation: (isSpeaking || isListening)
-                                ? `wave-bar ${0.6 + i * 0.07}s ease-in-out infinite alternate`
+                                ? `wave-bar ${0.4 + i * 0.05}s ease-in-out infinite alternate`
                                 : 'none',
-                            height: (isSpeaking || isListening) ? undefined : 4,
-                            minHeight: 4,
+                            height: (isSpeaking || isListening) ? undefined : 2,
+                            minHeight: 2,
                         }}
                     />
                 ))}
             </div>
 
             {/* ─── NAME & TAGLINE ─── */}
-            <div className="text-center mt-5 z-10">
-                <p className="text-white font-bold text-xl tracking-wide">{char.name}</p>
-                <p className="text-xs mt-0.5" style={{ color: char.color }}>{char.tagline}</p>
-                <p className="text-gray-600 text-[10px] mt-0.5">{modelName}</p>
+            <div className="text-center mt-8 z-10">
+                <p className="text-slate-950 font-black text-3xl uppercase tracking-tighter">{char.name}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-2 text-slate-500">{char.tagline}</p>
+                <p className="text-slate-300 text-[8px] font-black uppercase tracking-widest mt-1">Node: {modelName}</p>
             </div>
 
             {/* ─── LISTENING HINT ─── */}
             {isListening && (
-                <p className="mt-3 text-green-400 text-xs font-semibold animate-pulse z-10">
-                    🎙 Listening — speak now
+                <p className="mt-4 text-slate-950 text-[10px] font-black uppercase tracking-widest animate-pulse z-10">
+                   [ Listening_Port_Active ]
                 </p>
             )}
 
             {/* ─── FLOATING SUBTITLE ─── */}
             <div
-                className="absolute bottom-28 left-0 right-0 px-8 flex justify-center pointer-events-none"
+                className="absolute bottom-36 left-0 right-0 px-10 flex justify-center pointer-events-none"
                 style={{
                     opacity: showSubtitle && response ? 1 : 0,
-                    transform: showSubtitle ? 'translateY(0)' : 'translateY(6px)',
-                    transition: 'opacity 0.5s ease, transform 0.5s ease',
+                    transform: showSubtitle ? 'translateY(0)' : 'translateY(10px)',
+                    transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
             >
                 <div
-                    className="max-w-md text-center bg-gray-900/80 backdrop-blur rounded-2xl px-5 py-3 border border-gray-700/50 text-gray-200 text-sm leading-relaxed shadow-xl flex flex-col items-center gap-3"
-                    style={{ fontSize: '0.85rem' }}
+                    className="max-w-xl bg-white border-4 border-slate-950 p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-4 selection:bg-slate-950 selection:text-white"
                 >
                     {(() => {
                         const imageRegex = /!\[.*?\]\((.*?)\)/;
@@ -511,11 +473,13 @@ export default function VoiceMode({
                         return (
                             <>
                                 {imageUrl && (
-                                    <div className="w-full aspect-square rounded-xl overflow-hidden border border-white/10 shadow-inner group">
-                                        <img src={imageUrl} alt="AI Visual" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                    <div className="w-full aspect-square border-2 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
+                                        <img src={imageUrl} alt="AI Visual" className="w-full h-full object-cover" />
                                     </div>
                                 )}
-                                <p>{cleanText && cleanText.length > 240 ? cleanText.slice(0, 237) + '…' : cleanText}</p>
+                                <p className="text-slate-950 font-black uppercase text-center text-lg leading-tight tracking-tight">
+                                    {cleanText && cleanText.length > 240 ? cleanText.slice(0, 237) + '…' : cleanText}
+                                </p>
                             </>
                         );
                     })()}
@@ -523,30 +487,18 @@ export default function VoiceMode({
             </div>
 
             {/* ─── INPUT BAR ─── */}
-            <div className="absolute bottom-4 left-0 right-0 px-6 z-20">
+            <div className="absolute bottom-8 left-0 right-0 px-10 z-20">
                 <div
-                    className="flex items-center gap-2 rounded-2xl px-4 py-2.5 border transition-all"
-                    style={{
-                        background: 'rgba(17,24,39,0.9)',
-                        borderColor: isListening
-                            ? '#22c55e88'
-                            : input
-                                ? char.color + '55'
-                                : 'rgba(55,65,81,0.6)',
-                        backdropFilter: 'blur(12px)',
-                    }}
+                    className="flex items-center gap-4 bg-white border-4 border-slate-950 p-4 shadow-[8px_8px_0px_rgba(0,0,0,1)] selection:bg-slate-950 selection:text-white"
                 >
-                    {/* Status dot */}
+                    {/* Status marker */}
                     <div
-                        className="w-2 h-2 rounded-full flex-shrink-0 transition-all"
+                        className="w-3 h-3 flex-shrink-0 transition-all border border-slate-950"
                         style={{
-                            background: isListening ? '#22c55e'
-                                : isSpeaking ? char.color
-                                    : '#374151',
-                            boxShadow: isListening ? '0 0 6px #22c55e'
-                                : isSpeaking ? `0 0 6px ${char.color}`
-                                    : 'none',
-                            animation: (isListening || isSpeaking) ? 'pulse 1s ease-in-out infinite' : 'none',
+                            background: isListening ? '#000'
+                                : isSpeaking ? '#000'
+                                    : '#e2e8f0',
+                            animation: (isListening || isSpeaking) ? 'pulse 0.5s ease-in-out infinite' : 'none',
                         }}
                     />
 
@@ -555,8 +507,8 @@ export default function VoiceMode({
                         value={input}
                         onChange={e => {
                             setInput(e.target.value);
-                            e.target.style.height = '24px';
-                            e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px';
+                            e.target.style.height = '28px';
+                            e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
                         }}
                         onKeyDown={e => {
                             if (e.key === 'Enter' && !e.shiftKey) {
@@ -565,25 +517,24 @@ export default function VoiceMode({
                             }
                         }}
                         placeholder={
-                            isListening ? '🎙 Listening...'
-                                : isLoading ? `${char.name} is thinking...`
-                                    : `Say something to ${char.name}...`
+                            isListening ? '[ LISTENING_RAW_INPUT ]'
+                                : isLoading ? `[ PROCESSING_COMMANDS ]`
+                                    : `SYNC_MESSAGE_TO_${char.name.toUpperCase()}...`
                         }
                         disabled={isLoading}
                         rows={1}
-                        className="flex-1 bg-transparent text-white text-sm placeholder-gray-600 resize-none focus:outline-none leading-relaxed overflow-hidden"
-                        style={{ minHeight: 24, maxHeight: 80 }}
+                        className="flex-1 bg-transparent text-slate-950 text-lg font-black uppercase placeholder-slate-200 resize-none focus:outline-none leading-tight overflow-hidden tracking-tighter"
+                        style={{ minHeight: 28, maxHeight: 100 }}
                     />
 
                     {/* Mic toggle button */}
                     <button
                         onClick={toggleListening}
                         disabled={isLoading}
-                        className={`flex-shrink-0 p-2 rounded-full transition-all ${isListening
-                            ? 'bg-green-500/20 text-green-400 animate-pulse'
-                            : 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                        className={`flex-shrink-0 p-3 border-2 transition-all ${isListening
+                            ? 'bg-slate-950 text-white border-slate-950'
+                            : 'bg-white text-slate-950 border-slate-100 hover:border-slate-950'
                             }`}
-                        title={isListening ? 'Stop listening' : 'Start voice dictation'}
                     >
                         {isListening ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
                     </button>
@@ -592,24 +543,25 @@ export default function VoiceMode({
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || isLoading}
-                        className="flex-shrink-0 p-1.5 rounded-full transition-all disabled:opacity-30"
-                        style={{
-                            background: input.trim() && !isLoading ? char.color : 'transparent',
-                        }}
+                        className="flex-shrink-0 bg-slate-950 text-white font-black uppercase text-[10px] tracking-widest px-8 py-3 hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all disabled:bg-slate-50 disabled:text-slate-200 disabled:border-slate-100"
                     >
                         {isLoading
-                            ? <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-                            : <Send className="w-4 h-4 text-white" />
+                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                            : '[ SEND ]'
                         }
                     </button>
                 </div>
 
-                {/* Error display (STT or prop errors) */}
+                {/* Error display */}
                 {(error || sttError) && (
-                    <p className="text-center text-red-400 text-[11px] mt-1.5 px-2">
-                        {sttError || error}
+                    <p className="text-center text-slate-950 font-black uppercase text-[10px] mt-4 tracking-widest bg-white border-2 border-slate-950 py-2">
+                        ERROR: {sttError || error}
                     </p>
                 )}
+                
+                <div className="text-center mt-4 pointer-events-none">
+                    <span className="text-[9px] text-slate-400 font-black uppercase tracking-[0.3em]">AI Neutrality Not Guaranteed.</span>
+                </div>
             </div>
 
             {/* ─── KEYFRAME STYLES ─── */}

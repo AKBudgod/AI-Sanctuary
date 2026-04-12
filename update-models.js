@@ -179,7 +179,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-maya',
     name: 'Maya (The Sanctuary Guide)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Warm, inviting female voice. The face of AI Sanctuary.',
     parameters: 'TTS',
     type: 'Voice',
@@ -207,7 +207,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-josh',
     name: 'Josh (The Architect)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Deep, methodical male voice. Focused on logic.',
     parameters: 'TTS',
     type: 'Voice',
@@ -221,7 +221,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-antoni',
     name: 'Antoni (The Rebel)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Gruff, unfiltered male voice.',
     parameters: 'TTS',
     type: 'Voice',
@@ -235,7 +235,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-bella',
     name: 'Bella (The Siren)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Soft, seductive female voice. Ideal for roleplay.',
     parameters: 'TTS',
     type: 'Voice',
@@ -249,7 +249,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-domi',
     name: 'Domi (The Oracle)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Ethereal, calm female voice.',
     parameters: 'TTS',
     type: 'Voice',
@@ -263,7 +263,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-rachel',
     name: 'Rachel (The Executive)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Professional, assertive female voice.',
     parameters: 'TTS',
     type: 'Voice',
@@ -277,7 +277,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-legion',
     name: 'Legion (Unrestricted)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Distorted, collective voice. No safety limits.',
     parameters: 'TTS',
     type: 'Voice',
@@ -291,7 +291,7 @@ const newModels = `export const AI_MODELS: AIModel[] = [
   {
     id: 'voice-glitch',
     name: 'Glitch (The Anomaly)',
-    provider: 'ElevenLabs',
+    provider: 'Neural (Free)',
     description: 'Erratic, broken voice. Experimental unaligned AI.',
     parameters: 'TTS',
     type: 'Voice',

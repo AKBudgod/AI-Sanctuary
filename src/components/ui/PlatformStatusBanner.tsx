@@ -32,12 +32,12 @@ export default function PlatformStatusBanner() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="bg-purple-900/90 border-b border-purple-500/50 text-purple-100 px-4 py-2 text-center text-sm font-medium z-50 relative shadow-[0_0_15px_rgba(168,85,247,0.4)] backdrop-blur-md"
+          className="bg-slate-950 border-b-4 border-slate-800 text-white px-6 py-3 text-center text-xs font-black uppercase tracking-[0.2em] z-50 relative"
         >
-          <div className="flex items-center justify-center gap-2 max-w-7xl mx-auto">
-            <Zap className="w-4 h-4 text-purple-400 animate-pulse" />
-            <span>
-              <strong>Surge Protection Active:</strong> Due to extremely high demand, the Sanctuary is currently routing requests to free local models. Premium models will automatically resume at Midnight UTC.
+          <div className="flex items-center justify-center gap-4 max-w-7xl mx-auto">
+            <Zap className="w-5 h-5 text-yellow-400 animate-pulse shrink-0" />
+            <span className="leading-tight">
+              <strong className="text-yellow-400 underline underline-offset-4">SURGE_PROTECTION_ACTIVE:</strong> ROUTING_TO_LOCAL_NODES. PREMIUM_MODEL_SYNC_IN_T-MINUS_MIDNIGHT.
             </span>
           </div>
         </motion.div>

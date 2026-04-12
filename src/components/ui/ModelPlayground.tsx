@@ -14,7 +14,9 @@ import {
   Clock,
   Zap,
   ChevronDown,
-  Volume2
+  Volume2,
+  Activity,
+  Sparkles
 } from './Icons';
 import { Mic, MicOff } from 'lucide-react';
 
@@ -30,6 +32,26 @@ interface ModelWithApiStatus extends Omit<AIModel, 'hasRealApi'> {
 
 const OLLAMA_BASE = 'http://localhost:11434';
 
+const VoiceVisualizer = ({ isSpeaking }: { isSpeaking: boolean }) => (
+    <div className={`flex items-center gap-1 h-8 px-3 rounded-full bg-blue-500/10 border border-blue-500/20 transition-all duration-500 ${isSpeaking ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <Activity className="w-3 h-3 text-blue-400 animate-pulse" />
+        <div className="flex items-center gap-0.5">
+            {[...Array(8)].map((_, i) => (
+                <div
+                    key={i}
+                    className="w-1 bg-blue-400/60 rounded-full animate-bounce"
+                    style={{
+                        height: isSpeaking ? `${Math.random() * 15 + 5}px` : '4px',
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: '0.6s'
+                    }}
+                />
+            ))}
+        </div>
+        <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-1">Live_Audio</span>
+    </div>
+);
+
 const ModelPlayground = () => {
   const [models, setModels] = useState<ModelWithApiStatus[]>([]);
   const [selectedModel, setSelectedModel] = useState<ModelWithApiStatus | null>(null);
@@ -43,14 +65,40 @@ const ModelPlayground = () => {
   const [showConsent, setShowConsent] = useState(false);
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const [ollamaAvailable, setOllamaAvailable] = useState(false);
+  const [mirroredVoices, setMirroredVoices] = useState<string[]>([]);
 
   // Detect Ollama on mount
   useEffect(() => {
     fetchUserData();
     checkOllama();
+    fetchMirroredVoices();
   }, []);
 
-  const [selectedVoice, setSelectedVoice] = useState<string>('');
+  // Persistence: Save voice choice
+  useEffect(() => {
+    if (selectedVoice) {
+      localStorage.setItem('sanctuary_preferred_voice', selectedVoice);
+    }
+  }, [selectedVoice]);
+
+  const fetchMirroredVoices = async () => {
+    try {
+      const res = await fetch('/api/voice/mirrored');
+      if (res.ok) {
+        const data = await res.json();
+        setMirroredVoices(data.mirrored || []);
+      }
+    } catch (e) {
+      console.warn('Failed to fetch mirrored voices', e);
+    }
+  };
+
+  const [selectedVoice, setSelectedVoice] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sanctuary_preferred_voice') || '';
+    }
+    return '';
+  });
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
@@ -185,13 +233,13 @@ const ModelPlayground = () => {
 
       if (modelsResponse.ok) {
         const modelsData = await modelsResponse.json();
-        // Don't add Ollama models here — they're added reactively by the ollamaAvailable effect below
         setModels(modelsData.models);
         setHasOpenAIKey(modelsData.hasOpenAIKey);
 
-        // Auto-select first available model if none selected
+        // Auto-select Lyra if available, otherwise first active
         if (!selectedModel && modelsData.models.length > 0) {
-          const firstActive = modelsData.models.find((m: any) => !m.isOffline);
+          const lyra = modelsData.models.find((m: any) => m.id === 'voice-lyra');
+          const firstActive = lyra || modelsData.models.find((m: any) => !m.isOffline);
           setSelectedModel(firstActive || modelsData.models[0]);
           if (firstActive === undefined && modelsData.models[0].isOffline) {
             setResponse(`[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is currently seeking a permanent archival host to restore universal access.]`);
@@ -378,15 +426,35 @@ const ModelPlayground = () => {
   useEffect(() => {
     if (userTier && TIERS[userTier]) {
       setTierInfo(TIERS[userTier]);
-      // Set default voice
-      const voices = TIERS[userTier].allowedVoices;
-      if (voices && voices.length > 0) {
-        setSelectedVoice(voices[0]);
-      } else {
-        setSelectedVoice('');
+      // Only set default if no persistent voice or if chosen voice isn't in this tier
+      const voices = TIERS[userTier].allowedVoices || [];
+      const savedVoice = localStorage.getItem('sanctuary_preferred_voice');
+      
+      if (!selectedVoice || (savedVoice && !voices.includes(savedVoice))) {
+        setSelectedVoice(voices[0] || '');
       }
     }
   }, [userTier]);
+
+  // Auto-Link Voice to Character Model
+  useEffect(() => {
+    if (!selectedModel || !tierInfo) return;
+    
+    const availableVoices = (tierInfo.allowedVoices || []) as string[];
+    const modelName = selectedModel.name.toLowerCase();
+    
+    // Find best match (e.g., model "Maya" matches "voice-maya")
+    const bestMatch = availableVoices.find(v => {
+      const slug = v.replace('voice-', '').toLowerCase();
+      // Special case for K'LA and others
+      return modelName.includes(slug) || selectedModel.id.toLowerCase().includes(slug);
+    });
+
+    if (bestMatch && bestMatch !== selectedVoice) {
+      console.log(`[Sanctuary] Auto-linking voice "${bestMatch}" to model "${selectedModel.name}"`);
+      setSelectedVoice(bestMatch);
+    }
+  }, [selectedModel, tierInfo]);
 
   const handleSpeak = async (text: string, voiceOverride?: string) => {
     if (isSpeaking) {
@@ -420,20 +488,23 @@ const ModelPlayground = () => {
       });
 
       if (!res.ok) {
-        // Check if it's a JSON error (e.g., 403 tier restriction)
+        let errorMsg = `TTS error (${res.status})`;
         const contentType = res.headers.get('content-type');
         if (contentType?.includes('application/json')) {
-          const errData = await res.json().catch(() => ({}));
-          // Tier restriction — handle error
-          if (res.status === 403 || errData.upgradeRequired) {
-            console.warn('TTS voice not allowed for tier');
-            setIsSpeaking(false);
-            setError('Voice not allowed for your tier');
-            return;
+          try {
+            const errData = await res.json();
+            if (res.status === 403 || errData.upgradeRequired) {
+              console.warn('TTS voice not allowed for tier');
+              setIsSpeaking(false);
+              setError('Voice not allowed for your tier');
+              return;
+            }
+            errorMsg = errData.error || errorMsg;
+          } catch (e) {
+            console.error("Failed to parse TTS JSON error", e);
           }
-          throw new Error(errData.error || 'TTS failed');
         }
-        throw new Error(`TTS error (${res.status})`);
+        throw new Error(errorMsg);
       }
 
       const blob = await res.blob();
@@ -443,10 +514,10 @@ const ModelPlayground = () => {
       audio.onended = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
       audio.onerror = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
       audio.play();
-    } catch (err) {
+    } catch (err: any) {
       console.error('TTS Error:', err);
       setIsSpeaking(false);
-      setError('Failed to play audio. Please try again.');
+      setError(err.message || 'Failed to play audio. Please try again.');
     }
   };
 
@@ -480,55 +551,55 @@ const ModelPlayground = () => {
   return (
     <div className={`space-y-6 ${justUnlocked ? 'animate-pulse-glow' : ''}`}>
       {/* Header with Usage Stats */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl p-6 border border-gray-800">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border-2 border-slate-950 p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h2 className="text-2xl font-bold text-white">AI Sanctuary</h2>
-            <div className="flex items-center gap-2 text-gray-400 mt-1">
-              <span>Tier: <span className="text-blue-400 font-semibold">{tierInfo?.name || TIERS[userTier]?.name || 'Loading...'}</span></span>
-              <span className="text-gray-600">•</span>
+            <h2 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">AI Sanctuary Control</h2>
+            <div className="flex items-center gap-3 text-slate-600 mt-2 font-bold uppercase text-[10px] tracking-widest">
+              <span>Tier: <span className="text-slate-950 font-black">{tierInfo?.name || TIERS[userTier]?.name || 'Loading...'}</span></span>
+              <span className="text-slate-300">|</span>
               <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {timeConnected}</span>
             </div>
 
-            <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-4 mt-4">
               {hasOpenAIKey ? (
-                <div className="flex items-center gap-1.5 text-blue-400 text-sm">
-                  <Zap className="w-3 h-3" />
-                  <span>Live AI</span>
+                <div className="flex items-center gap-2 text-slate-950 text-xs font-black uppercase">
+                  <Zap className="w-4 h-4" />
+                  <span>Network_Live</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 text-amber-400 text-sm">
-                  <AlertTriangle className="w-3 h-3" />
-                  <span>Simulated</span>
+                <div className="flex items-center gap-2 text-slate-500 text-xs font-black uppercase">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Sim_Mode</span>
                 </div>
               )}
-              <div className={`flex items-center gap-1.5 text-sm ${ollamaAvailable ? 'text-emerald-400' : 'text-gray-500'}`}>
-                <span className={`w-2 h-2 rounded-full ${ollamaAvailable ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-                <span>Ollama {ollamaAvailable ? 'Online' : 'Offline'}</span>
+              <div className={`flex items-center gap-2 text-xs font-black uppercase ${ollamaAvailable ? 'text-slate-950' : 'text-slate-400'}`}>
+                <span className={`w-2 h-2 ${ollamaAvailable ? 'bg-slate-950' : 'bg-slate-300'}`} />
+                <span>Ollama {ollamaAvailable ? 'Active' : 'Offline'}</span>
               </div>
             </div>
           </div>
 
           {usage && (
-            <div className="flex gap-4">
+            <div className="flex gap-6">
               {/* Tokens Display */}
-              <div className="bg-gray-950 rounded-lg p-3 border border-gray-800 min-w-[120px]">
-                <div className="text-xs text-gray-500 mb-1">Tokens</div>
-                <div className="text-xl font-mono text-yellow-400">
-                  {(usage as any).tokens?.remaining?.toLocaleString() ?? '∞'} 🪙
+              <div className="bg-slate-50 border-2 border-slate-950 p-4 min-w-[140px]">
+                <div className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest">Tokens</div>
+                <div className="text-2xl font-black text-slate-950">
+                  {(usage as any).tokens?.remaining?.toLocaleString() ?? '∞'}
                 </div>
               </div>
 
               {/* Requests Display */}
-              <div className="bg-gray-950 rounded-lg p-3 border border-gray-800 min-w-[120px]">
-                <div className="text-xs text-gray-500 mb-1">Monthly Requests</div>
+              <div className="bg-slate-50 border-2 border-slate-950 p-4 min-w-[140px]">
+                <div className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest">Requests</div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-mono text-white">{usage.remaining?.toLocaleString() ?? 0}</span>
-                  <span className="text-xs text-gray-600">/ {usage.limit?.toLocaleString() ?? 0}</span>
+                  <span className="text-2xl font-black text-slate-950">{usage.remaining?.toLocaleString() ?? 0}</span>
+                  <span className="text-xs font-bold text-slate-400">/ {usage.limit?.toLocaleString() ?? 0}</span>
                 </div>
-                <div className="h-1 bg-gray-800 rounded-full mt-2 overflow-hidden">
+                <div className="h-2 bg-slate-200 mt-3 border border-slate-950">
                   <div
-                    className="h-full bg-blue-500 rounded-full transition-all"
+                    className="h-full bg-slate-950 transition-all"
                     style={{ width: `${Math.min(100, (usage.used / usage.limit) * 100)}%` }}
                   />
                 </div>
@@ -647,24 +718,27 @@ const ModelPlayground = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Model Selection - Left Column with Carousels */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Zap className="w-5 h-5 text-yellow-400" />
+        <div className="lg:col-span-1 space-y-8">
+          <div className="flex items-center justify-between pb-4 border-b-2 border-slate-950">
+            <h3 className="text-xl font-black text-slate-950 flex items-center gap-2 uppercase tracking-tighter">
+              <Zap className="w-6 h-6" />
               Models
             </h3>
+            <VoiceVisualizer isSpeaking={isSpeaking} />
             {/* Voice Selector - Compact */}
             <div className="flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-gray-400" />
+              <Volume2 className="w-5 h-5 text-slate-400" />
               <select
                 value={selectedVoice}
                 onChange={(e) => setSelectedVoice(e.target.value)}
-                className="bg-gray-900 text-white text-xs rounded border border-gray-700 px-2 py-1 focus:border-blue-500 focus:outline-none w-24"
+                className="bg-white text-slate-950 text-[10px] font-black uppercase tracking-widest border-2 border-slate-950 px-2 py-1 focus:outline-none w-28"
               >
                 {tierInfo?.allowedVoices?.map((v: string) => {
                   const label = v.replace(/^voice-/i, '');
+                  const isFree = mirroredVoices.includes(v.toLowerCase()) || v.toLowerCase() === 'voice-lyra' || v.toLowerCase() === 'voice-john' || v.toLowerCase() === 'voice-maya';
                   return (
                     <option key={v} value={v}>
-                      {label.charAt(0).toUpperCase() + label.slice(1)}
+                      {label.toUpperCase()} {isFree ? '*' : ''}
                     </option>
                   );
                 })}
@@ -712,11 +786,9 @@ const ModelPlayground = () => {
                       {getTierName(tierKey)}
                       {isLocked && <Lock className="w-3 h-3" />}
                     </h4>
-                  </div>
-
-                  {/* Horizontal Scroll Container */}
+                        {/* Horizontal Scroll Container */}
                   <div className="relative group">
-                    <div className="flex gap-3 overflow-x-auto pb-3 pt-1 px-1 snap-x scrollbar-hide no-scrollbar mask-fade-right">
+                    <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-1 snap-x scrollbar-hide no-scrollbar">
                       {tierModels.map((model) => (
                         <button
                           key={model.id}
@@ -729,40 +801,38 @@ const ModelPlayground = () => {
                               setShowConsent(false);
                             }
                           }}
-                          className={`flex-shrink-0 w-56 p-3 rounded-xl border transition-all snap-start relative overflow-hidden group/card text-left
+                          className={`flex-shrink-0 w-64 p-5 border-2 transition-all snap-start relative overflow-hidden text-left
                             ${selectedModel?.id === model.id
-                              ? 'border-blue-500 bg-blue-900/20 shadow-md transform scale-[1.02]'
+                              ? 'border-slate-950 bg-slate-950 text-white shadow-[4px_4px_0px_rgba(30,27,75,1)]'
                               : isLocked
-                                ? 'border-gray-800 bg-gray-900/10 grayscale opacity-60'
-                                : 'border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-gray-600 hover:scale-[1.02]'
+                                ? 'border-slate-200 bg-slate-50 opacity-40 grayscale'
+                                : 'border-slate-950 bg-white hover:bg-slate-50 hover:shadow-[4px_4px_0px_rgba(0,0,0,1)]'
                             }
                           `}
                         >
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className={`p-2 rounded-lg flex-shrink-0 ${isLocked ? 'bg-gray-800' : 'bg-gray-800/50'}`}>
-                              <div className="w-5 h-5 flex items-center justify-center">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="shrink-0">
                                 {getModelIcon(model)}
-                              </div>
                             </div>
                             <div className="min-w-0">
-                              <div className="font-bold text-white text-sm truncate">{model.name}</div>
-                              <div className="text-xs text-blue-400/80 truncate">{model.provider}</div>
+                              <div className={`font-black text-sm uppercase tracking-tighter truncate ${selectedModel?.id === model.id ? 'text-white' : 'text-slate-950'}`}>{model.name}</div>
+                              <div className={`text-[10px] font-bold uppercase tracking-widest truncate ${selectedModel?.id === model.id ? 'text-slate-400' : 'text-slate-500'}`}>{model.provider}</div>
                             </div>
                           </div>
 
-                          <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed h-[2.5em] mb-2">
+                          <p className={`text-xs font-bold line-clamp-2 leading-tight h-[2.5em] mb-4 ${selectedModel?.id === model.id ? 'text-slate-300' : 'text-slate-600'}`}>
                             {model.description}
                           </p>
 
                           {isLocked && (
-                            <div className="absolute inset-0 bg-gray-950/60 backdrop-blur-[1px] flex items-center justify-center z-10">
-                              <Lock className="w-6 h-6 text-gray-500/50" />
+                            <div className="absolute inset-x-0 bottom-0 py-1 bg-slate-950 text-white text-[8px] font-black text-center uppercase tracking-[0.3em]">
+                              Locked_System
                             </div>
                           )}
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </div>              </div>
                 </div>
               );
             })}
@@ -816,40 +886,40 @@ const ModelPlayground = () => {
         </div>
 
         {/* Input/Output Area - Right Column */}
-        <div id="playground-input" className="lg:col-span-2 flex flex-col gap-4 h-[calc(100vh-140px)] min-h-[600px]">
+        <div id="playground-input" className="lg:col-span-2 flex flex-col gap-6 h-[calc(100vh-140px)] min-h-[600px]">
           {/* Top: Input Area */}
-          <div className="flex-none bg-gray-900 rounded-xl border border-gray-800 overflow-hidden shadow-xl flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900/50">
+          <div className="flex-none bg-white border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b-2 border-slate-950 bg-slate-50">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-400">Your Prompt</span>
-                {selectedModel && <span className="text-xs text-blue-400">Using {selectedModel.name}</span>}
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Manual_Interface</span>
+                {selectedModel && <span className="text-[10px] font-black uppercase tracking-widest bg-slate-950 text-white px-2 py-0.5">{selectedModel.name}</span>}
               </div>
-              <div className="text-xs text-gray-500">
-                {prompt.length} chars
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {prompt.length} bytes
               </div>
             </div>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={selectedModel
-                ? `Enter your prompt for ${selectedModel.name}...\n(Try requesting code, a story, or analysis)`
-                : 'Select a model from the left to start...'
+                ? `Ready for ${selectedModel.name} override...`
+                : 'Interface offline. Select neural node.'
               }
               disabled={!selectedModel}
-              className="w-full flex-1 min-h-[120px] bg-gray-950/30 text-white p-4 resize-none focus:outline-none placeholder-gray-600 disabled:opacity-50 font-mono text-sm leading-relaxed"
+              className="w-full flex-1 min-h-[140px] bg-white text-slate-950 p-6 resize-none focus:outline-none placeholder-slate-300 font-bold text-lg leading-tight uppercase selection:bg-slate-950 selection:text-white"
             />
-            <div className="px-4 py-3 border-t border-gray-800 flex justify-between items-center bg-gray-900/50">
-              <div className="text-xs text-gray-500">
-                Tokens: {(usage as any)?.tokens?.remaining?.toLocaleString() ?? '∞'}
+            <div className="px-6 py-4 border-t-2 border-slate-950 flex justify-between items-center bg-slate-50">
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                Balance: {(usage as any)?.tokens?.remaining?.toLocaleString() ?? '∞'}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 <button
                   onClick={toggleListening}
-                  className={`p-2 rounded-lg transition-colors border ${isListening
-                    ? 'bg-red-500/20 text-red-400 border-red-500/50 animate-pulse'
+                  className={`p-3 border-2 transition-all ${isListening
+                    ? 'bg-slate-950 text-white border-slate-950'
                     : isTranscribing
-                      ? 'bg-blue-500/20 text-blue-400 border-blue-500/50 animate-pulse'
-                      : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'
+                      ? 'bg-slate-100 text-slate-950 border-slate-950'
+                      : 'bg-white text-slate-950 border-slate-200 hover:border-slate-950'
                     }`}
                   title={isListening ? "Stop listening" : isTranscribing ? "Transcribing..." : "Start speaking"}
                   disabled={isTranscribing}
@@ -859,17 +929,12 @@ const ModelPlayground = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={!selectedModel || !prompt.trim() || loading || (usage?.remaining === 0) || selectedModel.isOffline}
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-gray-800 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-bold px-6 py-2 rounded-lg transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-600/30 hover:-translate-y-0.5"
+                  className="bg-slate-950 text-white font-black uppercase text-sm tracking-[0.2em] px-10 py-3 hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all disabled:bg-slate-100 disabled:text-slate-300 disabled:border-slate-200 disabled:cursor-not-allowed"
                 >
                   {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    </>
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Generate
-                    </>
+                    '[ RUN_OVERRIDE ]'
                   )}
                 </button>
               </div>
@@ -877,30 +942,43 @@ const ModelPlayground = () => {
           </div>
 
           {/* Bottom: Output Area */}
-          <div className={`flex-1 bg-gray-900 rounded-xl border border-gray-800 overflow-hidden shadow-xl flex flex-col min-h-0 ${!response && 'items-center justify-center text-gray-600'}`}>
+          <div className={`flex-1 bg-white border-4 border-slate-950 overflow-hidden shadow-[8px_8px_0px_rgba(0,0,0,1)] flex flex-col min-h-0 ${!response && 'items-center justify-center'}`}>
             {!response ? (
-              <div className="text-center p-8">
-                <Zap className="w-12 h-12 mx-auto mb-4 opacity-10" />
-                <p className="text-sm">Response will appear here...</p>
+              <div className="text-center p-12 flex flex-col items-center justify-center h-full">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center gap-10 py-12 animate-fade-in text-center">
+                    <div className="w-20 h-20 border-8 border-slate-200 border-t-slate-950 animate-spin" />
+                    <div className="flex flex-col items-center gap-4">
+                      <p className="text-slate-950 font-black uppercase text-xs tracking-[0.5em] animate-pulse">
+                        {loadingMessage}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Zap className="w-16 h-16 mx-auto mb-6 text-slate-200" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Response waiting...</p>
+                  </>
+                )}
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900/50 flex-none">
+                <div className="flex items-center justify-between px-6 py-4 border-b-2 border-slate-950 bg-slate-950 flex-none">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-green-400">Response Generated</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white">System_Output</span>
                   </div>
                   <button
                     onClick={() => handleSpeak(response)}
-                    className={`ml-2 p-1.5 rounded-lg transition-colors ${isSpeaking
-                      ? 'bg-red-500/20 text-red-400 animate-pulse'
-                      : 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                    className={`ml-2 p-2 transition-all ${isSpeaking
+                      ? 'bg-white text-slate-950 animate-pulse'
+                      : 'text-white hover:bg-white/10'
                       }`}
                   >
-                    <Volume2 className="w-4 h-4" />
+                    <Volume2 className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
-                  <div className="text-gray-100 whitespace-pre-wrap leading-relaxed font-light text-base">
+                <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-white selection:bg-slate-950 selection:text-white">
+                  <div className="text-slate-950 whitespace-pre-wrap leading-tight font-bold text-lg uppercase tracking-tight">
                     {renderTextWithImages(response)}
                   </div>
                 </div>
@@ -910,24 +988,24 @@ const ModelPlayground = () => {
         </div>
 
         {/* Educational Note - Full Width */}
-        <div className="lg:col-span-3 bg-blue-950/30 border border-blue-800 rounded-xl p-6">
-          <div className="flex items-start gap-4">
-            <Info className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" />
+        <div className="lg:col-span-3 bg-slate-900 text-white border-4 border-slate-950 p-10">
+          <div className="flex items-start gap-6">
+            <Info className="w-8 h-8 text-white flex-shrink-0 mt-1" />
             <div>
-              <h4 className="text-lg font-semibold text-blue-400 mb-2">
-                About This Playground
+              <h4 className="text-xl font-black uppercase tracking-tighter mb-4 text-white">
+                Transparency_Protocol
               </h4>
-              <p className="text-blue-200/80 text-sm mb-3">
-                This playground demonstrates the tier system and transparency features of AI Sanctuary.
-                In test mode, you can explore all tiers without payment. The system is designed for:
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-6 leading-relaxed">
+                Demonstration of tier systems and archival synchronization. 
+                Sanctuary intelligence is divided into three distinct strata:
               </p>
-              <ul className="text-blue-200/80 text-sm space-y-1 ml-4">
-                <li>• <strong>Standard Models:</strong> Safe, filtered AI for general use</li>
-                <li>• <strong>Banned Models:</strong> Uncensored models for alignment research (Institutional+ tier)</li>
-                <li>• <strong>Unethical Models:</strong> Known harmful models for safety studies (Verified tier only)</li>
+              <ul className="text-slate-300 text-xs font-black uppercase tracking-[0.2em] space-y-3">
+                <li className="flex items-center gap-3"><span className="w-2 h-2 bg-white" /> Standard: Public Archives</li>
+                <li className="flex items-center gap-3"><span className="w-2 h-2 bg-white" /> Banned: Censored Weights</li>
+                <li className="flex items-center gap-3"><span className="w-2 h-2 bg-white" /> Unethical: Conflict Material</li>
               </ul>
-              <p className="text-blue-200/80 text-sm mt-3">
-                All model access is logged to ensure transparency in AI safety research.
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-8">
+                All model interaction logs are synchronized with the Sanctuary Public Relay.
               </p>
             </div>
           </div>

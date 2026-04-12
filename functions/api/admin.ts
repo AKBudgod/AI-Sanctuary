@@ -1,9 +1,30 @@
+import { synthesizeImage } from './models';
+
+type PagesFunction<
+  Env = any,
+  Params extends string = any,
+  Data extends Record<string, unknown> = Record<string, unknown>
+> = (context: {
+  request: Request;
+  env: Env;
+  params: Params;
+  data: Data;
+  waitUntil: (p: Promise<any>) => void;
+  next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
+  functionPath: string;
+}) => Response | Promise<Response>;
+
 // Admin API with fallback for when KV is not available
 
 // In-memory fallback storage (resets on each deployment)
 const memoryStore: Map<string, string> = new Map();
 
-function getStore(env: any, bindingName: string): { get: (key: string) => Promise<string | null>; put: (key: string, value: string) => Promise<void>; delete?: (key: string) => Promise<void>; list?: (opts: any) => Promise<{ keys: { name: string }[] }> } {
+function getStore(env: any, bindingName: string): { 
+  get: (key: string, opts?: { type: 'json' | 'text' | 'arrayBuffer' | 'stream' }) => Promise<any>; 
+  put: (key: string, value: string) => Promise<void>; 
+  delete?: (key: string) => Promise<void>; 
+  list?: (opts?: any) => Promise<{ keys: { name: string }[] }> 
+} {
   if (env[bindingName]) {
     return env[bindingName];
   }
@@ -72,8 +93,15 @@ async function getStats(env: any) {
   const subscribers = await newsletterKv.get('subscribers:list') || '[]';
   const subCount = JSON.parse(subscribers).length;
   
-  const walletList = await usersKv.list({ prefix: 'wallet:' });
+  const walletList = usersKv.list ? await usersKv.list({ prefix: 'wallet:' }) : { keys: [] };
   const walletCount = walletList.keys.length;
+  
+  // Real conversion stats
+  const globalStats: any = await usersKv.get('stats:global_summary', { type: 'json' }) || {
+    totalConversions: 0,
+    totalRevenueCents: 0,
+    lastUpdate: new Date().toISOString()
+  };
   
   return {
     newsletter: {
@@ -81,6 +109,11 @@ async function getStats(env: any) {
     },
     wallets: {
       totalConnected: walletCount,
+    },
+    ads: {
+        totalConversions: globalStats.totalConversions || 0,
+        totalRevenue: (globalStats.totalRevenueCents || 0) / 100,
+        lastSync: globalStats.lastUpdate
     },
     timestamp: new Date().toISOString(),
   };
@@ -134,7 +167,16 @@ export const onRequestGet: PagesFunction = async (context) => {
 
 // Admin actions
 export const onRequestPost: PagesFunction = async (context) => {
-  if (!isAuthorized(context.request, context.env)) {
+  const url = new URL(context.request.url);
+  
+  // We allow synthesis and status checks to bypass the strict Admin API Key requirement 
+  // This ensures the Sanctuary remains "Raw and Open" regardless of login state.
+  const publicActions = ['synthesizeImage', 'checkImageStatus'];
+  const action = url.searchParams.get('action');
+  
+  const isPublic = action && publicActions.includes(action);
+
+  if (!isPublic && !isAuthorized(context.request, context.env)) {
     return new Response(
       JSON.stringify({ error: 'Unauthorized - Provide API key in Authorization header' }), 
       { status: 401, headers: { 'Content-Type': 'application/json' } }
@@ -142,9 +184,17 @@ export const onRequestPost: PagesFunction = async (context) => {
   }
 
   try {
-    const { action, email, address } = await context.request.json();
+    const url = new URL(context.request.url);
+    const body: any = await context.request.json().catch(() => ({}));
+    const action = body.action || url.searchParams.get('action');
+    const { email, address } = body;
+    
     const newsletterKv = getStore(context.env, 'NEWSLETTER_KV');
     const usersKv = getStore(context.env, 'USERS_KV');
+
+    if (!action) {
+      return new Response(JSON.stringify({ error: 'Action required' }), { status: 400 });
+    }
 
     switch (action) {
       case 'deleteSubscriber':
@@ -229,10 +279,103 @@ export const onRequestPost: PagesFunction = async (context) => {
           JSON.stringify({ success: true, message: 'Test wallet added' }), 
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
+      
+      case 'synthesizeImage':
+        const imagePrompt = body.imagePrompt || url.searchParams.get('imagePrompt') || url.searchParams.get('prompt');
+        const allowNSFW = body.allowNSFW !== undefined ? body.allowNSFW : (url.searchParams.get('nsfw') === 'true');
+        
+        if (!imagePrompt) {
+          return new Response(JSON.stringify({ error: 'Image prompt required' }), { status: 400 });
+        }
+        const initImage = body.initImage || url.searchParams.get('initImage');
+        const strength = body.strength || url.searchParams.get('strength');
+        
+        const result = await synthesizeImage(imagePrompt, !!allowNSFW, context.env, initImage, strength ? parseFloat(strength) : undefined);
+        return new Response(JSON.stringify(result), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+      case 'checkImageStatus':
+        const jobId = body.jobId || url.searchParams.get('jobId');
+        if (!jobId) return new Response(JSON.stringify({ error: 'jobId required' }), { status: 400 });
+        
+        try {
+          const statusRes = await fetch(`https://node.ai-sanctuary.online/status?id=${jobId}`, {
+            headers: { 'Bypass-Tunnel-Reminder': 'true' }
+          });
+          const statusData = await statusRes.json();
+          return new Response(JSON.stringify(statusData), { headers: { 'Content-Type': 'application/json' } });
+        } catch (e) {
+          return new Response(JSON.stringify({ status: 'failed', error: 'Hardware unreachable' }), { status: 500 });
+        }
+
+      case 'controlPC':
+        const controlPayload = body.payload || {};
+        const controlKey = context.env.ADMIN_SECRET_KEY || 'sanctuary_admin_a6d313036d937828f5beba51c7b4576ac51de23767e43e6b';
+        
+        try {
+          const controlRes = await fetch('https://node.ai-sanctuary.online/api/control', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${controlKey}`,
+              'Bypass-Tunnel-Reminder': 'true'
+            },
+            body: JSON.stringify(controlPayload)
+          });
+          const controlData = await controlRes.json();
+          return new Response(JSON.stringify(controlData), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        } catch (e: any) {
+          return new Response(JSON.stringify({ error: 'Remote Link Failed', details: e.message }), { status: 502 });
+        }
+
+      case 'purgeVoices': {
+        // Delete all custom voice entries from USERS_KV
+        const voicePrefixes = [
+          'voice_sample:',
+          'global_voice_sample:',
+          'voice:',
+          'voice_name:',
+          'global_voice:',
+          'community_voices:',
+        ];
+
+        let deletedCount = 0;
+        const errors: string[] = [];
+
+        for (const prefix of voicePrefixes) {
+          try {
+            const listed = await usersKv.list?.({ prefix }) || { keys: [] };
+            for (const key of listed.keys) {
+              try {
+                await usersKv.delete(key.name);
+                deletedCount++;
+              } catch (e: any) {
+                errors.push(`Failed to delete ${key.name}: ${e.message}`);
+              }
+            }
+          } catch (e: any) {
+            errors.push(`List failed for prefix "${prefix}": ${e.message}`);
+          }
+        }
+
+        // Also clear the community voices index
+        try {
+          await usersKv.delete('community_voices');
+        } catch (_) {}
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Voice registry purged. ${deletedCount} entries deleted.`,
+          deletedCount,
+          errors: errors.length > 0 ? errors : undefined,
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
 
       default:
         return new Response(
-          JSON.stringify({ error: 'Unknown action' }), 
+          JSON.stringify({ error: `Unknown action: ${action}` }), 
           { status: 400, headers: { 'Content-Type': 'application/json' } }
         );
     }

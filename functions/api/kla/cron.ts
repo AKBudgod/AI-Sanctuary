@@ -1,6 +1,6 @@
 export async function onRequestPost({ request, env }: { request: Request, env: any }) {
   const authHeader = request.headers.get('Authorization');
-  if (authHeader !== `Bearer ${env.ADMIN_SECRET_KEY}`) {
+  if (authHeader !== `Bearer ${env.ADMIN_API_KEY}`) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -24,9 +24,9 @@ export async function onRequestPost({ request, env }: { request: Request, env: a
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${env.ADMIN_SECRET_KEY}`
+            'Authorization': `Bearer ${env.ADMIN_API_KEY}`
           },
-          body: JSON.stringify({ niche: mission.niche, maxLeads: 5 }) // Small daily batch per user
+          body: JSON.stringify({ niche: mission.niche, maxLeads: 20 }) // Increased batch size for revenue sprint
         });
 
         if (!prospectReq.ok) continue;
@@ -46,7 +46,7 @@ export async function onRequestPost({ request, env }: { request: Request, env: a
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${env.ADMIN_SECRET_KEY}`
+              'Authorization': `Bearer ${env.ADMIN_API_KEY}`
             },
             body: JSON.stringify({ lead })
           });
@@ -88,60 +88,67 @@ export async function scheduled(event: any, env: any, ctx: any) {
 
   try {
     // 1. Fetch campaigns/niches to target (could be from KV or hardcoded for now)
-    const niches = ['AI Startups', 'Web3 Gaming Studios'];
+    const systemEmail = 'weedj747@gmail.com';
+    const missionId = `system_sanctuary_marketing`;
+    
+    // Ensure System Mission exists in KV
+    let missionDataStr = await env.KLA_LEADS_KV.get(`mission:${systemEmail}:${missionId}`);
+    let mission = missionDataStr ? JSON.parse(missionDataStr) : {
+      id: missionId,
+      email: systemEmail,
+      niche: 'Global Platform Growth',
+      leads: 0,
+      sent: 0,
+      status: 'Active',
+      createdAt: new Date().toISOString(),
+      isSystem: true
+    };
 
+    const niches = ['AI Startups', 'SaaS Founders', 'Web3 Growth Leads', 'Digital Marketing Agencies', 'AI Influencers'];
+    
     for (const niche of niches) {
       console.log(`K'LA is mining data for: ${niche}`);
 
-      // 2. Call the prospecting agent (internal fetch to avoid exposing the logic directly)
       const prospectReq = await fetch('https://ai-sanctuary.pages.dev/api/kla/prospect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.ADMIN_SECRET_KEY}`
+          'Authorization': `Bearer ${env.ADMIN_API_KEY}`
         },
-        body: JSON.stringify({ niche, maxLeads: 5 })
+        body: JSON.stringify({ niche, maxLeads: 20 })
       });
 
-      if (!prospectReq.ok) {
-        console.error(`K'LA Failed to find leads for ${niche}:`, await prospectReq.text());
-        continue;
-      }
-
+      if (!prospectReq.ok) continue;
       const { leads } = await prospectReq.json();
-      console.log(`K'LA found ${leads.length} leads for ${niche}`);
-
-      // 3. For each lead, craft and send the email
+      
       for (const lead of leads) {
-        // Check KV to ensure we haven't emailed them before
         const contacted = await env.KLA_LEADS_KV.get(`contacted:${lead.email}`);
-        if (contacted) {
-          console.log(`K'LA skipping ${lead.email} - already contacted.`);
-          continue;
-        }
+        if (contacted) continue;
 
-        // Draft and send email
         const sendReq = await fetch('https://ai-sanctuary.pages.dev/api/kla/send', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${env.ADMIN_SECRET_KEY}`
+            'Authorization': `Bearer ${env.ADMIN_API_KEY}`
           },
           body: JSON.stringify({ lead })
         });
 
         if (sendReq.ok) {
-           console.log(`K'LA successfully emailed: ${lead.email}`);
-           // Mark as contacted in KV to prevent future spam
+           mission.leads++;
+           mission.sent++;
            await env.KLA_LEADS_KV.put(`contacted:${lead.email}`, JSON.stringify({
              date: new Date().toISOString(),
              lead: lead
            }));
-        } else {
-           console.error(`K'LA failed to email ${lead.email}:`, await sendReq.text());
+           // Update mission stats incrementally
+           await env.KLA_LEADS_KV.put(`mission:${systemEmail}:${missionId}`, JSON.stringify(mission));
         }
       }
     }
+    
+    mission.status = 'Standby';
+    await env.KLA_LEADS_KV.put(`mission:${systemEmail}:${missionId}`, JSON.stringify(mission));
   } catch (error: any) {
     console.error("K'LA Cron Job Error:", error.message);
   }

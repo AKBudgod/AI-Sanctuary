@@ -186,6 +186,39 @@ export const Network = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// LayoutDashboard icon
+export const LayoutDashboard = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="7" height="9" x="3" y="3" rx="1" />
+    <rect width="7" height="5" x="14" y="3" rx="1" />
+    <rect width="7" height="9" x="14" y="12" rx="1" />
+    <rect width="7" height="5" x="3" y="16" rx="1" />
+  </svg>
+);
+
+// BrainCircuit icon
+export const BrainCircuit = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0 .94 4.82 2.5 2.5 0 0 0 0 4.28 2.5 2.5 0 0 0-.94 4.82 2.5 2.5 0 0 0 1.98 3 2.5 2.5 0 0 0 4.96-.47V4.5Z" />
+    <path d="M12 4.5V7" />
+    <path d="M12 13v8" />
+    <path d="M12 17h5" />
+    <path d="M12 21h2" />
+    <path d="M16 13h5" />
+    <path d="M18 4h3" />
+    <path d="M18 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+    <path d="M18 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+  </svg>
+);
+
+// ShieldCheck icon
+export const ShieldCheck = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
 // Lock icon
 export const Lock = ({ className }: { className?: string }) => (
   <svg
@@ -308,6 +341,54 @@ export const Wallet = ({ className }: { className?: string }) => (
     <path d="M16 12h.01" />
   </svg>
 );
+
+// CreditCard icon
+export const CreditCard = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2" />
+    <line x1="2" y1="10" x2="22" y2="10" />
+  </svg>
+);
+
+// Image icon
+export const ImageIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
+
+// Maximize icon
+export const Maximize = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+    <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+    <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+    <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+  </svg>
+);
+
+// Layout icon
+export const Layout = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <line x1="3" y1="9" x2="21" y2="9" />
+    <line x1="9" y1="21" x2="9" y2="9" />
+  </svg>
+);
+
+// Plus icon
+export const Plus = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+// Trash2 icon
+
+// Download icon
 
 // Award/Trophy icon
 export const Award = ({ className }: { className?: string }) => (
@@ -468,6 +549,41 @@ export const TikTok = ({ className }: { className?: string }) => (
     <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.95v7.45c-.01 2.01-.89 3.9-2.42 5.2-1.52 1.3-3.6 1.94-5.63 1.73-2.01-.2-3.88-1.14-5.17-2.7-1.28-1.55-1.92-3.6-1.72-5.63.21-2.01 1.15-3.87 2.72-5.16 1.54-1.27 3.6-1.91 5.62-1.7V11.3c-1.02.03-2.02.26-2.92.73-.89.47-1.62 1.18-2.11 2.05-.49.88-.73 1.88-.69 2.9.04 1.01.35 1.99.92 2.82.57.82 1.36 1.45 2.27 1.8.91.35 1.92.41 2.86.16.94-.25 1.78-.79 2.4-1.54.62-.75.98-1.73 1.01-2.74l-.01-13.43c.01-.01.01-.02 0-.03z" />
   </svg>
 );
+
+// Target icon
+export const Target = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
+// MousePointer2 icon
+export const MousePointer2 = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 2l12 11.23l-5.46.46l2.12 5.14a1 1 0 0 1-.5 1.28l-.13.06a1 1 0 0 1-1.28-.52l-2.12-5.14l-4.63 4z" />
+  </svg>
+);
+
+// PieChart icon
+export const PieChart = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+    <path d="M22 12A10 10 0 0 0 12 2v10z" />
+  </svg>
+);
+
+// MoreVertical icon
+export const MoreVertical = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="1" />
+    <circle cx="12" cy="5" r="1" />
+    <circle cx="12" cy="19" r="1" />
+  </svg>
+);
+
+// Telegram icon
 
 // Telegram icon
 export const Telegram = ({ className }: { className?: string }) => (

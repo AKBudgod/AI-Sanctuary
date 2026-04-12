@@ -39,10 +39,9 @@ const TransparencyDashboard = () => {
 
   const fetchModels = async () => {
     try {
-      const walletAddress = localStorage.getItem('walletAddress');
       const response = await fetch('/api/tiers?action=models&showAll=true', {
         headers: {
-          'Authorization': `Bearer ${walletAddress || 'anonymous'}`,
+          'Authorization': `Bearer anonymous`,
         },
       });
 
@@ -69,10 +68,9 @@ const TransparencyDashboard = () => {
 
   const fetchTransparencyReport = async (modelId: string) => {
     try {
-      const walletAddress = localStorage.getItem('walletAddress');
       const response = await fetch(`/api/tiers?action=transparency&modelId=${modelId}`, {
         headers: {
-          'Authorization': `Bearer ${walletAddress || 'anonymous'}`,
+          'Authorization': `Bearer anonymous`,
         },
       });
 

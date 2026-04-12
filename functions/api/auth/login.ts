@@ -1,24 +1,31 @@
 import { verifyPassword, hashPassword } from '../../crypto-utils';
 
-interface Env {
-  USERS_KV: KVNamespace;
-}
-
-const ADMIN_EMAILS = [
-  'kearns.adam747@gmail.com',
-  'kearns.adan747@gmail.com',
-  'gamergoodguy445@gmail.com',
-  'wjreviews420@gmail.com',
-  'weedj747@gmail.com',
-];
-
 export const onRequestPost: any = async (context: any) => {
-  const env = context.env as Env;
+  const env = context.env;
+  const { request } = context;
+
+  const ADMIN_EMAILS = [
+    'weedj747@gmail.com',
+    'wjreviews420@gmail.com',
+    'kearns.adam747@gmail.com',
+    'gamergoodguy445@gmail.com',
+    'akbudgod@ai-sanctuary.online',
+  ];
+
   try {
-    const { email, password } = await context.request.json() as any;
+    const body = await context.request.json() as any;
+    const { email, password } = body;
 
     if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Email and password required' }), {
+      return new Response(JSON.stringify({ 
+        error: 'Email and password required', 
+        debug: { 
+          hasEmail: !!email, 
+          hasPassword: !!password, 
+          bodyKeys: Object.keys(body),
+          bodyPreview: JSON.stringify(body).substring(0, 100)
+        } 
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });

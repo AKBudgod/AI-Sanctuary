@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 declare global {
     interface Window {
         aclib: any;
+        adcashSettings: any;
     }
 }
 
@@ -21,11 +22,22 @@ const AdSlot = ({ zoneId, index }: { zoneId: string, index: number }) => {
         containerRef.current.innerHTML = '';
 
         try {
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            // We inject the script exactly as Adcash expects it inside a div
-            script.innerHTML = `aclib.runBanner({ zoneId: '${zoneId}' });`;
-            containerRef.current.appendChild(script);
+        function tryRunBanner() {
+            if (typeof window !== 'undefined' && window.aclib) {
+                try {
+                    window.adcashSettings = window.adcashSettings || {};
+                    window.adcashSettings.zoneId = zoneId;
+                    window.aclib.runBanner({ zoneId: zoneId });
+                } catch (e) {
+                    console.error(`Adcash runBanner failed for zone ${zoneId}:`, e);
+                }
+            } else if (typeof window !== 'undefined' && !window.aclib) {
+                // If aclib is not yet loaded, wait and retry
+                setTimeout(tryRunBanner, 500);
+            }
+        }
+        
+        tryRunBanner();
         } catch (e) {
             console.error(`Adcash banner ${index} failed:`, e);
         }

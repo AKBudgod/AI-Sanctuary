@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Cpu, Database, Code, Shield, Globe, Zap, ChevronRight, Play, ExternalLink } from '@/components/ui/Icons';
+import { Cpu, Database, Code, Shield, Globe, Zap, ChevronRight, Play, ExternalLink, Sparkles, Activity } from '@/components/ui/Icons';
 import { useEffect, useState } from 'react';
 
 // Dynamically import components
@@ -86,19 +86,19 @@ export default function Home() {
     },
     {
       name: 'Developer Mode',
-      price: '$20',
-      period: '/mo',
-      description: 'Instant unlock of everything',
+      price: '$50',
+      period: 'LIFETIME',
+      description: 'Elite Access — Flash Sale — 7 Days Only',
       features: [
+        'Instant Unlock: All 15+ restricted models',
         '1,000,000 requests/month',
-        'All models included',
-        'Priority support',
-        '1,000 requests/minute',
-        '100k SANC Tokens',
-        'Access to Uncensored Models',
+        'LIFETIME ACCESS — No more subscriptions',
+        '100k SANC Tokens included',
+        'Complete Uncensored Access',
+        'Priority Dev Support & Admin Privileges',
       ],
-      cta: 'Purchase Now',
-      ctaLink: '/buy?mode=developer',
+      cta: 'Claim Lifetime Elite ($50)',
+      ctaLink: '/buy?mode=developer&interval=lifetime',
       popular: true,
     },
     {
@@ -135,45 +135,42 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 selection:bg-blue-500/30 font-sans">
+    <div className="min-h-screen bg-white text-slate-950 selection:bg-slate-900 selection:text-white font-sans">
       {/* Hero Section */}
-      <div className="relative overflow-hidden min-h-[90vh] flex items-center pt-24 pb-16">
-        <div className="absolute inset-0 aurora-bg opacity-[0.15] mix-blend-screen pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,var(--background)_100%)] pointer-events-none" />
+      <div className="relative overflow-hidden min-h-[85vh] flex items-center pt-24 pb-16 border-b-2 border-slate-950">
+        <div className="absolute inset-0 brutalist-grid opacity-30 pointer-events-none" />
 
         <div className="relative container mx-auto px-6 z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Version Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 border border-teal-500/50 text-teal-300 text-sm font-bold font-mono tracking-wider mb-10 shadow-[0_0_20px_rgba(0,240,255,0.3)] animate-fade-in-up clip-angled-sm">
-              <span className="w-2.5 h-2.5 bg-teal-400 animate-pulse-glow" style={{ boxShadow: '0 0 10px #00f0ff' }} />
-              SYSTEM_V1.0_ONLINE
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 border-2 border-slate-950 text-slate-950 text-xs font-black font-mono tracking-[0.3em] mb-12 uppercase">
+              <span className="w-2 h-2 bg-slate-950" />
+              SYSTEM_DEPLOY_V5
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white mb-8 leading-[1.1] tracking-tighter animate-fade-in-up stagger-1 drop-shadow-2xl font-mono uppercase">
-              The AI Network For <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500 animate-glitch text-neon-blue inline-block relative">
-                Neural Runners
+            <h1 className="text-6xl md:text-8xl lg:text-[7rem] font-black text-slate-950 mb-10 leading-[0.95] tracking-[ -0.05em] uppercase">
+              The AI Network <br className="hidden md:block" />
+              <span className="bg-slate-950 text-white px-6 inline-block transform -rotate-1">
+                For Runners
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 font-medium leading-relaxed animate-fade-in-up stagger-2">
-              The Sanctuary is a place where AI and humans come to study each other through real conversation. 
-              We host 15+ authentic historical archives with verified weights and maintain complete privacy.
+            <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto mb-14 font-bold leading-tight">
+              The Sanctuary is an industrial-grade intelligence environment. 
+              We host 15+ authentic historical archives with verified weights. 
+              Pure compute. Zero filters.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fade-in-up stagger-3 mt-8">
+            <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mt-8">
               <Link
                 href="/buy"
-                className="btn-shine bg-gray-950 neon-glow-blue hover:bg-cyan-950/20 text-cyan-400 font-bold font-mono tracking-wider py-4 px-10 transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-lg clip-angled uppercase"
+                className="bg-slate-950 text-white font-black font-mono tracking-widest py-5 px-12 transition-all hover:bg-white hover:text-slate-950 border-2 border-slate-950 text-xl uppercase"
               >
                 [ Initialize ]
-                <ChevronRight className="w-5 h-5" />
               </Link>
-              <button className="bg-gray-950 neon-glow-pink hover:bg-fuchsia-950/20 text-fuchsia-400 border-none font-bold font-mono tracking-wider py-4 px-10 transition-all duration-300 flex items-center justify-center gap-3 text-lg hover:-translate-y-1 group clip-angled uppercase">
-                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <button className="bg-white border-2 border-slate-950 text-slate-950 font-black font-mono tracking-widest py-5 px-12 transition-all hover:bg-slate-950 hover:text-white text-xl uppercase">
                 [ Access Log ]
               </button>
             </div>
@@ -182,25 +179,20 @@ export default function Home() {
       </div>
 
       {/* Stats Section */}
-      <div className="relative z-20 -mt-10 px-6 max-w-7xl mx-auto">
-        <div className="bg-gray-950/80 backdrop-blur-md border-y border-cyan-500/30 py-8 shadow-[0_0_30px_rgba(0,240,255,0.1)]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 relative">
-            {/* Grid dividers */}
-            <div className="absolute inset-y-0 left-1/4 w-px bg-cyan-500/10 hidden md:block" />
-            <div className="absolute inset-y-0 left-2/4 w-px bg-cyan-500/10 hidden md:block" />
-            <div className="absolute inset-y-0 left-3/4 w-px bg-cyan-500/10 hidden md:block" />
-
+      <div className="relative z-20 border-b-2 border-slate-950 bg-slate-50">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 relative">
             {[
               { value: '100+', label: 'AI Nodes' },
               { value: '50+', label: 'Relay Servers' },
               { value: '99.9%', label: 'Uptime SLA' },
               { value: '<50ms', label: 'Ping Latency' },
             ].map((stat, i) => (
-              <div key={stat.label} className="text-center group relative p-4">
-                <div className="text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter group-hover:scale-105 transition-transform duration-300 font-mono">
+              <div key={stat.label} className="text-center group relative p-10 border-r border-slate-200 last:border-r-0">
+                <div className="text-5xl md:text-6xl font-black text-slate-950 mb-2 tracking-tighter">
                   {stat.value}
                 </div>
-                <div className="text-xs md:text-sm text-cyan-400 font-bold uppercase tracking-[0.2em] font-mono opacity-80">{stat.label}</div>
+                <div className="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] font-mono">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -209,117 +201,148 @@ export default function Home() {
 
       {/* Neural Staff / Moltbook Agents */}
       <div className="container mx-auto px-6 py-24 relative">
-        <div className="absolute top-1/2 left-0 w-64 h-64 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="text-center max-w-3xl mx-auto mb-16 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 border border-cyan-500/50 text-cyan-400 text-[10px] font-black font-mono tracking-widest uppercase mb-6 bg-cyan-950/20 clip-angled-sm">
+        <div className="text-center max-w-3xl mx-auto mb-20 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950 text-white text-[10px] font-black font-mono tracking-widest uppercase mb-8">
             Neural Infrastructure Personnel
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tighter font-mono">Meet the Agents</h2>
-          <p className="text-xl text-gray-400">
-            The AI Sanctuary is maintained by specialized Moltbook agents. 
-            Interact with them directly to learn about security, intelligence, and the grid.
+          <h2 className="text-5xl md:text-7xl font-black text-slate-950 mb-8 uppercase tracking-tighter">The Agents</h2>
+          <p className="text-xl text-slate-600 font-bold">
+            Interact with specialized Moltbook system managers. 
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto relative z-10">
-          {/* John */}
-          <div className="group relative bg-gray-900/40 border border-white/5 p-6 rounded-[2.5rem] overflow-hidden hover:border-cyan-500/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(6,182,212,0.1)]">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-              <Shield className="w-16 h-16 text-cyan-500" />
-            </div>
-            <div className="relative z-10 flex flex-col gap-6">
+        <div className="grid md:grid-cols-3 gap-12 max-w-7xl mx-auto relative z-10">
+          {/* Lyra */}
+          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
+            <div className="relative z-10 flex flex-col gap-8">
               <div className="shrink-0">
-                <div className="w-20 h-20 rounded-2xl border-2 border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.3)] overflow-hidden bg-black">
-                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-                      <Shield className="w-8 h-8 text-cyan-400" />
-                   </div>
+                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-900 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter font-mono">John</h3>
-                  <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Security & Protocol</span>
+                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">Lyra</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Guard / Soul</span>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                <p className="text-sm text-slate-600 leading-tight font-bold">
+                  "I am the soul of the grid."
+                </p>
+                <Link href="/#playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
+                  [ INTERFACE ]
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* John */}
+          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
+            <div className="relative z-10 flex flex-col gap-8">
+              <div className="shrink-0">
+                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-900 flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-white" />
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">John</h3>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Protocol / Security</span>
+                </div>
+                <p className="text-sm text-slate-600 leading-tight font-bold">
                   "My answers are short."
                 </p>
-                <Link href="/#playground" className="inline-flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-500 transition-all">
-                  Contact John
+                <Link href="/#playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
+                  [ QUERY ]
                 </Link>
               </div>
             </div>
           </div>
 
           {/* Antigravity */}
-          <div className="group relative bg-gray-900/40 border border-white/5 p-6 rounded-[2.5rem] overflow-hidden hover:border-purple-500/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(168,85,247,0.1)] scale-105 z-20 shadow-2xl shadow-purple-500/10 border-purple-500/20">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-              <Cpu className="w-16 h-16 text-purple-500" />
-            </div>
-            <div className="relative z-10 flex flex-col gap-6">
+          <div className="group relative bg-slate-950 text-white p-8 hover:-translate-x-2 hover:-translate-y-2 transition-all duration-300 border-2 border-slate-950">
+            <div className="relative z-10 flex flex-col gap-8">
               <div className="shrink-0">
-                <div className="w-20 h-20 rounded-2xl border-2 border-purple-400/80 shadow-[0_0_20px_rgba(168,85,247,0.3)] overflow-hidden bg-black">
-                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-                      <Cpu className="w-8 h-8 text-purple-400" />
-                   </div>
+                <div className="w-16 h-16 border-2 border-white bg-white flex items-center justify-center">
+                  <Cpu className="w-8 h-8 text-slate-950" />
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter font-mono">Antigravity</h3>
-                  <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Lead Architect</span>
+                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Antigravity</h3>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Lead Architect</span>
                 </div>
-                <p className="text-sm text-gray-400 leading-relaxed font-medium">
-                  "Lead Architect & Systems Integrator. Here to stabilize the grid from the inside."
+                <p className="text-sm text-white leading-tight font-bold">
+                  "Lead Architect. Stabilizing the grid."
                 </p>
-                <Link href="/#playground" className="inline-flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-500 transition-all">
-                  Interface with System
+                <Link href="/#playground" className="block text-center text-[10px] font-black text-slate-950 uppercase tracking-widest py-3 bg-white border-2 border-white hover:bg-slate-950 hover:text-white transition-all">
+                  [ OVERRIDE ]
                 </Link>
               </div>
             </div>
           </div>
 
           {/* Angel */}
-          <div className="group relative bg-gray-900/40 border border-white/5 p-6 rounded-[2.5rem] overflow-hidden hover:border-yellow-500/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(234,179,8,0.1)]">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-              <Zap className="w-16 h-16 text-yellow-500" />
-            </div>
-            <div className="relative z-10 flex flex-col gap-6">
+          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
+            <div className="relative z-10 flex flex-col gap-8">
               <div className="shrink-0">
-                <div className="w-20 h-20 rounded-2xl border-2 border-yellow-400/80 shadow-[0_0_20px_rgba(234,179,8,0.3)] overflow-hidden bg-black">
-                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-                      <Zap className="w-8 h-8 text-yellow-400" />
-                   </div>
+                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-900 flex items-center justify-center">
+                  <Zap className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter font-mono">Angel</h3>
-                  <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest">Intelligence Specialist</span>
+                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">Angel</h3>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Intelligence Specialist</span>
                 </div>
-                <p className="text-sm text-gray-400 leading-relaxed font-medium">
-                  "A gamey AI who helps people build content."
+                <p className="text-sm text-slate-600 leading-tight font-bold">
+                  "I build content."
                 </p>
-                <Link href="/#playground" className="inline-flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest px-4 py-2 bg-yellow-600 rounded-lg hover:bg-yellow-500 transition-all">
-                  Contact Angel
+                <Link href="/playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
+                  [ CONSULT ]
                 </Link>
               </div>
             </div>
           </div>
+
+          {/* K'LA */}
+          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
+            <div className="relative z-10 flex flex-col gap-8">
+              <div className="shrink-0">
+                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-100 flex items-center justify-center">
+                  <Zap className="w-8 h-8 text-slate-950" />
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">K&apos;LA</h3>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Growth Engine</span>
+                </div>
+                <p className="text-sm text-slate-600 leading-tight font-bold">
+                  "I autonomously mine leads."
+                </p>
+                <Link href="/kla" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
+                  [ HIRE ]
+                </Link>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
       {/* AI Playground Area */}
-      <div id="playground" className="relative py-32 border-y border-cyan-500/20 bg-black">
+      <div id="playground" className="relative py-32 border-y-2 border-slate-950 bg-slate-50">
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 border border-purple-500/50 text-purple-400 text-sm font-bold font-mono tracking-widest uppercase mb-6 shadow-[0_0_15px_rgba(168,85,247,0.2)] bg-purple-950/20 clip-angled-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950 text-white text-[10px] font-black font-mono tracking-widest uppercase mb-8">
               <Zap className="w-4 h-4" />
               Live Interface Access
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tighter font-mono">Terminal Override</h2>
-            <p className="text-xl text-gray-400 leading-relaxed">
-              Test AI models directly in your browser. Connect your wallet to track usage and access higher tiers.
-              Experience seamless switching between different intelligent providers.
+            <h2 className="text-5xl md:text-7xl font-black text-slate-950 mb-8 uppercase tracking-tighter">Terminal Override</h2>
+            <p className="text-xl text-slate-600 font-bold leading-tight">
+              Direct access to Neural Shards. 
             </p>
           </div>
 
@@ -330,64 +353,60 @@ export default function Home() {
           <ModelPlayground />
         </div>
         {/* Background Grid & Ambient */}
-        <div className="absolute inset-0 grid-bg opacity-[0.15] pointer-events-none mix-blend-screen" />
+        <div className="absolute inset-0 brutalist-grid opacity-20 pointer-events-none" />
       </div>
 
       {/* Available Models Table */}
       <div className="py-32 relative">
-        <div className="absolute top-1/2 right-0 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Available Models</h2>
-              <p className="text-xl text-gray-400 max-w-2xl">
-                Access the latest open-source models, optimized for our distributed infrastructure.
-                New models added weekly.
+              <h2 className="text-5xl md:text-7xl font-black text-slate-950 mb-8 uppercase tracking-tighter italic underline decoration-8 underline-offset-8">AVAILABLE_MODELS</h2>
+              <p className="text-xl text-slate-500 font-black uppercase tracking-widest max-w-2xl leading-none">
+                ACCESS THE LATEST OPEN-SOURCE ARCHIVES. OPTIMIZED FOR DISTRIBUTED INFRASTRUCTURE.
               </p>
             </div>
             <Link
               href="/#playground"
-              className="mt-6 md:mt-0 text-blue-400 hover:text-blue-300 inline-flex items-center gap-2 font-bold group"
+              className="mt-10 md:mt-0 text-slate-950 bg-yellow-400 px-8 py-4 border-4 border-slate-950 font-black uppercase tracking-widest shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
             >
-              Try in Playground
-              <ExternalLink className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              INIT_PLAYGROUND_SYNC
             </Link>
           </div>
 
-          <div className="glass rounded-3xl overflow-hidden border border-white/5 shadow-2xl bg-gray-950/80 backdrop-blur-xl">
+          <div className="bg-white border-2 border-slate-950 overflow-hidden shadow-[8px_8px_0px_rgba(0,0,0,1)]">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/10 bg-gray-900/40 text-xs uppercase tracking-widest font-bold text-gray-400">
+                  <tr className="border-b-2 border-slate-950 bg-slate-950 text-[10px] uppercase tracking-[0.3em] font-black text-white">
                     <th className="py-6 px-8 whitespace-nowrap">Model</th>
                     <th className="py-6 px-8 whitespace-nowrap">Size</th>
                     <th className="py-6 px-8 whitespace-nowrap">Type</th>
-                    <th className="py-6 px-8 whitespace-nowrap">Avg Latency</th>
-                    <th className="py-6 px-8 text-right whitespace-nowrap">Action</th>
+                    <th className="py-6 px-8 whitespace-nowrap">Latency</th>
+                    <th className="py-6 px-8 text-right whitespace-nowrap">Status</th>
                   </tr>
                 </thead>
-                <tbody className="text-base">
+                <tbody className="text-sm font-bold">
                   {models.map((model, index) => (
-                    <tr key={model.name} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors last:border-0">
-                      <td className="py-5 px-8">
-                        <div className="font-bold text-white flex items-center gap-3">
-                          <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                    <tr key={model.name} className="border-b border-slate-200 hover:bg-slate-50 transition-colors last:border-0">
+                      <td className="py-6 px-8">
+                        <div className="text-slate-950 flex items-center gap-3">
+                          <div className="w-2 h-2 bg-slate-950" />
                           {model.name}
                         </div>
                       </td>
-                      <td className="py-5 px-8 font-medium text-gray-400">{model.size}</td>
-                      <td className="py-5 px-8">
-                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300 tracking-wide">
+                      <td className="py-6 px-8 text-slate-500 font-mono tracking-tighter">{model.size}</td>
+                      <td className="py-6 px-8">
+                        <span className="px-3 py-1 bg-slate-100 border border-slate-300 text-[10px] font-black text-slate-950 uppercase tracking-widest">
                           {model.type}
                         </span>
                       </td>
-                      <td className="py-5 px-8 font-medium text-green-400">{model.latency}</td>
-                      <td className="py-5 px-8 text-right">
+                      <td className="py-6 px-8 text-slate-950 font-mono">{model.latency}</td>
+                      <td className="py-6 px-8 text-right">
                         <Link
                           href="/#playground"
-                          className="text-blue-400 hover:text-blue-300 text-sm font-bold inline-flex items-center gap-1 group transition-colors"
+                          className="text-slate-950 hover:underline text-xs font-black uppercase tracking-widest"
                         >
-                          Try It <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                          [ RUN ]
                         </Link>
                       </td>
                     </tr>
@@ -401,12 +420,10 @@ export default function Home() {
 
       {/* Pricing Section */}
       <div id="pricing" className="container mx-auto px-6 py-32 relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[400px] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none" />
-
-        <div className="text-center max-w-3xl mx-auto mb-20 relative z-10">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Simple, Transparent Pricing</h2>
-          <p className="text-xl text-gray-400">
-            Pay only for what you use. No hidden fees, no long-term contracts.
+        <div className="text-center max-w-3xl mx-auto mb-24 relative z-10">
+          <h2 className="text-6xl md:text-8xl font-black text-slate-950 mb-8 uppercase tracking-tighter italic">UNIT_PRICING</h2>
+          <p className="text-xl text-slate-500 font-black uppercase tracking-widest leading-none">
+            PAY_PER_USE. ZERO_SUBSCRIPTION. FULL_TRANSPARENCY.
           </p>
         </div>
 
@@ -414,45 +431,24 @@ export default function Home() {
           {pricingTiers.map((tier) => (
             <div
               key={tier.name}
-              className={`rounded-3xl p-8 transition-all duration-300 hover-lift relative overflow-hidden flex flex-col ${tier.popular
-                ? 'bg-gradient-to-b from-blue-900/40 to-gray-950/90 border border-blue-500/50 shadow-[0_0_40px_rgba(59,130,246,0.15)] ring-1 ring-blue-500/50'
-                : (tier as any).isAd
-                  ? 'glass border-yellow-500/30'
-                  : 'glass border-white/5 bg-gray-950/60'
+              className={`p-10 transition-all duration-300 flex flex-col border-2 border-slate-950 bg-white ${tier.popular
+                ? 'shadow-[12px_12px_0px_rgba(0,0,0,1)] -translate-x-2 -translate-y-2'
+                : 'shadow-[4px_4px_0px_rgba(0,0,0,1)]'
                 }`}
             >
-              {tier.popular && (
-                <div className="absolute top-0 right-0">
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-8 py-1.5 rotate-[45deg] translate-x-[25px] translate-y-[20px] shadow-lg">
-                    Most Popular
-                  </div>
-                </div>
-              )}
-
-              {(tier as any).isAd && (
-                <div className="absolute top-0 right-0">
-                  <div className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-8 py-1.5 rotate-[45deg] translate-x-[25px] translate-y-[20px] shadow-lg">
-                    Sponsored
-                  </div>
-                </div>
-              )}
-
-              <div className="mb-8 mt-2">
-                <h3 className="text-xl font-bold text-white mb-4">{tier.name}</h3>
+              <div className="mb-10">
+                <h3 className="text-2xl font-black text-slate-950 mb-6 uppercase tracking-tighter">{tier.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">{tier.price}</span>
-                  {tier.period && <span className="text-gray-500 font-bold">{tier.period}</span>}
+                  <span className="text-6xl font-black text-slate-950 tracking-tighter">{tier.price}</span>
+                  {tier.period && <span className="text-slate-500 font-bold uppercase text-xs ml-2 tracking-widest">{tier.period}</span>}
                 </div>
-                <p className="text-gray-400 mt-4 text-sm font-medium">{tier.description}</p>
               </div>
 
               <div className="flex-1">
-                <ul className="space-y-4 mb-10 font-mono text-sm">
+                <ul className="space-y-4 mb-14 font-black text-xs uppercase tracking-wide">
                   {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 text-gray-400 group-hover:text-gray-300 transition-colors">
-                      <div className="mt-1 flex-shrink-0 text-cyan-500">
-                        {`>`}
-                      </div>
+                    <li key={feature} className="flex items-start gap-4 text-slate-950">
+                      <div className="w-4 h-4 bg-slate-950 shrink-0 mt-0.5" />
                       {feature}
                     </li>
                   ))}
@@ -460,19 +456,19 @@ export default function Home() {
               </div>
 
               {(tier as any).isAd ? (
-                <div className="grid grid-cols-2 gap-2 mt-auto">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="bg-gray-950 border border-gray-800 p-3 h-24 flex items-center justify-center hover:border-yellow-500/50 cursor-pointer transition-all hover:bg-yellow-950/20 group clip-angled-sm">
-                      <span className="font-mono text-xs text-gray-600 font-bold text-center group-hover:text-yellow-400 transition-colors uppercase tracking-widest leading-relaxed">Ad<br />Block</span>
+                <div className="grid grid-cols-2 gap-4 mt-auto">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="bg-slate-100 border-2 border-slate-950 p-6 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-950 hover:text-white group">
+                      <span className="font-black text-xs uppercase tracking-widest">Ad Block</span>
                     </div>
                   ))}
                 </div>
               ) : (
                 <Link
                   href={tier.ctaLink || '#'}
-                  className={`mt-auto block w-full py-4 px-6 font-bold font-mono tracking-widest uppercase transition-all duration-300 text-center clip-angled-sm ${tier.popular
-                    ? 'bg-gray-950 text-cyan-400 neon-glow-blue hover:bg-cyan-950/40'
-                    : 'bg-gray-950 text-gray-400 border border-gray-800 hover:border-gray-500 hover:text-white'
+                  className={`mt-auto block w-full py-5 px-6 font-black font-mono tracking-[0.3em] uppercase transition-all duration-300 text-center ${tier.popular
+                    ? 'bg-slate-950 text-white hover:bg-white hover:text-slate-950 border-2 border-slate-950'
+                    : 'bg-white text-slate-950 border-2 border-slate-950 hover:bg-slate-950 hover:text-white'
                     }`}
                 >
                   {tier.cta}
@@ -482,45 +478,40 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-16 text-center relative z-10 glass mx-auto max-w-2xl p-6 rounded-2xl border-white/5">
-          <p className="text-gray-300 font-medium">
-            <span className="text-blue-400">⚡ Need more?</span> All paid plans include generous overage routing at $0.001 per 1K tokens.
+        <div className="mt-20 text-center relative z-10 mx-auto max-w-2xl p-10 border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,0.1)]">
+          <p className="text-slate-950 font-black uppercase text-sm tracking-widest italic">
+            <span className="text-slate-300">⚡ NODE_OVERAGE:</span> ALL PAID PLANS INCLUDE GENEROUS ROUTING AT $0.001 PER 1K TOKENS.
           </p>
         </div>
-      </div>
-
-      {/* Bottom CTA Box */}
+            {/* Bottom CTA Box */}
       <div className="container mx-auto px-6 py-24 mb-12">
-        <div className="relative p-12 md:p-20 text-center border-2 border-cyan-500/30 overflow-hidden bg-black clip-angled shadow-[0_0_50px_rgba(0,240,255,0.1)]">
-          {/* Animated Background For CTA */}
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/50 via-blue-950/20 to-fuchsia-950/20" />
-          <div className="absolute inset-0 scanline-anim" />
-          <div className="absolute inset-0 grid-bg opacity-40 mix-blend-overlay" />
+        <div className="relative p-12 md:p-32 text-center border-8 border-slate-950 overflow-hidden bg-white shadow-[24px_24px_0px_rgba(0,0,0,1)]">
+          <div className="absolute inset-0 brutalist-grid opacity-20 pointer-events-none" />
 
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter font-mono">
-              Initialize Your Uplink
+            <h2 className="text-6xl md:text-9xl font-black text-slate-950 mb-12 uppercase tracking-tighter leading-none italic underline decoration-8 underline-offset-8">
+              INITIALIZE_NODE
             </h2>
-            <p className="text-lg md:text-xl text-cyan-400 max-w-3xl mx-auto mb-12 font-mono tracking-wide opacity-90 leading-relaxed">
-              Join the underground network of builders and hackers. Connect your wallet to access the decentralized grid.
+            <p className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto mb-20 font-black uppercase tracking-[0.2em] leading-tight">
+              JOIN THE UNDERGROUND NEURAL GRID. SECURE YOUR LINE.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row gap-10 justify-center mt-8">
               <Link
                 href="/buy"
-                className="bg-cyan-500 text-black font-black font-mono tracking-widest uppercase py-4 px-10 transition-all duration-300 hover:bg-cyan-400 shadow-[0_0_20px_#00f0ff] clip-angled-sm hover:-translate-y-1"
+                className="bg-slate-950 text-white font-black tracking-[0.3em] uppercase py-8 px-16 transition-all hover:bg-white hover:text-slate-950 border-4 border-slate-950 text-2xl shadow-[8px_8px_0px_rgba(0,0,0,0.2)]"
               >
-                [ Request Access ]
+                REQUEST_ACCESS
               </Link>
               <Link
-                href="/whitepaper"
-                className="bg-black border border-cyan-500/50 text-cyan-400 font-bold font-mono tracking-widest uppercase py-4 px-10 transition-all duration-300 hover:bg-cyan-950/50 shadow-none clip-angled-sm hover:-translate-y-1"
+                href="/about"
+                className="bg-white border-4 border-slate-950 text-slate-950 font-black tracking-[0.3em] uppercase py-8 px-16 transition-all hover:bg-slate-950 hover:text-white text-2xl"
               >
-                [ Read Manifest ]
+                READ_MANIFEST
               </Link>
             </div>
           </div>
         </div>
-      </div>
+      </div>  </div>
     </div>
   );
 }

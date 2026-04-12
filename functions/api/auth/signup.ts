@@ -1,16 +1,23 @@
 import { hashPassword } from '../../crypto-utils';
 
-interface Env {
-  USERS_KV: KVNamespace;
-}
-
 export const onRequestPost: any = async (context: any) => {
-  const env = context.env as Env;
+  const env = context.env;
+
   try {
-    const { email, password } = await context.request.json() as any;
+    const body = await context.request.json() as any;
+    const { email, password } = body;
 
     if (!email || !password || !email.includes('@')) {
-      return new Response(JSON.stringify({ error: 'Valid email and password required' }), {
+      return new Response(JSON.stringify({
+        error: 'Email and password required',
+        debug: {
+          hasEmail: !!email,
+          hasPassword: !!password,
+          isEmailValid: email?.includes('@'),
+          bodyKeys: Object.keys(body),
+          bodyPreview: JSON.stringify(body).substring(0, 100)
+        }
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });

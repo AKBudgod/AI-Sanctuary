@@ -5,7 +5,6 @@ const nextConfig = {
         unoptimized: true,
     },
     // Suppress third-party cookie/storage warnings
-    transpilePackages: ['@web3modal', 'ethers'],
     typescript: {
         ignoreBuildErrors: true,
     },

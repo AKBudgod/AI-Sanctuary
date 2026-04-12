@@ -41,31 +41,31 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-950 border-t border-gray-900">
+    <footer className="bg-white border-t-4 border-slate-950">
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2">
-            <Link href="/" className="text-2xl font-bold text-white flex items-center gap-2 mb-4">
-              <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-white text-sm">AI</span>
+            <Link href="/" className="text-2xl font-black text-slate-950 flex items-center gap-2 mb-6 uppercase tracking-tighter">
+              <span className="w-8 h-8 bg-slate-950 flex items-center justify-center">
+                <span className="text-white text-xs font-mono">AI</span>
               </span>
               AI Sanctuary
             </Link>
-            <p className="text-gray-500 mb-6 max-w-xs">
-              The future of decentralized AI. Built by the community, for the community.
+            <p className="text-slate-600 mb-8 max-w-xs font-bold leading-tight">
+              Industrial-grade intelligence. Unified.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
                   <a
                     key={social.label}
                     href={social.href}
-                    className="w-10 h-10 rounded-full bg-gray-900 hover:bg-gray-800 border border-gray-800 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                    className="w-12 h-12 bg-white border-2 border-slate-950 hover:bg-slate-950 flex items-center justify-center text-slate-950 hover:text-white transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-[-2px] translate-y-[-2px] hover:translate-x-0 hover:translate-y-0"
                     aria-label={social.label}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-6 h-6" />
                   </a>
                 );
               })}
@@ -75,13 +75,13 @@ const Footer = () => {
           {/* Links */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-white font-semibold mb-4">{category}</h3>
-              <ul className="space-y-3">
+              <h3 className="text-slate-950 font-black uppercase text-xs tracking-[0.3em] mb-8 italic">{category}</h3>
+              <ul className="space-y-4">
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-gray-500 hover:text-white transition-colors text-sm"
+                      className="text-slate-400 hover:text-slate-950 transition-all text-xs font-black uppercase tracking-tight hover:pl-2"
                     >
                       {link.label}
                     </Link>
@@ -93,19 +93,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-gray-900 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-600 text-sm">
-            © {new Date().getFullYear()} AI Sanctuary. All Rights Reserved.
+        <div className="pt-12 border-t-4 border-slate-950 flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-slate-950 text-[10px] font-black uppercase tracking-[0.4em]">
+            © {new Date().getFullYear()} AI_SANCTUARY // INDUSTRIAL_NEURAL_GRID
           </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-gray-600 hover:text-gray-400 text-sm transition-colors">
-              Privacy Policy
+          <div className="flex gap-10">
+            <a href="#" className="text-slate-300 hover:text-slate-950 text-[10px] font-black uppercase tracking-widest transition-colors">
+              PRIVACY_PROT
             </a>
-            <a href="#" className="text-gray-600 hover:text-gray-400 text-sm transition-colors">
-              Terms of Service
+            <a href="#" className="text-slate-300 hover:text-slate-950 text-[10px] font-black uppercase tracking-widest transition-colors">
+              TERMS_OF_SYNC
             </a>
-            <a href="#" className="text-gray-600 hover:text-gray-400 text-sm transition-colors">
-              Cookie Policy
+            <a href="#" className="text-slate-300 hover:text-slate-950 text-[10px] font-black uppercase tracking-widest transition-colors">
+              COOKIE_VAULT
             </a>
           </div>
         </div>

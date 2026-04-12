@@ -1,5 +1,10 @@
 /*
-  Content-Security-Policy: default-src 'self' 'unsafe-eval' 'unsafe-inline' https: data: blob: ws: wss:; script-src 'self' 'unsafe-eval' 'unsafe-inline' https: blob:; worker-src 'self' blob:; connect-src 'self' https: wss: ws: http://localhost:* http://127.0.0.1:*; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:;
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+/api/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
+  Expires: 0
+  Surrogate-Control: no-cache, no-store, must-revalidate

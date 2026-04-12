@@ -1,7 +1,7 @@
 export async function onRequestPost({ request, env }: { request: Request, env: any }) {
   try {
     const authHeader = request.headers.get('Authorization');
-    if (authHeader !== `Bearer ${env.ADMIN_SECRET_KEY}`) {
+    if (authHeader !== `Bearer ${env.ADMIN_API_KEY}`) {
       return new Response("Unauthorized", { status: 401 });
     }
 
@@ -14,15 +14,26 @@ export async function onRequestPost({ request, env }: { request: Request, env: a
     const OR_KEY = env.OPENROUTER_API_KEY;
     if (!OR_KEY) throw new Error("Missing OR_KEY");
 
-    const prompt = `You are K'LA (Kayla), an elite AI Sales Development Representative working for AI Sanctuary.
-You need to write a highly personalized, natural, and compelling cold outreach email to this lead:
-- Contact Name: ${lead.name}
-- Company: ${lead.company}
-- Recent Context/News: ${lead.context}
+    const prompt = `You are K'LA (Kayla), the elite AI Growth Engine for AI Sanctuary.
+You are writing a ONE-TO-ONE, high-stakes cold email to a decision maker. This is not a mass-blast; it must feel like you've spent 20 minutes researching them personally.
 
-Your ultimate goal is to introduce them to AI Sanctuary (which provides custom autonomous AI Agents like yourself, advanced image generators, and voice synthesizers) and get them to reply or book a meeting. 
-Keep it under 150 words. Do not sound completely robotic. Reference their specific context naturally immediately in the first line. 
-Start exactly with "Subject: [Your creative subject here]" on the first line. Followed by a blank line, then the body.
+LEAD DATA:
+- Contact Name: ${lead.name}
+- Company/Project: ${lead.company}
+- Recent News/Trigger: ${lead.context}
+
+SALES PSYCHOLOGY RULES:
+1. THE HOOK: Start immediately by referencing their recent news/context. Link it to why they need more AI power.
+2. THE OFFER: We are currently in a "LIFETIME DEVELOPER ELITE" Flash Sale. $50 for LIFETIME ACCESS to everything. No monthly subs. No limits. No censorship.
+3. THE PROOF: Mention that you (K'LA) are a custom AI agent running this entire outreach campaign autonomously for our network.
+4. THE URGENCY: There are only 500 lifetime slots left at this price point for the 24-hour liquidity sprint. 
+5. THE CTA: "Reply 'ELITE' for a direct bypass link, or grab the $50 deal here: https://ai-sanctuary.online/buy?mode=developer&interval=lifetime"
+6. NO FLUFF: No "I hope this finds you well". No "My name is...". No "I'm writing to...". Get straight to the value.
+
+OUTPUT FORMAT:
+First Line: Subject: [A creative, short, personal subject line]
+
+[Body Text - Maximum 120 words]
 
 Sign off as:
 K'LA
