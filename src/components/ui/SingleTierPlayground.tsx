@@ -539,7 +539,7 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                             </div>
                         )}
                     </div>
-                {/* Right Side Stats - Tiny */}
+                </div>                {/* Right Side Stats - Tiny */}
                 <div className="flex items-center gap-4">
                     {/* Voice Selector */}
                     {tierInfo && (

@@ -1012,6 +1012,7 @@ const ModelPlayground = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 
