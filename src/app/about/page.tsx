@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ChevronRight } from '@/components/ui/Icons';
+import { ChevronRight, Globe, Shield } from '@/components/ui/Icons';
 
 export default function AboutPage() {
   return (

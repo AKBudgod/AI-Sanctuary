@@ -14,6 +14,15 @@ import {
   Volume2
 } from '@/components/ui/Icons';
 
+const colorMap = {
+  blue: { text: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+  purple: { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+  green: { text: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' },
+  yellow: { text: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' },
+  pink: { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
+  orange: { text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+};
+
 const tiers = [
   {
     id: 'explorer',
