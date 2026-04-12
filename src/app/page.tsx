@@ -416,7 +416,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Pricing Section */}
       <div id="pricing" className="container mx-auto px-6 py-32 relative">
