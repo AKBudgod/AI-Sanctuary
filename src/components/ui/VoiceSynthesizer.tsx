@@ -603,75 +603,20 @@ export default function VoiceSynthesizer({ userEmail }: { userEmail?: string }) 
               </button>
             )}
 
-            {/* After upload — show ID + register button */}
-            {voiceId && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-mono text-teal-500 bg-teal-500/10 p-3 rounded-lg border border-teal-500/20 break-all">
-                  <CheckCircle className="w-4 h-4 shrink-0" />
-                  VAULT_ID: {voiceId}
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="polly-alias-select" className="text-xs text-gray-400 font-mono uppercase tracking-widest pl-1">
-                    Select Free Voice Mapping:
-                  </label>
-                  <select
-                    id="polly-alias-select"
-                    value={pollyAlias}
-                    onChange={e => setPollyAlias(e.target.value)}
-                    className="w-full bg-blue-500/5 border border-blue-500/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 appearance-none font-mono text-sm"
-                  >
-                    <option value="Emma">Emma (Female, British)</option>
-                    <option value="Salli">Salli (Female, American)</option>
-                    <option value="Amy">Amy (Female, British)</option>
-                    <option value="Kimberly">Kimberly (Female, American)</option>
-                    <option value="Kendra">Kendra (Female, American/Mature)</option>
-                    <option value="Brian">Brian (Male, British)</option>
-                    <option value="Joey">Joey (Male, American)</option>
-                    <option value="Justin">Justin (Male, American/Youth)</option>
-                    <option value="Russell">Russell (Male, Australian)</option>
-                    <option value="Geraint">Geraint (Male, Welsh)</option>
-                  </select>
-                  <p className="text-[10px] text-teal-500 font-mono italic px-1">
-                    NOTE: Voice cloning is now handled via the Hybrid Neural Grid (Free).
-                  </p>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      const audio = new Audio(`/api/synthesizer/samples/${voiceId}`);
-                      audio.play();
-                    }}
-                    className="flex-1 py-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 font-mono text-xs hover:bg-teal-500/20 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Play className="w-3 h-3" />
-                    Preview Original Sample
-                  </button>
-                  <button
-                    id="register-global-btn"
-                    onClick={registerGlobally}
-                    disabled={isRegistering}
-                    className="flex-[2] py-3 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-400 font-black uppercase tracking-widest text-xs hover:bg-blue-600/30 transition-all flex items-center justify-center gap-2"
-                  >
-                    {isRegistering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-                    [ Deploy to Global Grid ]
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Feedback */}
-            {uploadError && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                {uploadError}
-              </div>
-            )}
+            {/* Success Feedback */}
             {uploadSuccess && (
-              <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-start gap-2">
-                <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                {uploadSuccess}
+              <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Uplink Successful</p>
+                  <p className="text-xs opacity-80">{uploadSuccess}</p>
+                  <button 
+                    onClick={() => setActiveTab('synthesize')}
+                    className="mt-3 px-4 py-2 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-black uppercase tracking-widest transition-all"
+                  >
+                    Go to Synthesizer →
+                  </button>
+                </div>
               </div>
             )}
           </div>
