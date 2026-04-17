@@ -7,7 +7,7 @@ import { Discord, Twitter, Telegram, GitHub, TikTok } from '@/components/ui/Icon
 const footerLinks = {
   Product: [
     { label: 'Model Marketplace', href: '/#playground' },
-    { label: 'API Documentation', href: '#' },
+    { label: 'API Documentation', href: '/docs' },
     { label: 'Pricing', href: '/#pricing' },
   ],
   Resources: [
@@ -41,19 +41,19 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-white border-t-4 border-slate-950">
+    <footer className="bg-black/60 backdrop-blur-xl border-t border-white/10">
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2">
-            <Link href="/" className="text-2xl font-black text-slate-950 flex items-center gap-2 mb-6 uppercase tracking-tighter">
-              <span className="w-8 h-8 bg-slate-950 flex items-center justify-center">
-                <span className="text-white text-xs font-mono">AI</span>
+            <Link href="/" className="text-2xl font-black text-white flex items-center gap-2 mb-6 uppercase tracking-tighter">
+              <span className="w-8 h-8 bg-black border border-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                <span className="text-cyan-400 text-xs font-mono font-black">AI</span>
               </span>
               AI Sanctuary
             </Link>
-            <p className="text-slate-600 mb-8 max-w-xs font-bold leading-tight">
-              Industrial-grade intelligence. Unified.
+            <p className="text-slate-500 mb-8 max-w-xs font-bold leading-tight uppercase tracking-widest text-[10px]">
+              UNIVERSAL_INTELLIGENCE. UNFETTERED.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => {
@@ -62,7 +62,7 @@ const Footer = () => {
                   <a
                     key={social.label}
                     href={social.href}
-                    className="w-12 h-12 bg-white border-2 border-slate-950 hover:bg-slate-950 flex items-center justify-center text-slate-950 hover:text-white transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none translate-x-[-2px] translate-y-[-2px] hover:translate-x-0 hover:translate-y-0"
+                    className="w-12 h-12 bg-black border border-white/10 hover:bg-cyan-400 flex items-center justify-center text-white hover:text-black transition-all shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
                     aria-label={social.label}
                   >
                     <Icon className="w-6 h-6" />
@@ -75,13 +75,13 @@ const Footer = () => {
           {/* Links */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-slate-950 font-black uppercase text-xs tracking-[0.3em] mb-8 italic">{category}</h3>
+              <h3 className="text-cyan-400 font-black uppercase text-[10px] tracking-[0.3em] mb-8 italic">{category}</h3>
               <ul className="space-y-4">
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-slate-400 hover:text-slate-950 transition-all text-xs font-black uppercase tracking-tight hover:pl-2"
+                      className="text-slate-500 hover:text-white transition-all text-xs font-black uppercase tracking-tight hover:pl-2"
                     >
                       {link.label}
                     </Link>
@@ -93,20 +93,20 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-12 border-t-4 border-slate-950 flex flex-col md:flex-row items-center justify-between gap-8">
-          <p className="text-slate-950 text-[10px] font-black uppercase tracking-[0.4em]">
-            © {new Date().getFullYear()} AI_SANCTUARY // INDUSTRIAL_NEURAL_GRID
+        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-slate-700 text-[10px] font-black uppercase tracking-[0.4em]">
+            © {new Date().getFullYear()} AI_SANCTUARY // GALAXY_DIST_V6.0
           </p>
           <div className="flex gap-10">
-            <a href="#" className="text-slate-300 hover:text-slate-950 text-[10px] font-black uppercase tracking-widest transition-colors">
+            <Link href="/privacy" className="text-slate-700 hover:text-cyan-400 text-[10px] font-black uppercase tracking-widest transition-colors">
               PRIVACY_PROT
-            </a>
-            <a href="#" className="text-slate-300 hover:text-slate-950 text-[10px] font-black uppercase tracking-widest transition-colors">
+            </Link>
+            <Link href="/terms" className="text-slate-700 hover:text-cyan-400 text-[10px] font-black uppercase tracking-widest transition-colors">
               TERMS_OF_SYNC
-            </a>
-            <a href="#" className="text-slate-300 hover:text-slate-950 text-[10px] font-black uppercase tracking-widest transition-colors">
+            </Link>
+            <Link href="/cookies" className="text-slate-700 hover:text-cyan-400 text-[10px] font-black uppercase tracking-widest transition-colors">
               COOKIE_VAULT
-            </a>
+            </Link>
           </div>
         </div>
       </div>

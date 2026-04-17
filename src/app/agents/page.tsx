@@ -21,7 +21,7 @@ const TIER_CONFIG: Record<string, { label: string; color: string; glow: string }
     apprentice: { label: 'Apprentice', color: 'text-cyan-300  border-cyan-700   bg-cyan-900/30',  glow: 'shadow-cyan-900/30' },
     adept:      { label: 'Adept',      color: 'text-blue-300  border-blue-700   bg-blue-900/30',  glow: 'shadow-blue-900/30' },
     master:     { label: 'Master',     color: 'text-purple-300 border-purple-600 bg-purple-900/30', glow: 'shadow-purple-900/40' },
-    developer:  { label: 'Developer',  color: 'text-yellow-300 border-yellow-600 bg-yellow-900/20', glow: 'shadow-yellow-900/30' },
+    developer:  { label: 'Developer',  color: 'text-cyan-300 border-yellow-600 bg-yellow-900/20', glow: 'shadow-yellow-900/30' },
 };
 
 function AgentCard({ agent, index }: { agent: Agent; index: number }) {

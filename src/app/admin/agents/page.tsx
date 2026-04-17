@@ -30,7 +30,7 @@ type Signup = {
 };
 
 const STATUS_COLORS = {
-    pending: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10',
+    pending: 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10',
     approved: 'text-green-400 border-green-400/30 bg-green-400/10',
     rejected: 'text-red-400 border-red-400/30 bg-red-400/10',
 };

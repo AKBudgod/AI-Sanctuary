@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Building2, Globe, Shield } from 'lucide-react';
+import { Building2, Globe, Shield } from '@/components/ui/Icons';
 
 export default function TransparencyPage() {
   return (

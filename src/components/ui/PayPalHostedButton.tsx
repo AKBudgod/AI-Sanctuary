@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/Icons';
 
 interface PayPalHostedButtonProps {
   buttonId: string;

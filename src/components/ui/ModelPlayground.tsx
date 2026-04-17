@@ -16,9 +16,10 @@ import {
   ChevronDown,
   Volume2,
   Activity,
-  Sparkles
+  Sparkles,
+  Mic,
+  MicOff
 } from './Icons';
-import { Mic, MicOff } from 'lucide-react';
 
 interface UsageStats {
   used: number;
@@ -74,6 +75,13 @@ const ModelPlayground = () => {
     fetchMirroredVoices();
   }, []);
 
+  const [selectedVoice, setSelectedVoice] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sanctuary_preferred_voice') || '';
+    }
+    return '';
+  });
+
   // Persistence: Save voice choice
   useEffect(() => {
     if (selectedVoice) {
@@ -93,12 +101,7 @@ const ModelPlayground = () => {
     }
   };
 
-  const [selectedVoice, setSelectedVoice] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sanctuary_preferred_voice') || '';
-    }
-    return '';
-  });
+
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 

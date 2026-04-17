@@ -927,25 +927,6 @@ export const Activity = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Skull icon
-export const Skull = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="9" cy="12" r="1" />
-    <circle cx="15" cy="12" r="1" />
-    <path d="M8 20v2h8v-2" />
-    <path d="M12 16v4" />
-    <path d="M8 16v2a4 4 0 0 0 8 0v-2" />
-    <path d="M12 2C7.5 2 4 5.5 4 10v3a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-3c0-4.5-3.5-8-8-8z" />
-  </svg>
-);
 
 // FlaskConical icon
 export const FlaskConical = ({ className }: { className?: string }) => (
@@ -1198,3 +1179,185 @@ export const Trash2 = ({ className }: { className?: string }) => (
     <line x1="14" y1="11" x2="14" y2="17" />
   </svg>
 );
+
+// Rocket icon for Easter Eggs
+export const Rocket = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+    <path d="M9 12H4s.55-3.03 2-5c1.62-2.2 5-3 5-3" />
+    <path d="M12 15v5s3.03-.55 5-2c2.2-1.62 3-5 3-5" />
+    <line x1="10" y1="9" x2="14" y2="13" />
+    <line x1="15" y1="4" x2="20" y2="9" />
+  </svg>
+);
+
+// Skull icon for Easter Eggs
+export const Skull = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 10a1 1 0 1 0 2 0 1 1 0 1 0-2 0" />
+    <path d="M13 10a1 1 0 1 0 2 0 1 1 0 1 0-2 0" />
+    <path d="M3.5 14c.2-3.3 1.1-5.9 2.1-7.7C7.4 3.7 9.5 2 12 2s4.6 1.7 6.4 4.3c1 1.8 1.9 4.4 2.1 7.7.1 2.5-1.1 4.7-3 5.5V20c0 1.1-.9 2-2 2h-7c-1.1 0-2-.9-2-2v-.5c-1.9-.8-3.1-3-3-5.5Z" />
+    <path d="M12 14v3" />
+    <path d="M10 14v3" />
+    <path d="M14 14v3" />
+    <path d="M9 22v-4h6v4" />
+  </svg>
+);
+
+// MicOff icon
+export const MicOff = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="2" y1="2" x2="22" y2="22" />
+    <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2" />
+    <path d="M5 10v2a7 7 0 0 0 12 5" />
+    <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" />
+    <path d="M9 9v3a3 3 0 0 0 5.12 2.12" />
+    <line x1="12" y1="19" x2="12" y2="22" />
+  </svg>
+);
+
+// CheckCircle2 icon (filled style)
+export const CheckCircle2 = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
+// ArrowUpRight icon
+export const ArrowUpRight = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 7h10v10" />
+    <path d="M7 17 17 7" />
+  </svg>
+);
+
+// Linkedin icon
+export const Linkedin = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+// Music2 icon
+export const Music2 = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="8" cy="18" r="4" />
+    <path d="M12 18V2l7 4" />
+  </svg>
+);
+
+// Video icon
+export const Video = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="23 7 16 12 23 17 23 7" />
+    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+  </svg>
+);
+
+// Scan icon
+export const Scan = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+    <line x1="7" y1="12" x2="17" y2="12" />
+  </svg>
+);
+
+// FileVideo icon
+export const FileVideo = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+    <polyline points="14 2 14 8 20 8" />
+    <polygon points="10 11 16 14 10 17 10 11" />
+  </svg>
+);
+
+// UserPlus icon
+export const UserPlus = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <line x1="19" y1="8" x2="19" y2="14" />
+    <line x1="22" y1="11" x2="16" y2="11" />
+  </svg>
+);
+
+// ArrowLeft icon
+export const ArrowLeft = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5" />
+    <path d="m12 5-7 7 7 7" />
+  </svg>
+);
+
+// UserCheck icon
+export const UserCheck = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <polyline points="16 11 18 13 22 9" />
+  </svg>
+);
+
+// Clipboard icon
+export const Clipboard = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+  </svg>
+);
+
+// Terminal icon
+export const Terminal = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="4 17 10 11 4 5" />
+    <line x1="12" y1="19" x2="20" y2="19" />
+  </svg>
+);
+
+// BookOpen icon
+export const BookOpen = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+  </svg>
+);
+
+
+
+
+
+// Tag icon
+export const Tag = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+    <line x1="7" y1="7" x2="7.01" y2="7" />
+  </svg>
+);
+
+
+
+
+
+

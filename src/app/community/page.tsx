@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import NewsletterForm from '@/components/ui/NewsletterForm';
 import {
@@ -12,227 +12,275 @@ import {
   Users,
   MessageSquare,
   Globe,
-  Sparkles,
+  Zap,
+  ArrowRight,
+  Award,
   ChevronRight,
-  ExternalLink,
-  TikTok,
-  ArrowRight
+  TrendingUp,
+  Shield,
 } from '@/components/ui/Icons';
 
-const socialLinks = [
+const SOCIALS = [
   {
     name: 'DISCORD',
-    description: 'JOIN 10,000+ DEVELOPERS DISCUSSING AI, BLOCKCHAIN, AND THE FUTURE OF DECENTRALIZED INTELLIGENCE.',
+    handle: '@ai-sanctuary',
     icon: Discord,
-    members: '10,000+',
-    color: 'bg-indigo-50 border-slate-950',
-    url: 'https://discord.gg/ai-sanctuary-online',
+    link: 'https://discord.gg/ai-sanctuary-online',
+    members: '12.4K',
+    desc: 'The central hub for model discussions, prompt engineering, and support.',
+    color: 'border-[#5865F2]/50 hover:border-[#5865F2] hover:shadow-[0_0_20px_rgba(88,101,242,0.3)]',
+    iconColor: 'text-[#5865F2]',
   },
   {
-    name: 'TWITTER/X',
-    description: 'FOLLOW US FOR THE LATEST UPDATES ON PLATFORM RELEASES, PARTNERSHIPS, AND COMMUNITY HIGHLIGHTS.',
+    name: 'X_(TWITTER)',
+    handle: '@AI_Sanctuary',
     icon: Twitter,
-    members: '25,000+',
-    color: 'bg-white border-slate-950',
-    url: 'https://x.com/AI_Sanctuary',
-  },
-  {
-    name: 'TIKTOK',
-    description: 'DAILY SHORT-FORM VIDEO UPDATES FROM THE AI SANCTUARY TEAM.',
-    icon: TikTok,
-    members: '10,000+',
-    color: 'bg-pink-50 border-slate-950',
-    url: 'https://ai.sanctuary.online',
+    link: 'https://x.com/we_are_sanctuary_ai',
+    members: '45.1K',
+    desc: 'Rapid updates, server status, and new model drops.',
+    color: 'border-cyan-500/50 hover:border-cyan-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]',
+    iconColor: 'text-cyan-400',
   },
   {
     name: 'TELEGRAM',
-    description: 'GET INSTANT NOTIFICATIONS ABOUT TOKEN LAUNCHES, GOVERNANCE PROPOSALS, AND PLATFORM UPDATES.',
+    handle: 't.me/sanctuary_alerts',
     icon: Telegram,
-    members: '8,000+',
-    color: 'bg-sky-50 border-slate-950',
-    url: '#',
+    link: 'https://t.me/sanctuary_ai_official',
+    members: '8.2K',
+    desc: 'Direct pipeline for catastrophic node failures and elite tier alerts.',
+    color: 'border-[#0088cc]/50 hover:border-[#0088cc] hover:shadow-[0_0_20px_rgba(0,136,204,0.3)]',
+    iconColor: 'text-[#0088cc]',
+  },
+  {
+    name: 'GITHUB',
+    handle: 'AI-Sanctuary',
+    icon: GitHub,
+    link: 'https://github.com/AI-Sanctuary',
+    members: '2.1K★',
+    desc: 'Open-source SDKs, CLI tools, and community-driven node runners.',
+    color: 'border-white/20 hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]',
+    iconColor: 'text-white',
   },
 ];
 
-const communityPrograms = [
+const PROGRAMS = [
   {
-    title: 'AMBASSADOR_PROG',
-    description: 'REPRESENT AI SANCTUARY IN YOUR REGION. EARN REWARDS FOR ORGANIZING EVENTS, CREATING CONTENT, AND GROWING THE COMMUNITY.',
-    icon: Globe,
+    title: 'COMPUTE_GRANTS_V2',
+    icon: Zap,
     status: 'ACCEPTING_APPLICATIONS',
+    desc: 'Building something revolutionary? We provide up to $5,000 in API credits for open-source researchers and indie devs.',
+    reqs: [
+      'Project must be fully open-source (MIT/Apache)',
+      'Working prototype required',
+      'No venture backing > $500k',
+    ],
+    link: '/contact?subject=GRANTS',
   },
   {
-    title: 'DEVELOPER_GRANTS',
-    description: 'GET FUNDING TO BUILD TOOLS, INTEGRATIONS, OR AI MODELS ON THE AI SANCTUARY PLATFORM. UP TO $50,000 PER PROJECT.',
-    icon: Sparkles,
-    status: 'OPEN',
+    title: 'NODE_OPERATORS_PROGRAM',
+    icon: Globe,
+    status: 'WAITLIST_ONLY',
+    desc: 'Earn SANC tokens by contributing idle GPU compute to the Sanctuary distributed inference layer.',
+    reqs: [
+      'Minimum constant VRAM: 24GB (RTX 3090/4090 or better)',
+      'Symmetrical 1Gbps fiber connection',
+      '99.9% targeted uptime',
+    ],
+    link: '/contact?subject=NODE_OP',
   },
   {
-    title: 'BUG_BOUNTY',
-    description: 'HELP SECURE THE PROTOCOL BY FINDING VULNERABILITIES. REWARDS UP TO $100,000 FOR CRITICAL ISSUES.',
-    icon: MessageSquare,
-    status: 'ACTIVE',
+    title: 'BUG_BOUNTY_CORE',
+    icon: Shield,
+    status: 'ALWAYS_ACTIVE',
+    desc: 'Find critical vulnerabilities in our infrastructure, model sandboxes, or token smart contracts and get paid.',
+    reqs: [
+      'Do not disrupt production services via DDoS',
+      'Wait for triage before public disclosure',
+      'Payouts scale with CVSS severity (Up to $50k)',
+    ],
+    link: '/contact?subject=SECURITY',
   },
 ];
 
 export default function CommunityPage() {
-  return (
-    <div className="min-h-screen bg-white pt-40 pb-32 font-sans selection:bg-slate-950 selection:text-white overflow-x-hidden">
-      {/* Background Grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]"
-           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+  const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
 
-      {/* Hero */}
-      <div className="relative container mx-auto px-6 z-10 mb-32">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="inline-flex items-center gap-4 bg-slate-950 text-white px-6 py-2 font-black uppercase tracking-[0.4em] text-xs shadow-[8px_8px_0px_rgba(0,0,0,0.2)]">
-            <Users className="w-4 h-4" />
-            50,000+ COMMUNITY_NODES_ACTIVE
+  return (
+    <div className="min-h-screen bg-transparent pt-40 pb-32 font-sans selection:bg-cyan-400 selection:text-black overflow-x-hidden relative z-10">
+
+      {/* Grid background element for extra cyber feel */}
+      <div className="absolute inset-0 bg-[url('/img/grid.svg')] bg-[length:50px_50px] opacity-[0.03] pointer-events-none" />
+
+      <div className="container mx-auto px-6 max-w-7xl relative z-10">
+        
+        {/* Header */}
+        <div className="mb-32">
+          <div className="inline-block bg-cyan-400 text-black px-6 py-2 font-black uppercase tracking-[0.4em] text-xs shadow-[0_0_15px_rgba(34,211,238,0.3)] mb-12">
+            GLOBAL_NETWORK_TOPOLOGY
           </div>
-          <h1 className="text-7xl md:text-9xl font-black text-slate-950 mb-12 tracking-tighter uppercase leading-[0.85] italic underline decoration-8 underline-offset-8">
-            JOIN_THE<br />MOVEMENT
+          <h1 className="text-7xl md:text-9xl font-black text-white mb-10 tracking-tighter uppercase leading-[0.85] italic">
+            THE_GRID_<br />COLLECTIVE
           </h1>
-          <p className="text-2xl md:text-3xl text-slate-500 font-black uppercase tracking-widest leading-tight border-l-8 border-slate-950 pl-8 max-w-3xl italic">
-            AI SANCTUARY IS MORE THAN A PLATFORM—IT&apos;S A GLOBAL COMMUNITY BUILDING THE FUTURE OF DECENTRALIZED INTELLIGENCE.
+          <p className="text-xl md:text-2xl text-slate-400 font-black uppercase tracking-widest leading-tight max-w-3xl border-l-8 border-cyan-400 pl-8">
+            AI SANCTUARY SURVIVES BECAUSE OF ITS NODES. JOIN 50,000+ DEVELOPERS, RESEARCHERS, AND VISIONARIES BUILDING THE UNCENSORED FUTURE.
           </p>
         </div>
-      </div>
 
-      {/* Social Links */}
-      <div className="container mx-auto px-6 relative z-10 mb-40">
-        <div className="grid md:grid-cols-2 gap-10">
-          {socialLinks.map((social) => {
-            const Icon = social.icon;
-            return (
-              <a
-                key={social.name}
-                href={social.url}
-                className={`group relative bg-white border-4 md:border-8 border-slate-950 p-10 shadow-[12px_12px_0px_rgba(0,0,0,1)] transition-all hover:shadow-[20px_20px_0px_rgba(0,0,0,1)] hover:-translate-x-2 hover:-translate-y-2 cursor-pointer ${social.color}`}
-              >
-                <div className="flex items-start justify-between mb-8">
-                  <div className="w-16 h-16 bg-slate-950 flex items-center justify-center shrink-0 shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
-                    <Icon className="w-8 h-8 text-white" />
-                  </div>
-                  <span className="font-black uppercase text-[10px] tracking-[0.3em] text-slate-300">
-                    {social.members} NODES
-                  </span>
-                </div>
-                <h3 className="text-4xl font-black text-slate-950 mb-6 uppercase tracking-tighter italic">{social.name}</h3>
-                <p className="text-slate-500 font-black uppercase text-xs tracking-widest leading-relaxed mb-10 border-l-4 border-slate-200 pl-4">{social.description}</p>
-                <div className="flex items-center gap-4 text-slate-950 font-black uppercase tracking-[0.2em] text-sm">
-                  INITIATE_SYNC <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Community Programs */}
-      <div className="container mx-auto px-6 relative z-10 mb-40">
-        <div className="mb-24">
-          <h2 className="text-5xl md:text-7xl font-black text-slate-950 uppercase tracking-tighter italic underline decoration-8 underline-offset-8 mb-8">PROGRAMS</h2>
-          <p className="text-xl text-slate-500 font-black uppercase tracking-widest">GET INVOLVED AND EARN REWARDS FOR ECOSYSTEM CONTRIBUTIONS.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-10">
-          {communityPrograms.map((program) => {
-            const Icon = program.icon;
-            return (
-              <div
-                key={program.title}
-                className="bg-white p-10 border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex flex-col"
-              >
-                <div className="w-14 h-14 bg-slate-100 flex items-center justify-center mb-8">
-                  <Icon className="w-8 h-8 text-slate-950" />
-                </div>
-                <div className="inline-block px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-200 mb-6 w-fit">
-                  {program.status}
-                </div>
-                <h3 className="text-2xl font-black text-slate-950 mb-6 uppercase tracking-tight">{program.title}</h3>
-                <p className="text-slate-500 font-black uppercase text-[11px] tracking-widest leading-relaxed mb-10 flex-1">{program.description}</p>
-                <button className="w-full py-4 text-slate-950 border-4 border-slate-950 font-black uppercase text-xs tracking-[0.3em] hover:bg-slate-950 hover:text-white transition-all shadow-[6px_6px_0px_rgba(0,0,0,0.1)]">
-                  LEARN_MORE
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Newsletter */}
-      <div className="container mx-auto px-6 relative z-10 mb-40">
-        <div className="bg-slate-950 text-white p-16 md:p-32 border-8 border-slate-950 shadow-[24px_24px_0px_rgba(0,0,0,0.1)] text-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(45deg, #fff 1px, transparent 1px), linear-gradient(-45deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-          <div className="relative z-10 max-w-3xl mx-auto">
-            <Mail className="w-20 h-20 text-white mx-auto mb-12" />
-            <h2 className="text-5xl md:text-7xl font-black mb-8 uppercase tracking-tighter italic underline decoration-8 underline-offset-8">STAY_IN_LOOP</h2>
-            <p className="text-xl text-slate-400 font-black uppercase tracking-widest leading-tight mb-16">
-              SUBSCRIBE TO OUR NEWSLETTER FOR WEEKLY UPDATES ON PLATFORM DEVELOPMENT, GOVERNANCE, AND HIGHLIGHTS.
-            </p>
-
-            <div className="max-w-xl mx-auto">
-              <NewsletterForm />
-            </div>
-
-            <p className="text-slate-600 font-black uppercase text-[10px] tracking-[0.4em] mt-12">
-              ZERO SPAM. SECURE UNLINK AT ANY TIME.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Events */}
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b-8 border-slate-950 pb-12">
-          <div>
-            <h2 className="text-6xl font-black text-slate-950 mb-6 uppercase tracking-tighter italic">UPCOMING_EVT</h2>
-            <p className="text-slate-500 font-black uppercase tracking-widest">MEET THE COMMUNITY AT THESE COORDINATED DEPLOYMENTS.</p>
-          </div>
-          <a href="#" className="mt-8 md:mt-0 bg-slate-950 text-white px-8 py-3 font-black uppercase text-xs tracking-[0.3em] shadow-[6px_6px_0px_rgba(0,0,0,0.2)] hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all flex items-center gap-4">
-            VIEW_ALL <ExternalLink className="w-5 h-5" />
-          </a>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-10">
+        {/* Pulse Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-32">
           {[
-            {
-              title: 'AI SANCTUARY AMA',
-              date: 'FEB 15, 2026',
-              type: 'ONLINE',
-              description: 'MONTHLY COMMUNITY AMA WITH THE CORE TEAM. BRING YOUR QUESTIONS.',
-            },
-            {
-              title: 'ETH DENVER HACK',
-              date: 'FEB 28, 2026',
-              type: 'IN-PERSON',
-              description: 'JOIN US AT THE LARGEST ETHEREUM HACKATHON. $50K IN PRIZES.',
-            },
-            {
-              title: 'NEURAL_SUMMIT',
-              date: 'MAR 20, 2026',
-              type: 'HYBRID',
-              description: 'ANNUAL GATHERING OF DECENTRALIZED AI RESEARCHERS AND BUILDERS.',
-            },
-          ].map((event) => (
-            <div
-              key={event.title}
-              className="group bg-white p-10 border-4 border-slate-50 hover:border-slate-950 transition-all cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-slate-50 group-hover:border-slate-950 transition-all">
-                <span className="bg-slate-950 text-white px-3 py-1 text-[10px] font-black tracking-widest">
-                  {event.type}
-                </span>
-                <span className="text-slate-300 font-black uppercase text-xs tracking-widest font-mono group-hover:text-slate-950 transition-colors">{event.date}</span>
-              </div>
-              <h4 className="text-2xl font-black text-slate-950 mb-6 uppercase tracking-tight group-hover:italic">{event.title}</h4>
-              <p className="text-slate-500 font-black uppercase text-[10px] tracking-widest leading-relaxed mb-10">{event.description}</p>
-              <div className="text-slate-950 font-black uppercase text-[10px] tracking-widest border-b-2 border-slate-950 w-fit">
-                RSVP_TO_TX
-              </div>
+            { value: '52.7K', label: 'ACTIVE_NODES' },
+            { value: '1.2B', label: 'WEEKLY_TX' },
+            { value: 'Zero', label: 'CENSORED_REQ' },
+            { value: '99.9%', label: 'GRID_UPTIME' }
+          ].map(stat => (
+            <div key={stat.label} className="glass-panel text-center p-8 border border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              <div className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tighter">{stat.value}</div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] font-mono">{stat.label}</div>
             </div>
           ))}
         </div>
+
+        {/* Social Cards */}
+        <div className="mb-40">
+          <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter italic mb-16">
+            NODE_CHANNELS
+            <div className="h-1 bg-cyan-400 mt-4 w-48" />
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {SOCIALS.map(social => {
+              const Icon = social.icon;
+              return (
+                <a
+                  key={social.name}
+                  href={social.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group relative glass-panel border-2 p-8 transition-all hover:-translate-y-2 cursor-pointer ${social.color}`}
+                >
+                  <div className="flex justify-between items-start mb-12">
+                    <div className="w-16 h-16 bg-black/50 border border-white/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                      <Icon className={`w-8 h-8 ${social.iconColor}`} />
+                    </div>
+                    <span className="bg-black/40 border border-white/10 text-white font-black text-[10px] uppercase tracking-widest px-3 py-1">
+                      {social.members}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter group-hover:italic transition-all mb-2">{social.name}</h3>
+                    <p className={`text-xs font-black uppercase tracking-[0.2em] mb-4 font-mono ${social.iconColor}`}>
+                      {social.handle}
+                    </p>
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest leading-relaxed">
+                      {social.desc}
+                    </p>
+                  </div>
+                  <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className={`w-5 h-5 ${social.iconColor} -rotate-45`} />
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Programs */}
+        <div className="mb-40">
+          <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter italic mb-16">
+            ACTIVE_DIRECTIVES
+            <div className="h-1 bg-cyan-400 mt-4 w-48" />
+          </h2>
+          <div className="space-y-6">
+            {PROGRAMS.map((prog) => {
+              const Icon = prog.icon;
+              const isExpanded = expandedProgram === prog.title;
+              return (
+                <div key={prog.title} className="glass-panel border-l-4 border-white/20 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
+                  <div 
+                    onClick={() => setExpandedProgram(isExpanded ? null : prog.title)}
+                    className="p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 cursor-pointer group hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className="hidden sm:flex w-14 h-14 bg-black/50 border border-white/10 items-center justify-center shrink-0 shadow-inner group-hover:border-cyan-400 transition-colors">
+                        <Icon className="w-7 h-7 text-cyan-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter italic mb-2 group-hover:text-cyan-400 transition-colors">
+                          {prog.title}
+                        </h3>
+                        <span className={`text-[10px] font-black uppercase tracking-[0.3em] font-mono ${
+                          prog.status.includes('WAITLIST') ? 'text-orange-400' : 'text-emerald-400'
+                        }`}>
+                          {prog.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className={`w-8 h-8 text-slate-500 transition-transform hidden md:block group-hover:text-cyan-400 ${isExpanded ? 'rotate-90' : ''}`} />
+                  </div>
+
+                  {isExpanded && (
+                    <div className="p-8 md:p-10 border-t border-white/10 bg-black/40">
+                      <p className="text-slate-300 font-bold text-sm uppercase tracking-widest leading-relaxed max-w-3xl mb-10 border-l-4 border-cyan-400/50 pl-6">
+                        {prog.desc}
+                      </p>
+                      <div className="mb-10">
+                        <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-4">CRITERIA</h4>
+                        <ul className="space-y-3">
+                          {prog.reqs.map((req, i) => (
+                            <li key={i} className="flex items-start gap-4 text-slate-400 font-bold uppercase text-xs tracking-widest">
+                              <span className="text-cyan-400 mt-0.5 shrink-0">■</span>
+                              {req}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <Link href={prog.link} className="inline-flex items-center gap-4 bg-transparent text-cyan-400 border-2 border-cyan-400 px-8 py-4 font-black uppercase text-xs tracking-[0.3em] hover:bg-cyan-400 hover:text-black transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] group">
+                        INITIATE_APPLICATION <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Live Events / Newsletter merged section */}
+        <div className="grid lg:grid-cols-2 gap-10 border-t-2 border-white/10 pt-24">
+          <div className="glass-panel p-10 border-t-4 border-cyan-400 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col flex-1 relative overflow-hidden">
+             {/* Neon glow flair */}
+             <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-400/10 blur-3xl rounded-full" />
+             
+             <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="bg-red-500 w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+                  <span className="text-slate-400 font-black uppercase text-xs tracking-widest font-mono">NEXT_EVENT</span>
+                </div>
+                <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-4">SANCTUARY<br/>TOWN HALL #14</h3>
+                <p className="text-slate-400 font-bold uppercase text-xs tracking-widest leading-relaxed mb-8">
+                  DISCUSSION: VLLM ENGINE UPGRADES & NEW IMAGE GENERATION PIPELINES OVERVIEW.
+                </p>
+                <div className="bg-black/50 border border-white/10 p-5 mb-8 inline-block">
+                  <p className="text-cyan-400 font-black uppercase text-xl font-mono tracking-widest">APR 20, 2026 // 18:00 UTC</p>
+                  <p className="text-slate-500 font-black uppercase text-[10px] mt-2">LOCATION: DISCORD STAGE A</p>
+                </div>
+                <div className="mt-auto">
+                  <a href="https://discord.gg/ai-sanctuary-online" target="_blank" rel="noopener noreferrer" 
+                     className="w-full py-4 bg-transparent text-cyan-400 border-2 border-cyan-400 font-black uppercase text-xs tracking-[0.3em] hover:bg-cyan-400 hover:text-black transition-all text-center block shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                    RSVP_NOW
+                  </a>
+                </div>
+             </div>
+          </div>
+
+          <div className="relative">
+            {/* The Newsletter Form component handles its own dark styling gracefully as established */}
+            <div className="h-full">
+               <NewsletterForm />
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ export const onRequestPost = async (context: any) => {
         const name = formData.get('name') || 'Sanctuary Custom Voice';
         const email = formData.get('email')?.toString().toLowerCase(); 
         const isGlobal = formData.get('isGlobal') === 'true';
+        const provider = formData.get('provider')?.toString() || 'auto';
 
         if (!file || !email) {
             return new Response(JSON.stringify({ error: 'File and Email are required' }), { 
@@ -49,10 +50,12 @@ export const onRequestPost = async (context: any) => {
                     if (!existing) {
                         console.log(`GLOBAL VOICE KEY: "${slug}" newly vaulted (No explicit fallback set).`);
                     }
+                    if (provider !== 'auto') await usersKv.put(`global_voice_provider:${slug}`, provider);
                     console.log(`GLOBAL MIRROR: Character ${slug} vaulted permanently.`);
                 } else {
                     // User-specific custom voice — store under slug, not raw display name
                     await usersKv.put(`voice_sample:${email}:${slug}`, base64Audio);
+                    if (provider !== 'auto') await usersKv.put(`user_voice_provider:${email}:${slug}`, provider);
                 }
 
                 // Mirror to Physical Hardware Node (non-blocking, 10s timeout)

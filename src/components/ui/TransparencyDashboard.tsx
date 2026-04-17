@@ -250,7 +250,7 @@ const TransparencyDashboard = () => {
                   </span>
                 )}
                 {model.flags.isControversial && (
-                  <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 text-xs rounded">
+                  <span className="px-2 py-1 bg-yellow-900/30 text-cyan-400 text-xs rounded">
                     Controversial
                   </span>
                 )}

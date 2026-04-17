@@ -2735,6 +2735,42 @@ export const onRequestPost: PagesFunction = async (context) => {
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
 
+      case 'claimEasterEgg':
+        const { eggType } = await context.request.json();
+        const eggUserData = await store.get(`email:${userEmail}`);
+        const eggUser = eggUserData ? JSON.parse(eggUserData) : {};
+        
+        if (!eggUser.email) eggUser.email = userEmail;
+        eggUser.claimedEggs = eggUser.claimedEggs || [];
+        
+        if (eggUser.claimedEggs.includes(eggType)) {
+            return new Response(JSON.stringify({ error: 'Reward already synchronized with this consciousness.' }), { status: 400 });
+        }
+
+        let rewardMsg = '';
+        if (eggType === 'ship') {
+            const isDev = eggUser.isDeveloper || eggUser.tier === 'developer' || ADMIN_EMAILS.includes(userEmail);
+            if (isDev) {
+                const currentEnd = eggUser.trialEndsAt ? new Date(eggUser.trialEndsAt).getTime() : Date.now();
+                eggUser.trialEndsAt = new Date(currentEnd + (30 * 24 * 60 * 60 * 1000)).toISOString();
+                rewardMsg = 'DEVELOPER_PROLONGATION: +1 MONTH ACCESS GRANTED';
+            } else {
+                eggUser.balance = (eggUser.balance || 0) + 10000;
+                rewardMsg = 'COSMIC_CREDITS: +10,000 UNITS ACQUIRED';
+            }
+            eggUser.claimedEggs.push('ship');
+        } else if (eggType === 'monster') {
+            const currentEnd = eggUser.trialEndsAt ? new Date(eggUser.trialEndsAt).getTime() : Date.now();
+            eggUser.trialEndsAt = new Date(currentEnd + (365 * 24 * 60 * 60 * 1000)).toISOString();
+            rewardMsg = 'NEURAL_EVOLUTION: +1 YEAR ELITE ACCESS GRANTED';
+            eggUser.claimedEggs.push('monster');
+        } else {
+            return new Response(JSON.stringify({ error: 'Unknown anomaly type.' }), { status: 400 });
+        }
+
+        await store.put(`email:${userEmail}`, JSON.stringify(eggUser));
+        return new Response(JSON.stringify({ success: true, message: rewardMsg }), { status: 200 });
+
       case 'getStatus':
         const userData = await store.get(`email:${userEmail}`);
         const user = userData ? JSON.parse(userData) : { tier: 'explorer' };

@@ -144,7 +144,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ initialEmail = '' }) => {
         if (t === 'adept') return 'text-orange-400';
         if (t === 'apprentice') return 'text-blue-400';
         if (t === 'novice') return 'text-green-400';
-        return 'text-yellow-400'; // explorer
+        return 'text-cyan-400'; // explorer
     };
 
     return (
@@ -238,12 +238,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ initialEmail = '' }) => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Status Card */}
-                    <div className="bg-gray-950 p-6 border border-yellow-500/30 hover-lift group clip-angled-sm">
+                    <div className="bg-gray-950 p-6 border border-cyan-500/30 hover-lift group clip-angled-sm">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-black border border-yellow-500/50 clip-angled-sm">
-                                <Award className="w-5 h-5 text-yellow-400 group-hover:scale-110 transition-transform" />
+                            <div className="p-2 bg-black border border-cyan-500/50 clip-angled-sm">
+                                <Award className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
                             </div>
-                            <span className="text-yellow-500/70 text-xs font-bold uppercase tracking-widest font-mono">Clearance Level</span>
+                            <span className="text-cyan-500/70 text-xs font-bold uppercase tracking-widest font-mono">Clearance Level</span>
                         </div>
                         <div className={`text-3xl font-black tracking-widest text-white mb-2 group-hover:${tierColor(tier)} transition-colors uppercase font-mono ${tierColor(tier)}`}>
                             {tierDisplayName(tier)}

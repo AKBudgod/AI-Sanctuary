@@ -116,6 +116,9 @@ export const onRequestPost = async (context: EventContext<Env, any, any>) => {
     const { text, voice } = body;
     if (!text || !text.trim() || !voice) return jsonRes({ error: 'Text and voice required' }, 400);
 
+    const authHeader = request.headers.get('Authorization') || '';
+    const email = authHeader.replace(/^Bearer\s+/i, '').trim().toLowerCase();
+
     const cleanText = preprocessForTTS(text);
     if (!cleanText) return jsonRes({ error: 'Processed text is empty' }, 400);
 
@@ -189,7 +192,7 @@ export const onRequestPost = async (context: EventContext<Env, any, any>) => {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${hfToken}` },
             body: JSON.stringify({
               data: [
-                cleanText, refUrl, null, "English",
+                cleanText, { "url": refUrl }, null, "English",
                 0.75, 1.0, true, 2.0, 1.0, 0, 50, 0.8,
                 true, -40, 400, 100, "Sentence", 250, true
               ]
@@ -235,7 +238,12 @@ export const onRequestPost = async (context: EventContext<Env, any, any>) => {
           'mj': 'EXAVITQu4vr4xnSDxMaL'
         };
 
-        const evId = ELEVENLABS_VOICE_MAP[slug] || ELEVENLABS_VOICE_MAP[mappedVoiceId];
+        let evId = ELEVENLABS_VOICE_MAP[slug] || ELEVENLABS_VOICE_MAP[mappedVoiceId];
+        
+        // Check KV for custom ElevenLabs clone mappings
+        if (!evId && env.USERS_KV && email && email !== 'anonymous') {
+            evId = await env.USERS_KV.get(`voice:${email}:${slug}`) || await env.USERS_KV.get(`voice:${email}`);
+        }
         
         if (evId) {
           const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${evId}`, {

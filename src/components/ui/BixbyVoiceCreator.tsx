@@ -1,51 +1,35 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface RegisteredVoice {
   slug: string;
   label: string;
-  provider: 'community' | 'builtin';
+  isBuiltIn: boolean;
+  isPersonal: boolean;
+  isCommunity: boolean;
   sampleUrl?: string;
 }
 
 interface VaultEntry {
-  name: string;
-  slug: string;
+  name:    string;
+  slug:    string;
   isGlobal: boolean;
   addedAt: string;
-  status: 'vaulted' | 'mirrored' | 'error';
+  status:  'mirrored' | 'vaulted' | 'error';
 }
 
-// ─── Built-in character list for global assignment ───────────────────────────
-const BUILTIN_CHARACTERS = [
-  { slug: 'lyra',      label: 'Lyra' },
-  { slug: 'maya',      label: 'Maya' },
-  { slug: 'kla',       label: "K'LA" },
-  { slug: 'mj',        label: 'MJ' },
-  { slug: 'john',      label: 'John' },
-  { slug: 'angel',     label: 'Angel' },
-  { slug: 'rachel',    label: 'Rachel' },
-  { slug: 'bella',     label: 'Bella' },
-  { slug: 'antigravity', label: 'Antigravity' },
-  { slug: 'miles',     label: 'Miles' },
-  { slug: 'cleo',      label: 'Cleo' },
-  { slug: 'lily',      label: 'Lily' },
-  { slug: 'skye',      label: 'Skye' },
-  { slug: 'raven',     label: 'Raven' },
-  { slug: 'custom',    label: '+ New Custom Voice' },
-];
+// Built-in character map removed as per custom voice requirements.
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string }) {
   const [step, setStep] = useState<'select' | 'record' | 'preview' | 'uploading' | 'done'>('select');
-  const [selectedChar, setSelectedChar] = useState<string | null>(null);
   const [customName, setCustomName] = useState('');
+  const [targetModel, setTargetModel] = useState('auto');
   const [isGlobal, setIsGlobal] = useState(true);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [recording, setRecording] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const [vault, setVault] = useState<VaultEntry[]>([]);
   const [registeredVoices, setRegisteredVoices] = useState<RegisteredVoice[]>([]);
@@ -53,19 +37,21 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
   const [purging, setPurging] = useState(false);
   const [purgeResult, setPurgeResult] = useState<string | null>(null);
   
-  const mediaRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load registered voices from API
-  useEffect(() => {
-    fetch('/api/synthesizer/voices')
+  // ─── Load / Refresh voice registry ──────────────────────────────────────
+  const refreshRegistry = () => {
+    fetch('/api/synthesizer/voices', {
+      headers: { 'X-User-Email': userEmail || '' }
+    })
       .then(r => r.json())
       .then(data => setRegisteredVoices(data?.voices || []))
       .catch(() => {});
-  }, []);
+  };
 
-  const charName = selectedChar === 'custom' ? customName : (BUILTIN_CHARACTERS.find(c => c.slug === selectedChar)?.label || '');
+  useEffect(() => { refreshRegistry(); }, [userEmail]);
+
+  const charName = customName;
 
   // ─── Purge All Voices ─────────────────────────────────────────────────────
   const purgeAllVoices = async () => {
@@ -109,22 +95,28 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
     setStep('uploading');
     setResult(null);
 
+    // Normalise to slug so the KV key matches what add.ts writes
+    const voiceSlug = customName.trim().toLowerCase().replace(/\s+/g, '-');
+
     const formData = new FormData();
     formData.append('file', audioFile);
-    formData.append('name', selectedChar === 'custom' ? customName : selectedChar!);
+    formData.append('name', voiceSlug);   // send slug, not raw display name
     formData.append('email', userEmail);
     formData.append('isGlobal', isGlobal ? 'true' : 'false');
+    formData.append('provider', targetModel);
 
     try {
       const res = await fetch('/api/voice/add', { method: 'POST', body: formData });
       const data = await res.json();
 
       if (res.ok && data.success) {
-        const voiceSlug = selectedChar === 'custom' ? customName.toLowerCase() : selectedChar!;
         // Lock this voice in for the user immediately
         localStorage.setItem('sanctuary_preferred_voice', `voice-${voiceSlug}`);
-        
-        setResult({ success: true, message: `✅ "${charName}" vaulted in Nexus Grid${isGlobal ? ' (Global)' : ''} and mirrored to hardware node.` });
+
+        setResult({
+          success: true,
+          message: `✅ "${charName}" (${voiceSlug}) vaulted${isGlobal ? ' globally' : ''} — synthesis active on Neural Grid.`,
+        });
         setVault(prev => [{
           name: charName,
           slug: voiceSlug,
@@ -132,6 +124,9 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
           addedAt: new Date().toLocaleString(),
           status: 'mirrored',
         }, ...prev]);
+
+        // Immediately refresh the Active Voice Registry panel
+        setTimeout(refreshRegistry, 800);
       } else {
         setResult({ success: false, message: data.error || 'Upload failed. Check console.' });
       }
@@ -144,7 +139,6 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
   // ─── Reset ────────────────────────────────────────────────────────────────
   const reset = () => {
     setStep('select');
-    setSelectedChar(null);
     setCustomName('');
     setAudioFile(null);
     setAudioUrl(null);
@@ -203,33 +197,17 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
             {step === 'select' && (
               <div className="space-y-6 animate-in fade-in duration-300">
                 <h3 className="text-sm font-black uppercase tracking-widest text-zinc-400 font-mono">
-                  Step 1 — Select Character
+                  Step 1 — Name Your Custom Voice
                 </h3>
-                <div className="grid grid-cols-3 gap-2 max-h-[260px] overflow-y-auto pr-1">
-                  {BUILTIN_CHARACTERS.map(char => (
-                    <button
-                      key={char.slug}
-                      onClick={() => setSelectedChar(char.slug)}
-                      className={`p-3 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
-                        selectedChar === char.slug
-                          ? 'bg-violet-500/20 border-violet-500/50 text-violet-300'
-                          : 'bg-white/5 border-white/5 text-zinc-400 hover:border-white/20 hover:text-white'
-                      }`}
-                    >
-                      {char.label}
-                    </button>
-                  ))}
-                </div>
-
-                {selectedChar === 'custom' && (
-                  <input
-                    type="text"
-                    placeholder="Custom voice name..."
-                    value={customName}
-                    onChange={e => setCustomName(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50"
-                  />
-                )}
+                
+                <input
+                  type="text"
+                  placeholder="Type a name for your clone... (e.g. Bixby)"
+                  value={customName}
+                  onChange={e => setCustomName(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50"
+                  autoFocus
+                />
 
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
                   <input
@@ -244,9 +222,23 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
                   </label>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-xs font-mono text-zinc-400 uppercase tracking-widest pl-1">Primary Synthesis Engine (Model)</label>
+                  <select
+                    value={targetModel}
+                    onChange={e => setTargetModel(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-violet-500/50 appearance-none"
+                  >
+                    <option value="auto">Auto Cascade (Hardware → Cloud → Web)</option>
+                    <option value="local">Local Hardware Node (Coqui XTTS)</option>
+                    <option value="cloud_xtts">HuggingFace Cloud (XTTS)</option>
+                    <option value="polly">StreamElements Polly (Robotic Fallback)</option>
+                  </select>
+                </div>
+
                 <button
                   onClick={() => setStep('record')}
-                  disabled={!selectedChar || (selectedChar === 'custom' && !customName.trim())}
+                  disabled={!customName.trim()}
                   className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-black uppercase tracking-widest transition-all"
                 >
                   Continue →
@@ -313,7 +305,7 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Scope</span>
-                    <span className={`text-xs font-black uppercase ${isGlobal ? 'text-green-400' : 'text-yellow-400'}`}>
+                    <span className={`text-xs font-black uppercase ${isGlobal ? 'text-green-400' : 'text-cyan-400'}`}>
                       {isGlobal ? '🌐 Global (All Users)' : '👤 User-Specific'}
                     </span>
                   </div>
@@ -382,18 +374,18 @@ export default function BixbyVoiceCreator({ userEmail }: { userEmail?: string })
                 registeredVoices.map(v => (
                   <div key={v.slug} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 group hover:border-white/10 transition-all">
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${v.provider === 'community' ? 'bg-violet-400' : 'bg-teal-400'}`} />
+                      <div className={`w-2 h-2 rounded-full ${v.isPersonal ? 'bg-cyan-400' : 'bg-violet-400'}`} />
                       <div>
                         <p className="text-sm font-black text-white">{v.label}</p>
-                        <p className="text-[10px] font-mono text-zinc-600 uppercase">{v.slug} · {v.provider}</p>
+                        <p className="text-[10px] font-mono text-zinc-600 uppercase">{v.slug} · {v.isPersonal ? 'personal scope' : 'global scope'}</p>
                       </div>
                     </div>
                     <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded-lg ${
-                      v.provider === 'community'
-                        ? 'bg-violet-500/10 text-violet-400'
-                        : 'bg-teal-500/10 text-teal-400'
+                      v.isPersonal
+                        ? 'bg-cyan-500/10 text-cyan-400'
+                        : 'bg-violet-500/10 text-violet-400'
                     }`}>
-                      {v.provider}
+                      {v.isPersonal ? 'Personal' : 'Global'}
                     </span>
                   </div>
                 ))

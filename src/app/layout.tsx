@@ -6,8 +6,10 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import ActivityTracker from "@/components/ui/ActivityTracker";
 import PlatformStatusBanner from "@/components/ui/PlatformStatusBanner";
+import SessionEasterEggManager from "@/components/ui/SessionEasterEggManager";
 import RouteScrollReset from "@/components/ui/RouteScrollReset";
 import RevenueBanner from "@/components/ui/RevenueBanner";
+import GalaxyBackground from "@/components/ui/GalaxyBackground";
 import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -158,24 +160,26 @@ export default function RootLayout({
         />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="AI Sanctuary" />
-        {/* Google Tag (gtag.js) - Placeholder for G-TRACKING_ID */}
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=G-TRACKING_ID&cb=${Date.now()}`}></script>
+        {/* Google Tag (gtag.js) */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=G-6213BQBCSJ&cb=${Date.now()}`}></script>
         <script dangerouslySetInnerHTML={{ __html: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-TRACKING_ID');
+          gtag('config', 'G-6213BQBCSJ');
         ` }} />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-white text-slate-950`}
+        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-black text-slate-100`}
       >
+        <GalaxyBackground />
         <Suspense fallback={null}>
           <RevenueBanner />
         </Suspense>
         <RouteScrollReset />
         <div className="flex flex-col min-h-screen">
           <ActivityTracker />
+          <SessionEasterEggManager />
           <PlatformStatusBanner />
           <Navbar />
           <main className="flex-grow">{children}</main>

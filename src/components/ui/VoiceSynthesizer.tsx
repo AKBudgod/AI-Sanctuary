@@ -66,7 +66,9 @@ export default function VoiceSynthesizer({ userEmail }: { userEmail?: string }) 
   const [availableVoices, setAvailableVoices] = useState<{slug: string, label: string, isBuiltIn?: boolean, isCommunity?: boolean}[]>(BUILTIN_PERSONAS);
 
   const fetchRegistry = () => {
-    fetch('/api/synthesizer/voices')
+    fetch('/api/synthesizer/voices', {
+      headers: { 'X-User-Email': userEmail || '' },
+    })
       .then(res => res.json())
       .then(data => {
         if (data.voices) setAvailableVoices(data.voices);
@@ -689,8 +691,8 @@ export default function VoiceSynthesizer({ userEmail }: { userEmail?: string }) 
                 <p className="text-purple-400 font-bold">☁️ Cloud Fallback: Coqui XTTS (Cloud)</p>
                 <p className="text-xs">If your Local Node is offline, synthesis automatically triggers a high-fidelity Cloud Coqui fallback on the Neural Grid.</p>
               </div>
-              <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 space-y-1">
-                <p className="text-yellow-400 font-bold">📂 Automatic Physical Mirroring</p>
+              <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 space-y-1">
+                <p className="text-cyan-400 font-bold">📂 Automatic Physical Mirroring</p>
                 <p className="text-xs text-yellow-200/80">Any voice you upload is instantly mirrored to your Physical Hardware link. Your local PC "learns" the voice as soon as you hit upload.</p>
               </div>
             </div>

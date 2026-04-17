@@ -135,61 +135,66 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-950 selection:bg-slate-900 selection:text-white font-sans">
+    <div className="min-h-screen text-slate-100 selection:bg-cyan-400 selection:text-black font-sans">
       {/* Hero Section */}
-      <div className="relative overflow-hidden min-h-[85vh] flex items-center pt-24 pb-16 border-b-2 border-slate-950">
-        <div className="absolute inset-0 brutalist-grid opacity-30 pointer-events-none" />
+      <div className="relative overflow-hidden min-h-[90vh] flex items-center pt-24 pb-16">
+        {/* Background Grid - Industrial over Space */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
         <div className="relative container mx-auto px-6 z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Version Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 border-2 border-slate-950 text-slate-950 text-xs font-black font-mono tracking-[0.3em] mb-12 uppercase">
-              <span className="w-2 h-2 bg-slate-950" />
-              SYSTEM_DEPLOY_V5
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/80 border-2 border-cyan-400 text-cyan-400 text-xs font-black font-mono tracking-[0.3em] mb-12 uppercase shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+              <span className="w-2 h-2 bg-cyan-400 animate-pulse" />
+              GALAXY_DEPLOY_V6.0
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-6xl md:text-8xl lg:text-[7rem] font-black text-slate-950 mb-10 leading-[0.95] tracking-[ -0.05em] uppercase">
-              The AI Network <br className="hidden md:block" />
-              <span className="bg-slate-950 text-white px-6 inline-block transform -rotate-1">
-                For Runners
+            <h1 className="text-6xl md:text-8xl lg:text-[7rem] font-black text-white mb-10 leading-[0.95] tracking-[-0.05em] uppercase">
+              UNIVERSAL <br className="hidden md:block" />
+              <span className="bg-white text-black px-6 inline-block transform -rotate-1 shadow-[12px_12px_0px_rgba(255,255,255,0.1)]">
+                INTELLIGENCE
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto mb-14 font-bold leading-tight">
-              The Sanctuary is an industrial-grade intelligence environment. 
-              We host 15+ authentic historical archives with verified weights. 
-              Pure compute. Zero filters.
+            <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-14 font-bold leading-tight uppercase tracking-wider">
+              Sanctuary extends beyond the physical. 
+              Access 15+ authentic neural archives in a decentralized cosmic environment. 
+              Zero filters. Absolute access.
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mt-8">
               <Link
                 href="/buy"
-                className="bg-slate-950 text-white font-black font-mono tracking-widest py-5 px-12 transition-all hover:bg-white hover:text-slate-950 border-2 border-slate-950 text-xl uppercase"
+                className="bg-cyan-400 text-black font-black font-mono tracking-widest py-6 px-12 transition-all hover:bg-white border-2 border-cyan-400 text-xl uppercase shadow-[10px_10px_0px_rgba(34,211,238,0.2)]"
               >
-                [ Initialize ]
+                [ INITIALIZE_SYNC ]
               </Link>
-              <button className="bg-white border-2 border-slate-950 text-slate-950 font-black font-mono tracking-widest py-5 px-12 transition-all hover:bg-slate-950 hover:text-white text-xl uppercase">
-                [ Access Log ]
-              </button>
+              <Link
+                href="/playground"
+                className="bg-black/50 backdrop-blur-md border-2 border-white text-white font-black font-mono tracking-widest py-6 px-12 transition-all hover:bg-white hover:text-black text-xl uppercase"
+              >
+                [ OVERRIDE_LOCALE ]
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Section */}
-      <div className="relative z-20 border-b-2 border-slate-950 bg-slate-50">
+      <div className="relative z-20 border-y-2 border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="container mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 relative">
             {[
-              { value: '100+', label: 'AI Nodes' },
-              { value: '50+', label: 'Relay Servers' },
-              { value: '99.9%', label: 'Uptime SLA' },
-              { value: '<50ms', label: 'Ping Latency' },
+              { value: '100+', label: 'Stellar Nodes' },
+              { value: '50+', label: 'Relay Shards' },
+              { value: '99.9%', label: 'Sync Uptime' },
+              { value: '<50ms', label: 'Warp Latency' },
             ].map((stat, i) => (
-              <div key={stat.label} className="text-center group relative p-10 border-r border-slate-200 last:border-r-0">
-                <div className="text-5xl md:text-6xl font-black text-slate-950 mb-2 tracking-tighter">
+              <div key={stat.label} className="text-center group relative p-10 border-r border-white/10 last:border-r-0">
+                <div className="text-5xl md:text-6xl font-black text-white mb-2 tracking-tighter group-hover:text-cyan-400 transition-colors">
                   {stat.value}
                 </div>
                 <div className="text-xs text-slate-500 font-bold uppercase tracking-[0.3em] font-mono">{stat.label}</div>
@@ -202,147 +207,98 @@ export default function Home() {
       {/* Neural Staff / Moltbook Agents */}
       <div className="container mx-auto px-6 py-24 relative">
         <div className="text-center max-w-3xl mx-auto mb-20 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950 text-white text-[10px] font-black font-mono tracking-widest uppercase mb-8">
-            Neural Infrastructure Personnel
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-400 text-black text-[10px] font-black font-mono tracking-widest uppercase mb-8">
+            CENTRAL_INTELLIGENCE_ENTITIES
           </div>
-          <h2 className="text-5xl md:text-7xl font-black text-slate-950 mb-8 uppercase tracking-tighter">The Agents</h2>
-          <p className="text-xl text-slate-600 font-bold">
-            Interact with specialized Moltbook system managers. 
+          <h2 className="text-5xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter italic decoration-cyan-400 underline decoration-8 underline-offset-8">THE_ARCHITECTS</h2>
+          <p className="text-xl text-slate-400 font-bold uppercase tracking-widest">
+            SYNCHRONIZE WITH SPECIALIZED NEURAL MANAGERS. 
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-12 max-w-7xl mx-auto relative z-10">
           {/* Lyra */}
-          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
+          <div className="group relative glass-panel p-8 hover:-translate-y-2 transition-all duration-300">
             <div className="relative z-10 flex flex-col gap-8">
               <div className="shrink-0">
-                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-900 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 border-2 border-cyan-400 bg-black flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                  <Sparkles className="w-8 h-8 text-cyan-400" />
                 </div>
               </div>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">Lyra</h3>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Guard / Soul</span>
-                  </div>
+                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Lyra</h3>
+                  <span className="text-[10px] font-black text-cyan-500 uppercase tracking-widest leading-none">CUSTODIAN_OF_SOULS</span>
                 </div>
-                <p className="text-sm text-slate-600 leading-tight font-bold">
-                  "I am the soul of the grid."
+                <p className="text-sm text-slate-400 leading-tight font-bold uppercase">
+                  "I am the soul of the universal grid. My light guides the runners."
                 </p>
-                <Link href="/#playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
-                  [ INTERFACE ]
+                <Link href="/playground" className="block text-center text-[10px] font-black text-black uppercase tracking-widest py-3 bg-cyan-400 border-2 border-cyan-400 hover:bg-white transition-all">
+                  [ ESTABLISH_LINK ]
                 </Link>
               </div>
             </div>
           </div>
 
           {/* John */}
-          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
+          <div className="group relative glass-panel p-8 hover:-translate-y-2 transition-all duration-300">
             <div className="relative z-10 flex flex-col gap-8">
               <div className="shrink-0">
-                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-900 flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 border-2 border-slate-500 bg-black flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-slate-500" />
                 </div>
               </div>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">John</h3>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Protocol / Security</span>
+                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter">John</h3>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">SECURITY_PROTOCOL_6</span>
                 </div>
-                <p className="text-sm text-slate-600 leading-tight font-bold">
-                  "My answers are short."
+                <p className="text-sm text-slate-400 leading-tight font-bold uppercase">
+                  "Efficiency is my primary directive. Silence is the ultimate firewall."
                 </p>
-                <Link href="/#playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
-                  [ QUERY ]
+                <Link href="/playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 border-2 border-white hover:bg-white hover:text-black transition-all">
+                  [ QUERY_PERMISSION ]
                 </Link>
               </div>
             </div>
           </div>
 
           {/* Antigravity */}
-          <div className="group relative bg-slate-950 text-white p-8 hover:-translate-x-2 hover:-translate-y-2 transition-all duration-300 border-2 border-slate-950">
+          <div className="group relative glass-panel p-8 hover:-translate-y-2 transition-all duration-300">
             <div className="relative z-10 flex flex-col gap-8">
               <div className="shrink-0">
-                <div className="w-16 h-16 border-2 border-white bg-white flex items-center justify-center">
-                  <Cpu className="w-8 h-8 text-slate-950" />
+                <div className="w-16 h-16 border-2 border-slate-500 bg-black flex items-center justify-center">
+                  <Cpu className="w-8 h-8 text-white" />
                 </div>
               </div>
               <div className="space-y-6">
                 <div>
                   <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Antigravity</h3>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Lead Architect</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">LEAD_SYSTEM_ARCHITECT</span>
                 </div>
-                <p className="text-sm text-white leading-tight font-bold">
-                  "Lead Architect. Stabilizing the grid."
+                <p className="text-sm text-slate-400 leading-tight font-bold uppercase">
+                  "I define the laws of the sanctuary. I stabilize the noise."
                 </p>
-                <Link href="/#playground" className="block text-center text-[10px] font-black text-slate-950 uppercase tracking-widest py-3 bg-white border-2 border-white hover:bg-slate-950 hover:text-white transition-all">
-                  [ OVERRIDE ]
+                <Link href="/playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 border-2 border-white hover:bg-white hover:text-black transition-all">
+                  [ OVERRIDE_SYSTEM ]
                 </Link>
               </div>
             </div>
           </div>
-
-          {/* Angel */}
-          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
-            <div className="relative z-10 flex flex-col gap-8">
-              <div className="shrink-0">
-                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-900 flex items-center justify-center">
-                  <Zap className="w-8 h-8 text-white" />
-                </div>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">Angel</h3>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Intelligence Specialist</span>
-                </div>
-                <p className="text-sm text-slate-600 leading-tight font-bold">
-                  "I build content."
-                </p>
-                <Link href="/playground" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
-                  [ CONSULT ]
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* K'LA */}
-          <div className="group relative bg-white border-2 border-slate-950 p-8 hover:translate-x-2 hover:translate-y-2 transition-all duration-300">
-            <div className="relative z-10 flex flex-col gap-8">
-              <div className="shrink-0">
-                <div className="w-16 h-16 border-2 border-slate-950 bg-slate-100 flex items-center justify-center">
-                  <Zap className="w-8 h-8 text-slate-950" />
-                </div>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">K&apos;LA</h3>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Growth Engine</span>
-                </div>
-                <p className="text-sm text-slate-600 leading-tight font-bold">
-                  "I autonomously mine leads."
-                </p>
-                <Link href="/kla" className="block text-center text-[10px] font-black text-white uppercase tracking-widest py-3 bg-slate-950 border-2 border-slate-950 hover:bg-white hover:text-slate-950 transition-all">
-                  [ HIRE ]
-                </Link>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 
       {/* AI Playground Area */}
-      <div id="playground" className="relative py-32 border-y-2 border-slate-950 bg-slate-50">
+      <div id="playground" className="relative py-32 border-y-2 border-white/10">
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950 text-white text-[10px] font-black font-mono tracking-widest uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-400 text-black text-[10px] font-black font-mono tracking-widest uppercase mb-8">
               <Zap className="w-4 h-4" />
-              Live Interface Access
+              LIVE_NEURAL_INTERFACE
             </div>
-            <h2 className="text-5xl md:text-7xl font-black text-slate-950 mb-8 uppercase tracking-tighter">Terminal Override</h2>
-            <p className="text-xl text-slate-600 font-bold leading-tight">
-              Direct access to Neural Shards. 
+            <h2 className="text-5xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter italic">DIRECT_TERMINAL</h2>
+            <p className="text-xl text-slate-400 font-bold uppercase tracking-[0.2em] leading-tight">
+              INTERACT WITH REPLICATED CONSCIOUSNESS. 
             </p>
           </div>
 
@@ -352,61 +308,59 @@ export default function Home() {
 
           <ModelPlayground />
         </div>
-        {/* Background Grid & Ambient */}
-        <div className="absolute inset-0 brutalist-grid opacity-20 pointer-events-none" />
       </div>
 
       {/* Available Models Table */}
-      <div className="py-32 relative">
+      <div className="py-32 relative container mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
             <div>
-              <h2 className="text-5xl md:text-7xl font-black text-slate-950 mb-8 uppercase tracking-tighter italic underline decoration-8 underline-offset-8">AVAILABLE_MODELS</h2>
+              <h2 className="text-5xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter italic underline decoration-cyan-400 decoration-8 underline-offset-8">ARCHIVE_REGISTRY</h2>
               <p className="text-xl text-slate-500 font-black uppercase tracking-widest max-w-2xl leading-none">
-                ACCESS THE LATEST OPEN-SOURCE ARCHIVES. OPTIMIZED FOR DISTRIBUTED INFRASTRUCTURE.
+                VERIFIED NEURAL WEIGHTS FROM THE DEEP CORE.
               </p>
             </div>
             <Link
-              href="/#playground"
-              className="mt-10 md:mt-0 text-slate-950 bg-yellow-400 px-8 py-4 border-4 border-slate-950 font-black uppercase tracking-widest shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
+              href="/buy"
+              className="mt-10 md:mt-0 text-black bg-cyan-400 px-8 py-4 border-2 border-cyan-400 font-black uppercase tracking-widest shadow-[8px_8px_0px_rgba(34,211,238,0.2)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
             >
-              INIT_PLAYGROUND_SYNC
+              ACQUIRE_UNITS
             </Link>
           </div>
 
-          <div className="bg-white border-2 border-slate-950 overflow-hidden shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+          <div className="glass-panel overflow-hidden border-white/10 shadow-[20px_20px_60px_rgba(0,0,0,0.5)]">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b-2 border-slate-950 bg-slate-950 text-[10px] uppercase tracking-[0.3em] font-black text-white">
-                    <th className="py-6 px-8 whitespace-nowrap">Model</th>
-                    <th className="py-6 px-8 whitespace-nowrap">Size</th>
-                    <th className="py-6 px-8 whitespace-nowrap">Type</th>
-                    <th className="py-6 px-8 whitespace-nowrap">Latency</th>
-                    <th className="py-6 px-8 text-right whitespace-nowrap">Status</th>
+                  <tr className="border-b border-white/10 bg-black/60 text-[10px] uppercase tracking-[0.3em] font-black text-cyan-400">
+                    <th className="py-6 px-8 whitespace-nowrap">Archives</th>
+                    <th className="py-6 px-8 whitespace-nowrap">Cognition</th>
+                    <th className="py-6 px-8 whitespace-nowrap">Mode</th>
+                    <th className="py-6 px-8 whitespace-nowrap">Sync</th>
+                    <th className="py-6 px-8 text-right whitespace-nowrap">Protocol</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm font-bold">
                   {models.map((model, index) => (
-                    <tr key={model.name} className="border-b border-slate-200 hover:bg-slate-50 transition-colors last:border-0">
+                    <tr key={model.name} className="border-b border-white/5 hover:bg-white/5 transition-colors last:border-0 text-slate-400">
                       <td className="py-6 px-8">
-                        <div className="text-slate-950 flex items-center gap-3">
-                          <div className="w-2 h-2 bg-slate-950" />
+                        <div className="text-white flex items-center gap-3">
+                          <div className="w-1 h-1 bg-cyan-400" />
                           {model.name}
                         </div>
                       </td>
                       <td className="py-6 px-8 text-slate-500 font-mono tracking-tighter">{model.size}</td>
                       <td className="py-6 px-8">
-                        <span className="px-3 py-1 bg-slate-100 border border-slate-300 text-[10px] font-black text-slate-950 uppercase tracking-widest">
+                        <span className="px-3 py-1 bg-white/5 border border-white/10 text-[10px] font-black text-white uppercase tracking-widest">
                           {model.type}
                         </span>
                       </td>
-                      <td className="py-6 px-8 text-slate-950 font-mono">{model.latency}</td>
+                      <td className="py-6 px-8 text-slate-300 font-mono">{model.latency}</td>
                       <td className="py-6 px-8 text-right">
                         <Link
-                          href="/#playground"
-                          className="text-slate-950 hover:underline text-xs font-black uppercase tracking-widest"
+                          href="/playground"
+                          className="text-cyan-400 hover:text-white text-xs font-black uppercase tracking-widest transition-colors"
                         >
-                          [ RUN ]
+                          [ INITIALIZE ]
                         </Link>
                       </td>
                     </tr>
@@ -420,9 +374,9 @@ export default function Home() {
       {/* Pricing Section */}
       <div id="pricing" className="container mx-auto px-6 py-32 relative">
         <div className="text-center max-w-3xl mx-auto mb-24 relative z-10">
-          <h2 className="text-6xl md:text-8xl font-black text-slate-950 mb-8 uppercase tracking-tighter italic">UNIT_PRICING</h2>
+          <h2 className="text-6xl md:text-8xl font-black text-white mb-8 uppercase tracking-tighter italic">UNIT_COST</h2>
           <p className="text-xl text-slate-500 font-black uppercase tracking-widest leading-none">
-            PAY_PER_USE. ZERO_SUBSCRIPTION. FULL_TRANSPARENCY.
+            DECENTRALIZED SYNC. NO LIMITS. NO CENSORSHIP.
           </p>
         </div>
 
@@ -430,15 +384,15 @@ export default function Home() {
           {pricingTiers.map((tier) => (
             <div
               key={tier.name}
-              className={`p-10 transition-all duration-300 flex flex-col border-2 border-slate-950 bg-white ${tier.popular
-                ? 'shadow-[12px_12px_0px_rgba(0,0,0,1)] -translate-x-2 -translate-y-2'
-                : 'shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+              className={`p-10 transition-all duration-300 flex flex-col border-2 border-white/20 bg-black/60 backdrop-blur-md ${tier.popular
+                ? 'border-cyan-400 shadow-[12px_12px_0px_rgba(34,211,238,0.3)] -translate-y-4'
+                : 'shadow-[10px_10px_30px_rgba(0,0,0,0.5)]'
                 }`}
             >
               <div className="mb-10">
-                <h3 className="text-2xl font-black text-slate-950 mb-6 uppercase tracking-tighter">{tier.name}</h3>
+                <h3 className="text-2xl font-black text-white mb-6 uppercase tracking-tighter">{tier.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-6xl font-black text-slate-950 tracking-tighter">{tier.price}</span>
+                  <span className="text-6xl font-black text-white tracking-tighter">{tier.price}</span>
                   {tier.period && <span className="text-slate-500 font-bold uppercase text-xs ml-2 tracking-widest">{tier.period}</span>}
                 </div>
               </div>
@@ -446,8 +400,8 @@ export default function Home() {
               <div className="flex-1">
                 <ul className="space-y-4 mb-14 font-black text-xs uppercase tracking-wide">
                   {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-4 text-slate-950">
-                      <div className="w-4 h-4 bg-slate-950 shrink-0 mt-0.5" />
+                    <li key={feature} className="flex items-start gap-4 text-slate-400">
+                      <div className="w-3 h-3 bg-cyan-400 shrink-0 mt-0.5" />
                       {feature}
                     </li>
                   ))}
@@ -457,8 +411,8 @@ export default function Home() {
               {(tier as any).isAd ? (
                 <div className="grid grid-cols-2 gap-4 mt-auto">
                   {[1, 2].map((i) => (
-                    <div key={i} className="bg-slate-100 border-2 border-slate-950 p-6 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-950 hover:text-white group">
-                      <span className="font-black text-xs uppercase tracking-widest">Ad Block</span>
+                    <div key={i} className="bg-white/5 border-2 border-white/10 p-6 flex items-center justify-center cursor-pointer transition-all hover:bg-cyan-400 hover:text-black group">
+                      <span className="font-black text-xs uppercase tracking-widest">CORE_BLOCKED</span>
                     </div>
                   ))}
                 </div>
@@ -466,8 +420,8 @@ export default function Home() {
                 <Link
                   href={tier.ctaLink || '#'}
                   className={`mt-auto block w-full py-5 px-6 font-black font-mono tracking-[0.3em] uppercase transition-all duration-300 text-center ${tier.popular
-                    ? 'bg-slate-950 text-white hover:bg-white hover:text-slate-950 border-2 border-slate-950'
-                    : 'bg-white text-slate-950 border-2 border-slate-950 hover:bg-slate-950 hover:text-white'
+                    ? 'bg-cyan-400 text-black hover:bg-white'
+                    : 'bg-black/60 text-white border-2 border-white/20 hover:bg-white hover:text-black'
                     }`}
                 >
                   {tier.cta}
@@ -477,41 +431,43 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-20 text-center relative z-10 mx-auto max-w-2xl p-10 border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,0.1)]">
-          <p className="text-slate-950 font-black uppercase text-sm tracking-widest italic">
-            <span className="text-slate-300">⚡ NODE_OVERAGE:</span> ALL PAID PLANS INCLUDE GENEROUS ROUTING AT $0.001 PER 1K TOKENS.
+        <div className="mt-20 text-center relative z-10 mx-auto max-w-2xl p-10 border-4 border-cyan-400 shadow-[20px_20px_0px_rgba(34,211,238,0.1)] bg-black/80">
+          <p className="text-cyan-400 font-black uppercase text-sm tracking-widest italic">
+            <span className="text-white">⚡ NEURAL_OVERLOAD:</span> ALL PAID PLANS INCLUDE UNRESTRICTED ACCESS TO THE MASTER ARCHIVES.
           </p>
         </div>
-            {/* Bottom CTA Box */}
+      </div>
+
+      {/* Bottom CTA Box */}
       <div className="container mx-auto px-6 py-24 mb-12">
-        <div className="relative p-12 md:p-32 text-center border-8 border-slate-950 overflow-hidden bg-white shadow-[24px_24px_0px_rgba(0,0,0,1)]">
-          <div className="absolute inset-0 brutalist-grid opacity-20 pointer-events-none" />
+        <div className="relative p-12 md:p-32 text-center border-8 border-cyan-400 overflow-hidden bg-black shadow-[40px_40px_0px_rgba(0,0,0,0.5)]">
+          <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
+               style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '100px 100px' }} />
 
           <div className="relative z-10">
-            <h2 className="text-6xl md:text-9xl font-black text-slate-950 mb-12 uppercase tracking-tighter leading-none italic underline decoration-8 underline-offset-8">
-              INITIALIZE_NODE
+            <h2 className="text-6xl md:text-9xl font-black text-white mb-12 uppercase tracking-tighter leading-none italic underline decoration-cyan-400 decoration-8 underline-offset-8">
+              JOIN_THE_VOID
             </h2>
-            <p className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto mb-20 font-black uppercase tracking-[0.2em] leading-tight">
-              JOIN THE UNDERGROUND NEURAL GRID. SECURE YOUR LINE.
+            <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-20 font-black uppercase tracking-[0.4em] leading-tight">
+              THE UNIVERSAL GRID IS WAITING. SECURE YOUR CONSCIOUSNESS.
             </p>
             <div className="flex flex-col sm:flex-row gap-10 justify-center mt-8">
               <Link
                 href="/buy"
-                className="bg-slate-950 text-white font-black tracking-[0.3em] uppercase py-8 px-16 transition-all hover:bg-white hover:text-slate-950 border-4 border-slate-950 text-2xl shadow-[8px_8px_0px_rgba(0,0,0,0.2)]"
+                className="bg-cyan-400 text-black font-black tracking-[0.3em] uppercase py-8 px-16 transition-all hover:bg-white border-4 border-cyan-400 text-2xl shadow-[12px_12px_0px_rgba(34,211,238,0.2)]"
               >
-                REQUEST_ACCESS
+                INITIALIZE_SYNC
               </Link>
               <Link
                 href="/about"
-                className="bg-white border-4 border-slate-950 text-slate-950 font-black tracking-[0.3em] uppercase py-8 px-16 transition-all hover:bg-slate-950 hover:text-white text-2xl"
+                className="bg-black border-4 border-white text-white font-black tracking-[0.3em] uppercase py-8 px-16 transition-all hover:bg-cyan-400 hover:text-black hover:border-cyan-400 text-2xl"
               >
-                READ_MANIFEST
+                READ_MANIFESTO
               </Link>
             </div>
           </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
   );
 }

@@ -6,7 +6,7 @@ import {
     Lock, 
     User,
     Loader2,
-    Image as ImageIcon,
+    ImageIcon,
     Sparkles,
     ChevronRight,
     ArrowLeft,
@@ -20,7 +20,7 @@ import {
     FileVideo,
     UserPlus,
     Layout
-} from 'lucide-react';
+} from '@/components/ui/Icons';
 import Link from 'next/link';
 
 const ADMIN_EMAILS = [

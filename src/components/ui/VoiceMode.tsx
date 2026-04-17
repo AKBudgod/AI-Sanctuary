@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Loader2, Send } from 'lucide-react';
+import { Mic, MicOff, Loader2, Send } from '@/components/ui/Icons';
 import dynamic from 'next/dynamic';
 
 const RiggedCharacter = dynamic(() => import('./RiggedCharacter'), { ssr: false });
@@ -131,7 +131,7 @@ const VOICE_CHARACTERS: Record<string, {
         name: 'Cleo',
         color: '#fbbf24',
         color2: '#92400e',
-        glow: 'shadow-yellow-500/50',
+        glow: 'shadow-cyan-500/50',
         tagline: 'Sultry & Intense',
         gender: 'female',
         image: '/assets/characters/cleo.png',

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, Zap, Brain, Target, Mail, Globe, ArrowRight, Star, Shield, Clock } from 'lucide-react';
+import { CheckCircle2, Zap, Brain, Target, Mail, Globe, ArrowRight, Star, Shield, Clock } from '@/components/ui/Icons';
 import PayPalHostedButton from '@/components/ui/PayPalHostedButton';
 
 // ─── Direct Stripe Payment Links (live) ──────────────────────────────────────
@@ -158,40 +158,36 @@ function BuyPageInner() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-white text-slate-950 font-sans selection:bg-slate-950 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-transparent text-white font-sans selection:bg-cyan-400 selection:text-black overflow-x-hidden">
       <title>PURCHASE_PROTOCOLS | AI_SANCTUARY</title>
       <meta name="description" content="Buy SANC credits, unlock Developer Mode for lifetime access, or hire K'LA." />
-
-      {/* Background Grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]"
-           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-24 pt-40">
 
         {/* Success Banner */}
         {paySuccess && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-md px-6">
-            <div className="bg-white border-8 border-slate-950 p-12 max-w-md w-full text-center shadow-[16px_16px_0px_rgba(0,0,0,1)]">
-              <div className="w-20 h-20 bg-slate-950 flex items-center justify-center mx-auto mb-8">
-                <CheckCircle2 className="w-10 h-10 text-white" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xl px-6">
+            <div className="bg-black border-4 border-cyan-400 p-12 max-w-md w-full text-center shadow-[0_0_50px_rgba(34,211,238,0.3)]">
+              <div className="w-20 h-20 bg-cyan-400 flex items-center justify-center mx-auto mb-8 shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+                <CheckCircle2 className="w-10 h-10 text-black" />
               </div>
-              <h2 className="text-3xl font-black text-slate-950 mb-4 uppercase tracking-tighter italic">TX_SUCCESSFUL_SYNC</h2>
-              <p className="text-slate-500 font-black uppercase text-xs tracking-widest leading-relaxed mb-6">{successMsg}</p>
-              <div className="text-[10px] text-slate-300 font-black uppercase tracking-[0.4em] animate-pulse">RELOAD_INITIALIZED...</div>
+              <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter italic">TX_SUCCESSFUL_SYNC</h2>
+              <p className="text-slate-400 font-black uppercase text-xs tracking-widest leading-relaxed mb-6">{successMsg}</p>
+              <div className="text-[10px] text-cyan-500 font-black uppercase tracking-[0.4em] animate-pulse">RELOAD_INITIALIZED...</div>
             </div>
           </div>
         )}
 
         {/* Hero */}
         <div className="max-w-4xl space-y-12 mb-40">
-          <div className="inline-block bg-slate-950 text-white px-6 py-2 font-black uppercase tracking-[0.4em] text-xs shadow-[8px_8px_0px_rgba(0,0,0,0.2)]">
+          <div className="inline-block bg-cyan-400 text-black px-6 py-2 font-black uppercase tracking-[0.4em] text-xs shadow-[0_0_15px_rgba(34,211,238,0.3)]">
             GATEWAY_SECURED: STRIPE_PROTOCOL_V4
           </div>
-          <h1 className="text-6xl md:text-9xl font-black tracking-tighter text-slate-950 uppercase leading-[0.85]">
+          <h1 className="text-6xl md:text-9xl font-black tracking-tighter text-white uppercase leading-[0.85]">
             POWER_YOUR_AI.<br />
-            <span className="italic underline decoration-8 underline-offset-10">AT_ANY_SCALE.</span>
+            <span className="italic underline decoration-cyan-400 decoration-8 underline-offset-10">AT_ANY_SCALE.</span>
           </h1>
-          <p className="text-2xl text-slate-500 font-black uppercase tracking-widest leading-tight border-l-8 border-slate-950 pl-8 max-w-2xl italic">
+          <p className="text-2xl text-slate-400 font-black uppercase tracking-widest leading-tight border-l-8 border-cyan-400 pl-8 max-w-2xl italic">
             ONE STOP FOR EVERYTHING. CREDITS, LIFETIME ACCESS, OR FULL AUTONOMOUS MARKETING. CHOOSE YOUR WEAPON.
           </p>
         </div>
@@ -201,7 +197,7 @@ function BuyPageInner() {
           <div key={section.section} className="mb-40">
             {/* Section Header */}
             <div className="mb-16">
-              <h2 className="text-5xl font-black text-slate-950 uppercase tracking-tighter italic underline decoration-8 underline-offset-8 mb-6">{section.section.toUpperCase()}</h2>
+              <h2 className="text-5xl font-black text-white uppercase tracking-tighter italic underline decoration-cyan-400 decoration-8 underline-offset-8 mb-6">{section.section.toUpperCase()}</h2>
               <p className="text-slate-500 font-black uppercase text-xs tracking-[0.2em]">{section.sectionDesc.toUpperCase()}</p>
             </div>
 
@@ -211,40 +207,40 @@ function BuyPageInner() {
                 const Icon = item.icon;
                 return (
                   <div key={item.id}
-                    className={`relative flex flex-col bg-white border-4 border-slate-950 p-10 transition-all duration-300 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:shadow-[16px_16px_0px_rgba(0,0,0,1)] hover:translate-x-[-4px] hover:translate-y-[-4px] ${item.highlight ? 'ring-8 ring-yellow-400' : ''}`}>
+                    className={`relative flex flex-col glass-panel-heavy p-10 transition-all duration-300 hover:-translate-y-2 border-white/10 ${item.highlight ? 'border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.1)]' : 'shadow-[0_20px_50px_rgba(0,0,0,0.5)]'}`}>
 
                     {/* Badge */}
                     {item.badge && (
-                      <div className="absolute -top-6 left-10 bg-slate-950 text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                      <div className="absolute -top-6 left-10 bg-cyan-400 text-black px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(34,211,238,0.3)]">
                         {item.badge}
                       </div>
                     )}
 
                     {/* Icon + Name */}
                     <div className="flex items-start gap-4 mb-10">
-                      <div className="w-16 h-16 bg-slate-950 flex items-center justify-center shrink-0 shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
-                        <Icon className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 bg-black flex items-center justify-center shrink-0 border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                        <Icon className={`w-8 h-8 ${item.highlight ? 'text-cyan-400' : 'text-white'}`} />
                       </div>
                       <div>
-                        <div className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 mb-2">[{item.tagline.toUpperCase()}]</div>
-                        <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tight italic">{item.name}</h3>
+                        <div className="text-[9px] font-black uppercase tracking-[0.3em] text-cyan-500 mb-2">[{item.tagline.toUpperCase()}]</div>
+                        <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">{item.name}</h3>
                       </div>
                     </div>
 
                     {/* Price */}
-                    <div className="mb-10 pb-8 border-b-2 border-slate-50">
-                      <span className="text-6xl font-black text-slate-950 tracking-tighter">{item.price}</span>
-                      <span className="text-slate-300 font-black uppercase text-xs ml-4 tracking-widest">{item.priceSub}</span>
+                    <div className="mb-10 pb-8 border-b border-white/10 flex flex-wrap items-baseline gap-2">
+                      <span className="text-6xl font-black text-white tracking-tighter">{item.price}</span>
+                      <span className="text-slate-500 font-black uppercase text-xs ml-2 tracking-widest">{item.priceSub}</span>
                     </div>
 
                     {/* Description */}
-                    <p className="text-slate-500 font-black uppercase text-[12px] tracking-widest leading-tight mb-10 italic border-l-4 border-slate-100 pl-4">{item.description.toUpperCase()}</p>
+                    <p className="text-slate-400 font-black uppercase text-[12px] tracking-widest leading-tight mb-10 italic border-l-4 border-cyan-400/20 pl-4">{item.description.toUpperCase()}</p>
 
                     {/* Features */}
                     <ul className="space-y-4 mb-14 flex-1">
                       {item.features.map((f) => (
-                        <li key={f} className="flex items-start gap-4 text-xs font-black uppercase text-slate-950 tracking-wide">
-                          <div className="w-4 h-4 bg-slate-950 shrink-0 mt-0.5" />
+                        <li key={f} className="flex items-start gap-4 text-xs font-black uppercase text-slate-300 tracking-wide">
+                          <div className="w-3 h-3 bg-cyan-400 shrink-0 mt-0.5" />
                           {f}
                         </li>
                       ))}
@@ -253,13 +249,15 @@ function BuyPageInner() {
                     {/* CTA */}
                     <div className="space-y-6">
                       <a href={item.href} target="_blank" rel="noopener noreferrer"
-                        className="w-full py-6 bg-slate-950 text-white font-black uppercase tracking-widest text-sm border-4 border-slate-950 transition-all text-center flex items-center justify-center gap-4 shadow-[6px_6px_0px_rgba(0,0,0,0.2)] hover:bg-white hover:text-slate-950">
+                        className={`w-full py-6 font-black uppercase tracking-widest text-sm transition-all text-center flex items-center justify-center gap-4 border-2 ${item.highlight 
+                          ? 'bg-cyan-400 text-black border-cyan-400 hover:bg-white' 
+                          : 'bg-black text-white border-white/20 hover:bg-white hover:text-black'}`}>
                         {item.cta.toUpperCase()} <ArrowRight className="w-6 h-6" />
                       </a>
 
                       {(item.id === 'credits' || item.id === 'developer') && (
-                        <div className="pt-8 border-t-2 border-slate-50">
-                           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 mb-4 text-center">— ALTERNATIVE_TX_METHOD —</p>
+                        <div className="pt-8 border-t border-white/5">
+                           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-700 mb-4 text-center">— ALTERNATIVE_TX_METHOD —</p>
                            <PayPalHostedButton 
                              buttonId="QDGMJKWQXFY8C" 
                              clientId="BAA00t_vYRf8Bwm9ScbFILaSUO2AkCOz9tNaejLAtJ7mfUQ25oWhDW3R031gJCxHF006NKzy6JqD_Q1eRI"
@@ -275,7 +273,7 @@ function BuyPageInner() {
         ))}
 
         {/* Trust Strip */}
-        <div className="mt-40 pt-24 border-t-8 border-slate-950">
+        <div className="mt-40 pt-24 border-t-8 border-cyan-400">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
               { icon: Shield, label: 'BANK_GRADE_SEC', sub: 'STRIPE_SYNC_ACTIVE' },
@@ -283,22 +281,22 @@ function BuyPageInner() {
               { icon: Clock, label: 'LIFETIME_CREDITS', sub: 'ZERO_EXPIRATION_NODE' },
               { icon: Star, label: 'SATISFACTION_MAX', sub: 'DIRECT_LINE_SUPPORT' },
             ].map(({ icon: Icon, label, sub }) => (
-              <div key={label} className="p-8 bg-slate-50 border-4 border-slate-950 shadow-[6px_6px_0px_rgba(0,0,0,1)]">
-                <div className="w-12 h-12 bg-slate-950 flex items-center justify-center mb-6">
-                   <Icon className="w-6 h-6 text-white" />
+              <div key={label} className="p-8 glass-panel border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                <div className="w-12 h-12 bg-black border border-white/10 flex items-center justify-center mb-6">
+                   <Icon className="w-6 h-6 text-cyan-400" />
                 </div>
-                <div className="text-slate-950 text-sm font-black uppercase tracking-tighter mb-2">{label}</div>
-                <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none">{sub}</div>
+                <div className="text-white text-sm font-black uppercase tracking-tighter mb-2">{label}</div>
+                <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest leading-none">{sub}</div>
               </div>
             ))}
           </div>
 
-          <div className="mt-24 space-y-6 text-slate-400 font-black uppercase text-[10px] tracking-widest text-center">
+          <div className="mt-24 space-y-6 text-slate-500 font-black uppercase text-[10px] tracking-widest text-center">
             <p>ALL PAYMENTS PROCESSED VIA STRIPE. SECURE NEURAL TUNNEL ACTIVE. AI SANCTUARY NEVER STORES SENSITIVE DATA.</p>
             <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-8">
-               <a href="mailto:AKBudgod@ai-sanctuary.online" className="text-slate-950 hover:underline">SUPPORT@AI-SANCTUARY.ONLINE</a>
-               <span className="hidden sm:inline text-slate-100">|</span>
-               <Link href="/platform" className="text-slate-950 hover:underline">PLATFORM_HUB</Link>
+               <a href="mailto:AKBudgod@ai-sanctuary.online" className="text-cyan-400 hover:text-white transition-colors">SUPPORT@AI-SANCTUARY.ONLINE</a>
+               <span className="hidden sm:inline text-white/10">|</span>
+               <Link href="/platform" className="text-white/60 hover:text-white transition-colors">PLATFORM_HUB</Link>
             </div>
           </div>
         </div>
@@ -310,8 +308,8 @@ function BuyPageInner() {
 export default function BuyPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="font-black text-slate-950 text-2xl uppercase tracking-[0.4em] animate-pulse">LOAD_BUY_SYNC...</div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="font-black text-white text-2xl uppercase tracking-[0.4em] animate-pulse">LOAD_BUY_SYNC...</div>
       </div>
     }>
       <BuyPageInner />

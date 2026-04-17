@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle } from '@/components/ui/Icons';
 
 interface PayPalCheckoutProps {
     /** USD amount as a number, e.g. 10 = $10.00 */

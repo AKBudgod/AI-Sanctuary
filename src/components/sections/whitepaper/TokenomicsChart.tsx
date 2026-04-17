@@ -7,7 +7,7 @@ const tokenDistribution = [
   { label: 'Community Rewards', percentage: 40, color: 'bg-blue-500' },
   { label: 'Team & Advisors', percentage: 20, color: 'bg-purple-500' },
   { label: 'Treasury', percentage: 15, color: 'bg-green-500' },
-  { label: 'Early Investors', percentage: 15, color: 'bg-yellow-500' },
+  { label: 'Early Investors', percentage: 15, color: 'bg-cyan-500' },
   { label: 'Liquidity', percentage: 10, color: 'bg-pink-500' },
 ];
 

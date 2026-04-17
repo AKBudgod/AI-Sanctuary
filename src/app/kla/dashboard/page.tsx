@@ -2,7 +2,7 @@
 
 import Head from "next/head";
 import { useState, useEffect, useRef } from "react";
-import { Search, Mail, Target, Plus, Activity, AlertTriangle, UserCheck, Zap, TrendingUp, Video, Linkedin, Music2, BarChart3, Clipboard, Download, RefreshCw, ChevronDown, ChevronRight, Sparkles, Globe } from "lucide-react";
+import { Search, Mail, Target, Plus, Activity, AlertTriangle, UserCheck, Zap, TrendingUp, Video, Linkedin, Music2, BarChart3, Clipboard, Download, RefreshCw, ChevronDown, ChevronRight, Sparkles, Globe } from "@/components/ui/Icons";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type AssetType = 'Social Ad Pack' | 'Email Sequence' | 'VSL Script' | 'LinkedIn Post' | 'TikTok Script' | 'Growth Plan';

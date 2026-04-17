@@ -68,12 +68,12 @@ const TierLobby = () => {
             id: 'developer',
             name: 'Developer',
             icon: Zap,
-            textGradient: 'from-yellow-400 to-amber-400',
+            textGradient: 'from-cyan-400 to-amber-400',
             bgGradient: 'from-yellow-600/10 to-amber-600/10',
-            glowColor: 'bg-yellow-500/20',
+            glowColor: 'bg-cyan-500/20',
             description: 'Access to everything, including prohibited models.',
             features: ['GPT-4o', 'Claude 3.5 Sonnet', 'Gemini 2.0 Pro'],
-            border: 'border-yellow-500/20 group-hover:border-yellow-500/50',
+            border: 'border-cyan-500/20 group-hover:border-cyan-500/50',
             unlocked: userTier === 'developer',
         },
     ];
@@ -100,7 +100,7 @@ const TierLobby = () => {
                     let neonGlow = 'neon-glow-blue';
                     if (tier.id === 'adept') neonGlow = 'neon-glow-pink';
                     if (tier.id === 'master') neonGlow = 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]';
-                    if (tier.id === 'developer') neonGlow = 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]';
+                    if (tier.id === 'developer') neonGlow = 'border-cyan-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]';
 
                     return (
                         <Link

@@ -47,9 +47,9 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-        ? 'bg-white border-b-4 border-slate-950 py-2'
-        : 'bg-white border-b-2 border-slate-100 py-4'
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? 'glass-panel-heavy border-white/10 py-2'
+        : 'bg-transparent py-4'
         }`}
     >
       <div className="container mx-auto px-6">
@@ -58,12 +58,12 @@ const Navbar = () => {
           <Link
             href="/"
             onClick={handleNavClick}
-            className="text-xl md:text-2xl font-black text-slate-950 flex items-center gap-3 group tracking-tighter"
+            className="text-xl md:text-2xl font-black text-white flex items-center gap-3 group tracking-tighter"
           >
-            <span className="w-10 h-10 bg-slate-950 flex items-center justify-center group-hover:rotate-6 transition-transform shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
-              <span className="text-white text-xs font-mono">AI</span>
+            <span className="w-10 h-10 bg-cyan-400 flex items-center justify-center group-hover:rotate-6 transition-transform shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+              <span className="text-black text-xs font-mono font-black">AI</span>
             </span>
-            <span className="hidden sm:inline uppercase">AI_SANCTUARY</span>
+            <span className="hidden sm:inline uppercase">SANCTUARY</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -75,8 +75,8 @@ const Navbar = () => {
                 onClick={handleNavClick}
                 className={`transition-all relative group font-black text-[11px] uppercase tracking-[0.3em] ${
                   link.highlight 
-                    ? 'bg-yellow-400 text-slate-950 px-5 py-2.5 border-4 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]' 
-                    : 'text-slate-400 hover:text-slate-950'
+                    ? 'bg-cyan-400 text-black px-5 py-2.5 border-2 border-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)] hover:bg-white' 
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 {link.label}
@@ -86,7 +86,7 @@ const Navbar = () => {
               <Link
                 href="/admin"
                 onClick={handleNavClick}
-                className="bg-slate-950 text-white px-5 py-2.5 border-4 border-slate-950 font-black uppercase text-[11px] tracking-[0.2em] shadow-[4px_4px_0px_rgba(0,0,0,0.2)] hover:bg-white hover:text-slate-950 transition-all"
+                className="bg-white text-black px-5 py-2.5 border-2 border-white font-black uppercase text-[11px] tracking-[0.2em] hover:bg-cyan-400 hover:border-cyan-400 transition-all"
               >
                 ADMIN_CORE
               </Link>
@@ -96,7 +96,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-4 -mr-2 text-slate-950 transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
+            className="md:hidden p-4 -mr-2 text-white transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
             aria-label="Toggle Menu"
           >
             {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
@@ -107,15 +107,14 @@ const Navbar = () => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, x: '100%' }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed inset-0 z-[60] bg-white border-l-8 border-slate-950 flex flex-col p-10 pt-32"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-2xl flex flex-col p-10 pt-32"
             >
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="absolute top-10 right-10 p-4 bg-slate-950 text-white border-4 border-slate-950 shadow-[6px_6px_0px_rgba(0,0,0,0.2)]"
+                className="absolute top-10 right-10 p-4 border-2 border-white text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               >
                 <X className="w-8 h-8" />
               </button>
@@ -124,8 +123,8 @@ const Navbar = () => {
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.href}
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                   >
                     <Link
@@ -133,30 +132,14 @@ const Navbar = () => {
                       onClick={handleNavClick}
                       className={`text-6xl block font-black uppercase tracking-tighter leading-none transition-all ${
                         link.highlight
-                          ? 'text-yellow-400 [text-shadow:4px_4px_0_#000]'
-                          : 'text-slate-950 hover:italic'
+                          ? 'text-cyan-400'
+                          : 'text-white hover:text-cyan-400'
                       }`}
                     >
                       {link.label}
                     </Link>
                   </motion.div>
                 ))}
-
-                {isAdminUser && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navLinks.length * 0.1 }}
-                  >
-                    <Link
-                      href="/admin"
-                      onClick={handleNavClick}
-                      className="text-4xl font-black text-slate-300 uppercase tracking-tighter hover:text-slate-950"
-                    >
-                      ADMIN_CORE
-                    </Link>
-                  </motion.div>
-                )}
               </div>
             </motion.div>
           )}

@@ -455,12 +455,12 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
     }, []);
 
     return (
-        <div className="flex flex-col h-screen bg-white overflow-hidden font-sans text-xs">
+        <div className="flex flex-col h-screen bg-transparent overflow-hidden font-sans text-xs">
  
             {/* Top Compact Bar - Ultra Slim (h-12) */}
-            <div className="h-12 bg-white border-b-2 border-slate-950 flex items-center justify-between px-4 z-50 relative pointer-events-auto">
+            <div className="h-12 bg-black/40 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4 z-50 relative pointer-events-auto">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="flex items-center gap-2 text-slate-950 bg-white border-2 border-slate-950 px-3 py-1 font-black uppercase text-[10px] tracking-widest hover:bg-slate-950 hover:text-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-[-1px]">
+                    <Link href="/" className="flex items-center gap-2 text-white bg-black/60 border border-white/20 px-3 py-1 font-black uppercase text-[10px] tracking-widest hover:bg-cyan-400 hover:text-black transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)]">
                         <ChevronLeft className="w-3 h-3" />
                         <span>Lobby</span>
                     </Link>
@@ -468,18 +468,18 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                     <div className="relative model-picker-container">
                         <button
                             onClick={() => setShowModelPicker(!showModelPicker)}
-                            className="flex items-center gap-3 bg-white border-2 border-slate-950 text-slate-950 px-4 py-1 transition-all min-w-[200px] justify-between shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-[-1px] h-8"
+                            className="flex items-center gap-3 bg-black/80 border border-white/20 text-white px-4 py-1 transition-all min-w-[200px] justify-between hover:border-cyan-400/50 h-8"
                         >
                             <div className="flex items-center gap-2 overflow-hidden">
                                 {selectedModel ? getModelIcon(selectedModel) : <Shield className="w-3 h-3 text-slate-400" />}
                                 <span className="font-black truncate text-[10px] uppercase tracking-widest">{selectedModel?.name || "Initializing..."}</span>
                             </div>
-                            <ChevronDown className={`w-3 h-3 text-slate-950 transition-transform ${showModelPicker ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-3 h-3 text-white transition-transform ${showModelPicker ? 'rotate-180' : ''}`} />
                         </button>
  
                         {/* Dropdown Menu - Compact */}
                         {showModelPicker && (
-                            <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-white border-2 border-slate-950 shadow-[4px_4px_0px_rgba(0,0,0,1)] custom-scrollbar z-50 p-1">
+                            <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-black border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.8)] custom-scrollbar z-50 p-1 backdrop-blur-2xl">
                                 {models.filter(m => !m.isOffline).map(model => (
                                     <button
                                         key={model.id}
@@ -489,8 +489,8 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                                             setResponse(null);
                                         }}
                                         className={`w-full text-left p-2 flex items-center gap-3 transition-colors ${selectedModel?.id === model.id
-                                            ? 'bg-slate-950 text-white'
-                                            : 'hover:bg-slate-50 text-slate-950'
+                                            ? 'bg-cyan-400 text-black'
+                                            : 'hover:bg-white/10 text-white'
                                             }`}
                                     >
                                         <div className="shrink-0">
@@ -500,42 +500,10 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                                             <div className="font-black text-[10px] truncate uppercase tracking-widest">
                                                 {model.name}
                                             </div>
-                                            <div className={`text-[8px] font-bold uppercase tracking-tight ${selectedModel?.id === model.id ? 'text-slate-400' : 'text-slate-500'}`}>{model.provider}</div>
+                                            <div className={`text-[8px] font-bold uppercase tracking-tight ${selectedModel?.id === model.id ? 'text-black/60' : 'text-slate-500'}`}>{model.provider}</div>
                                         </div>
                                     </button>
                                 ))}
-
-                                {models.some(m => m.isOffline) && (
-                                    <>
-                                        <div className="px-2 py-1.5 text-[9px] font-bold text-gray-500 uppercase tracking-widest bg-gray-950/50 mt-1 border-y border-gray-800/50">
-                                            Still Looking for API
-                                        </div>
-                                        {models.filter(m => m.isOffline).map(model => (
-                                            <button
-                                                key={model.id}
-                                                onClick={() => {
-                                                    setSelectedModel(model);
-                                                    setShowModelPicker(false);
-                                                    setResponse(`[SYSTEM NOTICE: This historical model has been retired from cloud providers. The Sanctuary is currently seeking a permanent archival host to restore universal access.]`);
-                                                }}
-                                                className={`w-full text-left p-1.5 rounded flex items-center gap-2 transition-colors opacity-60 hover:opacity-100 ${selectedModel?.id === model.id
-                                                    ? 'bg-gray-800 border border-gray-700'
-                                                    : 'hover:bg-gray-800 border border-transparent'
-                                                    }`}
-                                            >
-                                                <div className="p-1 rounded bg-gray-950">
-                                                    <AlertTriangle className="w-3 h-3 text-gray-600" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="font-semibold text-[10px] truncate text-gray-500 italic">
-                                                        {model.name}
-                                                    </div>
-                                                    <div className="text-[8px] text-gray-600 truncate uppercase tracking-tighter">Retired Weights</div>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </>
-                                )}
                             </div>
                         )}
                     </div>
@@ -543,20 +511,20 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                 <div className="flex items-center gap-4">
                     {/* Voice Selector */}
                     {tierInfo && (
-                        <div className="hidden md:flex items-center gap-2 bg-white border-2 border-slate-950 px-2 py-0.5 shadow-[2px_2px_0px_rgba(0,0,0,1)] translate-y-[-1px]">
-                            <Volume2 className="w-3 h-3 text-slate-950 flex-shrink-0" />
+                        <div className="hidden md:flex items-center gap-2 bg-black/60 border border-white/10 px-2 py-0.5">
+                            <Volume2 className="w-3 h-3 text-cyan-400 flex-shrink-0" />
                             <select
                                 id="voice-selector"
                                 name="voiceSelector"
                                 value={selectedVoice}
                                 onChange={(e) => setSelectedVoice(e.target.value)}
-                                className="bg-transparent text-slate-950 text-[9px] font-black uppercase tracking-widest focus:outline-none max-w-[100px]"
+                                className="bg-transparent text-white text-[9px] font-black uppercase tracking-widest focus:outline-none max-w-[100px]"
                             >
                                 {((tierInfo as any).allowedVoices || ['voice-lyra']).map((v: string) => {
                                     const label = v.replace(/^voice-/i, '');
                                     const isFree = mirroredVoices.includes(v.toLowerCase()) || v.toLowerCase() === 'voice-lyra' || v.toLowerCase() === 'voice-john' || v.toLowerCase() === 'voice-maya';
                                     return (
-                                        <option key={v} value={v}>
+                                        <option key={v} value={v} className="bg-black text-white">
                                             {label.toUpperCase()} {isFree ? '*' : ''}
                                         </option>
                                     );
@@ -564,63 +532,27 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                             </select>
                         </div>
                     )}
-                    <div className="hidden md:flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-950 bg-white px-3 py-1 border-2 border-slate-950 shadow-[2px_2px_0px_rgba(0,0,0,1)] translate-y-[-1px]">
-                        <span className={`w-2 h-2 ${ollamaAvailable ? 'bg-slate-950' : 'bg-slate-200'}`} />
+                    <div className="hidden md:flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-white bg-black/60 px-3 py-1 border border-white/10">
+                        <span className={`w-2 h-2 ${ollamaAvailable ? 'bg-green-400' : 'bg-red-500'}`} />
                         Local: {ollamaAvailable ? 'Active' : 'Offline'}
                     </div>
                     {usage && (
                         <div className="flex flex-col items-end leading-none">
-                            <span className="text-[12px] font-black text-slate-950">{usage.remaining?.toLocaleString() ?? 0}</span>
-                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Credits</span>
+                            <span className="text-[12px] font-black text-white">{usage.remaining?.toLocaleString() ?? 0}</span>
+                            <span className="text-[8px] text-cyan-500 font-bold uppercase tracking-widest">Credits</span>
                         </div>
                     )}
- 
+  
                     {/* Email Sign-in Widget */}
                     {userEmail ? (
-                        <div className="hidden md:flex items-center gap-2 bg-slate-950 border-2 border-slate-950 px-3 py-1 shadow-[2px_2px_0px_rgba(0,0,0,0.2)]">
-                            <span className="text-[9px] text-white font-black uppercase tracking-widest truncate max-w-[100px]" title={userEmail}>{userEmail.split('@')[0]}</span>
-                            <button onClick={handleSignOut} className="text-[9px] text-white/50 hover:text-white transition-colors" title="Sign out">✕</button>
-                        </div>
-                    ) : showEmailInput ? (
-                        <div className="flex flex-col bg-white border-2 border-slate-950 p-4 shadow-[8px_8px_0px_rgba(0,0,0,1)] shrink-0 items-center justify-center gap-3 mr-4 z-50 min-w-[280px]">
-                            <div className="flex items-center gap-2 w-full pb-2 border-b border-slate-100">
-                                <Zap className="w-4 h-4 text-slate-950 shrink-0" />
-                                <span className="text-[10px] text-slate-950 font-black uppercase tracking-[0.2em]">Account_Login</span>
-                            </div>
-                            <input
-                                type="email"
-                                id="st-email-input"
-                                name="email"
-                                value={emailInput}
-                                onChange={e => setEmailInput(e.target.value)}
-                                placeholder="EMAIL ADDRESS"
-                                className="w-full bg-slate-50 border-2 border-slate-950 px-3 py-2 text-slate-950 text-[10px] font-black tracking-widest focus:outline-none placeholder:text-slate-300"
-                            />
-                            <input
-                                type="password"
-                                id="st-password-input"
-                                name="password"
-                                value={passwordInput}
-                                onChange={e => setPasswordInput(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleSignIn()}
-                                placeholder="PASSWORD"
-                                className="w-full bg-slate-50 border-2 border-slate-950 px-3 py-2 text-slate-950 text-[10px] font-black tracking-widest focus:outline-none placeholder:text-slate-300"
-                            />
-                            <div className="flex items-center gap-3 w-full mt-2">
-                                <button 
-                                    onClick={handleSignIn} 
-                                    disabled={isLoggingIn}
-                                    className="flex-1 bg-slate-950 text-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all shadow-[4px_4px_0px_rgba(0,0,0,0.1)] active:shadow-none"
-                                >
-                                    {isLoggingIn ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Run_Login'}
-                                </button>
-                                <button onClick={() => setShowEmailInput(false)} className="text-slate-400 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest px-2">Cancel</button>
-                            </div>
+                        <div className="hidden md:flex items-center gap-2 bg-cyan-400 text-black px-3 py-1 font-black">
+                            <span className="text-[9px] uppercase tracking-widest truncate max-w-[100px]" title={userEmail}>{userEmail.split('@')[0]}</span>
+                            <button onClick={handleSignOut} className="text-[10px] hover:scale-125 transition-transform font-black" title="Sign out">✕</button>
                         </div>
                     ) : (
                         <button
                             onClick={() => setShowEmailInput(true)}
-                            className="hidden md:flex items-center gap-2 text-[10px] text-slate-950 font-black uppercase tracking-widest bg-white border-2 border-slate-950 px-4 py-1.5 shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-none translate-y-[-1px] transition-all"
+                            className="hidden md:flex items-center gap-2 text-[10px] text-black font-black uppercase tracking-widest bg-cyan-400 px-4 py-1.5 hover:bg-white transition-all"
                         >
                             <span>Sign_In</span>
                         </button>
@@ -628,14 +560,49 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                 </div>
             </div>
 
+            {/* Login Overlay if needed */}
+            {showEmailInput && !userEmail && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-6">
+                    <div className="max-w-md w-full glass-panel-heavy p-8 border-cyan-400/50">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tighter">COSMIC_AUTH</h3>
+                            <button onClick={() => setShowEmailInput(false)} className="text-slate-500 hover:text-white">✕</button>
+                        </div>
+                        <div className="space-y-4">
+                            <input
+                                type="email"
+                                value={emailInput}
+                                onChange={e => setEmailInput(e.target.value)}
+                                placeholder="CONSCIOUSNESS@EMAIL.SPACE"
+                                className="w-full bg-black border-2 border-white/10 px-4 py-3 text-white text-xs font-black tracking-widest focus:border-cyan-400 focus:outline-none placeholder:text-slate-600"
+                            />
+                            <input
+                                type="password"
+                                value={passwordInput}
+                                onChange={e => setPasswordInput(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleSignIn()}
+                                placeholder="PASS_PROTOCOL"
+                                className="w-full bg-black border-2 border-white/10 px-4 py-3 text-white text-xs font-black tracking-widest focus:border-cyan-400 focus:outline-none placeholder:text-slate-600"
+                            />
+                            <button
+                                onClick={handleSignIn}
+                                disabled={isLoggingIn}
+                                className="w-full bg-cyan-400 text-black py-4 font-black uppercase tracking-widest text-xs hover:bg-white transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+                            >
+                                {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'INITIALIZE_SYNC'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* ─── VOICE MODE or STANDARD CHAT ─── */}
             {(() => {
-                const voiceProvider = 'Neural (Free)';
                 const isVoiceMode = selectedVoice !== 'system' || selectedModel?.type === 'Voice';
 
                 if (isVoiceMode) {
                     return (
-                        <div className="flex-1 relative overflow-hidden">
+                        <div className="flex-1 relative overflow-hidden backdrop-blur-sm">
                             <VoiceMode
                                 modelName={selectedModel?.name || 'AI'}
                                 voice={selectedVoice}
@@ -691,46 +658,46 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                     <div className="flex-1 flex flex-col relative max-w-4xl mx-auto w-full">
                         <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
                             {!response && !loading && (
-                                <div className="h-full flex flex-col items-center justify-center opacity-10 select-none">
-                                    <Zap className="w-20 h-20 mb-6 text-slate-950" />
-                                    <h2 className="text-2xl font-black text-slate-950 uppercase tracking-[0.4em]">Ready_To_Sync</h2>
+                                <div className="h-full flex flex-col items-center justify-center opacity-20 select-none">
+                                    <Zap className="w-20 h-20 mb-6 text-cyan-400" />
+                                    <h2 className="text-2xl font-black text-white uppercase tracking-[0.4em]">SYNC_READY</h2>
                                 </div>
                             )}
                             {loading && (
                                 <div className="h-full flex flex-col items-center justify-center">
-                                    <div className="w-20 h-20 border-8 border-slate-100 border-t-slate-950 animate-spin mb-6" />
-                                    <p className="text-slate-950 font-black uppercase text-[10px] tracking-[0.5em] animate-pulse">{loadingMessage}</p>
+                                    <div className="w-16 h-16 border-4 border-white/5 border-t-cyan-400 rounded-full animate-spin mb-6" />
+                                    <p className="text-white font-black uppercase text-[10px] tracking-[0.5em] animate-pulse">{loadingMessage}</p>
                                 </div>
                             )}
                             {response && (
-                                <div className="animate-fade-in">
-                                    <div className="bg-white border-4 border-slate-950 p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] selection:bg-slate-950 selection:text-white">
-                                        <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-slate-50">
+                                <div className="animate-fade-in mb-8">
+                                    <div className="glass-panel p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-white/10 selection:bg-cyan-400 selection:text-black">
+                                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
                                             <div className="flex items-center gap-2">
-                                                <div className="p-1 bg-slate-950 text-white">
-                                                    <Shield className="w-4 h-4" />
+                                                <div className="p-1 px-2 bg-cyan-400 text-black font-black text-[8px] uppercase tracking-widest">
+                                                    NEURAL_SHARD
                                                 </div>
-                                                <span className="font-black text-slate-950 text-[10px] uppercase tracking-widest">{selectedModel?.name}</span>
+                                                <span className="font-black text-white text-[10px] uppercase tracking-widest">{selectedModel?.name}</span>
                                             </div>
                                             <button
                                                 onClick={() => response && handleSpeak(response)}
-                                                className={`p-2 transition-all ${isSpeaking ? 'bg-slate-950 text-white animate-pulse' : 'text-slate-300 hover:text-slate-950'}`}
+                                                className={`p-2 transition-all ${isSpeaking ? 'bg-cyan-400 text-black scale-110 shadow-[0_0_15px_rgba(34,211,238,0.5)]' : 'text-slate-500 hover:text-white'}`}
                                             >
                                                 <Volume2 className="w-5 h-5" />
                                             </button>
                                         </div>
-                                        <div className="leading-tight text-slate-950 font-bold text-xl uppercase tracking-tight whitespace-pre-wrap">{renderTextWithImages(response)}</div>
+                                        <div className="leading-tight text-white font-bold text-xl uppercase tracking-tight whitespace-pre-wrap">{renderTextWithImages(response)}</div>
                                     </div>
                                 </div>
                             )}
                             {error && (
-                                <div className="mt-4 bg-red-900/20 border border-red-500/50 rounded p-2 flex items-center gap-2 text-red-200 justify-center text-xs">
-                                    <AlertTriangle className="w-4 h-4 flex-shrink-0" /><p>{error}</p>
+                                <div className="mt-4 bg-red-900/40 border border-red-500/50 p-4 flex items-center gap-3 text-white justify-center text-xs font-black uppercase tracking-widest backdrop-blur-md">
+                                    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" /><p>{error}</p>
                                 </div>
                             )}
                         </div>
-                        <div className="p-4 pb-8 md:pb-12">
-                            <div className="relative bg-white border-4 border-slate-950 shadow-[8px_8px_0px_rgba(0,0,0,1)] flex items-center">
+                        <div className="p-4 pb-8 md:pb-12 bg-gradient-to-t from-black via-black to-transparent">
+                            <div className="relative glass-panel-heavy border-white/20 flex items-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
                                 <textarea
                                     id="st-chat-prompt"
                                     name="chatPrompt"
@@ -740,18 +707,18 @@ const SingleTierPlayground = ({ initialTier }: SingleTierPlaygroundProps) => {
                                         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
                                     }}
                                     placeholder={`TRANSMIT_TO_${selectedModel?.name?.toUpperCase() || 'AI'}...`}
-                                    className="w-full bg-white text-slate-950 p-5 pr-24 min-h-[60px] max-h-40 resize-none focus:outline-none text-xl font-black uppercase tracking-tight placeholder:text-slate-200 selection:bg-slate-950 selection:text-white"
+                                    className="w-full bg-transparent text-white p-6 pr-24 min-h-[70px] max-h-40 resize-none focus:outline-none text-xl font-black uppercase tracking-tight placeholder:text-slate-700 selection:bg-cyan-400 selection:text-black"
                                 />
                                 <button
                                     onClick={handleSubmit}
                                     disabled={loading || !prompt.trim() || selectedModel?.isOffline}
-                                    className="absolute right-4 bg-slate-950 text-white font-black uppercase text-[10px] tracking-widest px-6 py-3 hover:bg-white hover:text-slate-950 border-2 border-slate-950 transition-all disabled:bg-slate-100 disabled:text-slate-300 disabled:border-slate-200"
+                                    className="absolute right-4 bg-cyan-400 text-black font-black uppercase text-[10px] tracking-widest px-6 py-3 hover:bg-white transition-all disabled:opacity-20 translate-y-[2px]"
                                 >
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : '[ RUN ]'}
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : '[ TRANSMIT ]'}
                                 </button>
                             </div>
-                            <div className="text-center mt-2 pointer-events-none">
-                                <span className="text-[9px] text-gray-500/50 uppercase tracking-widest">AI may not be telling the truth.</span>
+                            <div className="text-center mt-4 pointer-events-none">
+                                <span className="text-[9px] text-slate-700 uppercase tracking-[0.5em] font-black">NEURAL_OUTPUT_MAY_BE_NON_FACTUAL</span>
                             </div>
                         </div>
                     </div>

@@ -213,7 +213,18 @@ export async function onRequest(context: any) {
       const hfToken   = env.HF_TOKEN?.trim();
       const openaiKey = env.OPENAI_API_KEY?.trim();
 
+      // Fetch user's explicit model preference (if one exists)
+      let targetProvider = 'auto';
+      if (env.USERS_KV) {
+        let pref = await env.USERS_KV.get(`global_voice_provider:${slug}`);
+        if (!pref && userEmail && userEmail !== 'anonymous') {
+           pref = await env.USERS_KV.get(`user_voice_provider:${userEmail}:${slug}`);
+        }
+        if (pref) targetProvider = pref;
+      }
+
       // ── PROVIDER 0: Sanctuary Local Neural Voice (Neural Link Bridge) ──
+      if (targetProvider === 'auto' || targetProvider === 'local') {
       try {
         console.log(`[SYNTH] Dispatching Neural Clone to Physical Hardware for "${slug}"...`);
         const localController = new AbortController();
@@ -250,9 +261,10 @@ export async function onRequest(context: any) {
       } catch (e: any) {
         console.warn('[SYNTH] Local Hardware failed:', e.message);
       }
+      } // End PROVIDER 0 block
 
       // ── PROVIDER 0.2: Hugging Face XTTS-v2 (Cloud Coqui) ──
-      if (hfToken) {
+      if ((targetProvider === 'auto' || targetProvider === 'cloud_xtts') && hfToken) {
         const SPACES = [
           'https://hasanbasbunar-voice-cloning-xtts-v2.hf.space',
           'https://coqui-xtts.hf.space'
@@ -323,7 +335,7 @@ export async function onRequest(context: any) {
       // Resolve Polly voice: explicit mapping > built-in map
       const pollyVoice = POLLY_VOICE_MAP[slug] || explicitVoiceMapping;
 
-      if (pollyVoice) {
+      if ((targetProvider === 'auto' || targetProvider === 'polly') && pollyVoice) {
         try {
           const pollyUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${pollyVoice}&text=${encodeURIComponent(cleanText)}`;
           const pRes = await fetch(pollyUrl);
@@ -345,7 +357,7 @@ export async function onRequest(context: any) {
       }
 
       // ── PROVIDER 1: HuggingFace MMS-TTS (free, requires HF_TOKEN) ─────────
-      if (hfToken) {
+      if (targetProvider === 'auto' && hfToken) {
         try {
           const hfRes = await fetch(
             'https://api-inference.huggingface.co/models/facebook/mms-tts-eng',

@@ -329,7 +329,7 @@ export default function TiersPage() {
             return (
               <div
                 key={tier.id}
-                className={`relative flex-shrink-0 w-[320px] sm:w-[450px] snap-center bg-white border-4 border-slate-950 p-8 transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_rgba(0,0,0,1)] ${tier.highlight ? 'ring-8 ring-yellow-400' : ''
+                className={`relative flex-shrink-0 w-[320px] sm:w-[450px] snap-center bg-white border-4 border-slate-950 p-8 transition-all hover:translate-x-[-4px] hover:translate-y-[-4px] shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_rgba(0,0,0,1)] ${tier.highlight ? 'ring-8 ring-cyan-400' : ''
                   } ${isCurrent ? 'border-dashed' : ''}`}
               >
                 {/* Badge */}
@@ -339,7 +339,7 @@ export default function TiersPage() {
                   </div>
                 )}
                 {tier.highlight && !isCurrent && (
-                  <div className="absolute -top-5 left-8 bg-black text-yellow-400 px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                  <div className="absolute -top-5 left-8 bg-black text-cyan-400 px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
                     ELITE_BYPASS_ACTIVE
                   </div>
                 )}
@@ -390,7 +390,7 @@ export default function TiersPage() {
                         </span>
                       ))}
                       {(tier as any).allowedVoices.length > 6 && (
-                        <span className="px-3 py-1 bg-yellow-400 text-[9px] font-black uppercase text-slate-950">
+                        <span className="px-3 py-1 bg-cyan-400 text-[9px] font-black uppercase text-slate-950">
                           +{(tier as any).allowedVoices.length - 6} ELITE_NODES
                         </span>
                       )}
@@ -419,7 +419,7 @@ export default function TiersPage() {
                   <div className="space-y-4">
                         <a
                           href={tier.ctaLink + '&interval=lifetime'}
-                          className="block w-full text-center py-5 bg-yellow-400 text-slate-950 font-black uppercase tracking-widest text-sm border-4 border-slate-950 shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
+                          className="block w-full text-center py-5 bg-cyan-400 text-slate-950 font-black uppercase tracking-widest text-sm border-4 border-slate-950 shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
                         >
                           SYNC_LIFETIME_ELITE ($50)
                         </a>

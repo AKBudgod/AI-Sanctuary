@@ -51,7 +51,7 @@ export default function TechStack() {
             blue: 'text-blue-400 border-blue-900/50 bg-blue-950/20',
             purple: 'text-purple-400 border-purple-900/50 bg-purple-950/20',
             green: 'text-green-400 border-green-900/50 bg-green-950/20',
-            yellow: 'text-yellow-400 border-yellow-900/50 bg-yellow-950/20',
+            yellow: 'text-cyan-400 border-yellow-900/50 bg-yellow-950/20',
           }[tech.color];
 
           return (
