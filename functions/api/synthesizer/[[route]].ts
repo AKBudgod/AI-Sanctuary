@@ -93,40 +93,43 @@ export async function onRequest(context: any) {
     if (request.method === 'GET' && fullPath.endsWith('/voices')) {
       const kv = env.USERS_KV;
       
-      // Fetch both mappings (global_voice:) and raw samples (global_voice_sample:)
-      const [listMappings, listSamples] = await Promise.all([
+      // Fetch mappings (global_voice:), samples (global_voice_sample:), and user's personal samples
+      const [listMappings, listSamples, listPersonal] = await Promise.all([
         kv.list({ prefix: 'global_voice:' }),
-        kv.list({ prefix: 'global_voice_sample:' })
+        kv.list({ prefix: 'global_voice_sample:' }),
+        userEmail !== 'anonymous' 
+          ? kv.list({ prefix: `voice_sample:${userEmail}:` }) 
+          : Promise.resolve({ keys: [] })
       ]);
       
       const seenSlugs = new Set<string>();
-      const communityVoices: any[] = [];
+      const vaultVoices: any[] = [];
 
-      const processKeys = (keys: any[], prefix: string) => {
+      const processKeys = (keys: any[], prefix: string, isPrivate: boolean = false) => {
         for (const k of keys) {
           const slug = k.name.replace(prefix, '');
           if (seenSlugs.has(slug)) continue;
           seenSlugs.add(slug);
-          communityVoices.push({
+          vaultVoices.push({
             slug,
             label: slug.split(/[-_]/).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' '),
             isBuiltIn: false,
-            isCommunity: true
+            isPersonal: isPrivate,
+            isCommunity: !isPrivate
           });
         }
       };
 
       processKeys(listMappings.keys, 'global_voice:');
       processKeys(listSamples.keys, 'global_voice_sample:');
+      if (userEmail !== 'anonymous') {
+         processKeys(listPersonal.keys, `voice_sample:${userEmail}:`, true);
+      }
 
-      const builtin = Object.keys(OPENAI_VOICE_MAP).map(slug => ({
-        slug,
-        label: slug.charAt(0).toUpperCase() + slug.slice(1),
-        isBuiltIn: true,
-      }));
-
-      return jsonRes({ voices: [...builtin, ...communityVoices] });
+      // We explicitly exclude the builtin array entirely as per user requirement.
+      return jsonRes({ voices: vaultVoices });
     }
+
 
     // ── POST /api/synthesizer/upload ────────────────────────────────────────
     // Admin uploads a WAV/MP3 sample → vaulted in KV Nexus Store as base64
@@ -296,10 +299,29 @@ export async function onRequest(context: any) {
         console.warn('[SYNTH] All HF XTTS fallbacks failed or queued.');
       }
 
-      // ── PROVIDER 1: StreamElements (AWS Polly) (Hybrid Free-First) ───────
-      // Use Polly if known slug OR custom-mapped specifically to a Polly name
-      const isCustomMapped = !!(env.USERS_KV && await env.USERS_KV.get(`global_voice:${slug}`));
-      const pollyVoice = POLLY_VOICE_MAP[slug] || (isCustomMapped ? slug : null);
+      // ── Check for a custom-mapped voice: look for an explicit mapping OR any stored sample ──
+      // This means voices uploaded via Bixby Creator are immediately synthesizable
+      // without needing a separate "Register to Global Grid" step.
+      let explicitVoiceMapping: string | null = null;
+      let hasSample = false;
+      if (env.USERS_KV) {
+        explicitVoiceMapping = await env.USERS_KV.get(`global_voice:${slug}`);
+        if (!explicitVoiceMapping) {
+          // Check for personal sample (user-specific)
+          const personalKey = userEmail && userEmail !== 'anonymous'
+            ? await env.USERS_KV.get(`voice_sample:${userEmail}:${slug}`)
+            : null;
+          if (personalKey) hasSample = true;
+          // Check global sample
+          if (!hasSample) {
+            const globalSample = await env.USERS_KV.get(`global_voice_sample:${slug}`);
+            if (globalSample) hasSample = true;
+          }
+        }
+      }
+      const isCustomMapped = !!(explicitVoiceMapping || hasSample);
+      // Resolve Polly voice: explicit mapping > built-in map
+      const pollyVoice = POLLY_VOICE_MAP[slug] || explicitVoiceMapping;
 
       if (pollyVoice) {
         try {

@@ -1,6 +1,11 @@
 const ADMIN_EMAILS = [
-    'weedj747@gmail.com', 'wjreviews420@gmail.com', 'kearns.adam747@gmail.com', 'AKBudgod@ai-sanctuary.online', 'gamergoodguy445@gmail.com'
+    'weedj747@gmail.com', 'wjreviews420@gmail.com', 'kearns.adam747@gmail.com', 'AKBudgod@ai-sanctuary.online', 'gamergoodguy445@gmail.com',
+    'kearns.adan747@gmail.com', 'akbudgod@ai-sanctuary.online',
 ];
+
+// Default Polly voice assigned to newly uploaded Bixby voices so the synthesizer
+// can immediately fall through to the free StreamElements provider.
+const DEFAULT_POLLY_VOICE = 'Emma';
 
 export const onRequestPost = async (context: any) => {
     const { request, env } = context;
@@ -34,13 +39,20 @@ export const onRequestPost = async (context: any) => {
                 }
                 const base64Audio = btoa(binary);
                 
+                const slug = name.toLowerCase().replace(/\s+/g, '-');
                 if (isGlobal && isAdmin) {
                     // Global Mirror for core characters (Lyra, John, MJ, etc.)
-                    await usersKv.put(`global_voice_sample:${name.toLowerCase()}`, base64Audio);
-                    console.log(`GLOBAL MIRROR: Character ${name} vaulted permanently.`);
+                    await usersKv.put(`global_voice_sample:${slug}`, base64Audio);
+                    // ── CRITICAL: The user wants their raw voices strictly processed by
+                    // local hardware/Coqui. Do not silently inject an 'Emma' fallback mapping here.
+                    const existing = await usersKv.get(`global_voice:${slug}`);
+                    if (!existing) {
+                        console.log(`GLOBAL VOICE KEY: "${slug}" newly vaulted (No explicit fallback set).`);
+                    }
+                    console.log(`GLOBAL MIRROR: Character ${slug} vaulted permanently.`);
                 } else {
-                    // User-specific custom voice
-                    await usersKv.put(`voice_sample:${email}:${name}`, base64Audio);
+                    // User-specific custom voice — store under slug, not raw display name
+                    await usersKv.put(`voice_sample:${email}:${slug}`, base64Audio);
                 }
 
                 // Mirror to Physical Hardware Node (non-blocking, 10s timeout)
@@ -48,7 +60,7 @@ export const onRequestPost = async (context: any) => {
                     console.log(`[MIRROR] Syncing voice "${name}" to Physical Hardware...`);
                     const mirrorFormData = new FormData();
                     mirrorFormData.append('file', file);
-                    mirrorFormData.append('character_id', name.toLowerCase());
+                    mirrorFormData.append('character_id', name.toLowerCase().replace(/\s+/g, '-'));
 
                     await fetch('https://node.ai-sanctuary.online/add_voice', {
                         method: 'POST',
@@ -92,6 +104,9 @@ export const onRequestPost = async (context: any) => {
 
         if (elResponse.ok && data.voice_id) {
             if (usersKv) {
+                // Store specifically for THIS voice slug so users can own multiple clones
+                await usersKv.put(`voice:${email}:${name.toLowerCase()}`, data.voice_id);
+                // Maintain generic fallback for the most recently cloned voice
                 await usersKv.put(`voice:${email}`, data.voice_id);
                 await usersKv.put(`voice_name:${data.voice_id}`, name);
             }
